@@ -10,11 +10,14 @@
     "watch-node": "nodemon dist/index.js"
   },
   "dependencies": {
+    "isomorphic-unfetch": "^4.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.5.3",
+    "@eslint/js": "^9.24.0",
     "concurrently": "^8.2.2",
-    "nodemon": "^2.0.20"
-  },
-  "private": true
+    "eslint": "^9.24.0",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.30.1"
+  }
 }
