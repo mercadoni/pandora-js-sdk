@@ -20,4 +20,3 @@ import HomeFilter
     const home = await platform.homeService.home({filter: homeFilter});
 
 })();
-
