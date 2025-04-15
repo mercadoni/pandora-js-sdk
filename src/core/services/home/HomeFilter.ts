@@ -1,20 +1,18 @@
-import Filter from "../../models/Filter";
+import Filter
+    from "../../models/Filter";
 
 class HomeFilter extends Filter {
 
-    byPlatform(platform: string): HomeFilter {
-        this.query['targetType'] = platform;
-        return this;
-    }
+    constructor(filter: {
+        byPlatform: string,
+        byStore: string,
+        byScreenSize: string,
 
-    byScreenSize(breakpoint: string): HomeFilter {
-        this.query['breakpointId'] = breakpoint;
-        return this;
-    }
-
-    byStore(storeReference:string): HomeFilter {
-        this.query['storeReference'] = storeReference;
-        return this;
+    }) {
+        super();
+        this.query['targetType'] = filter.byPlatform;
+        this.query['breakpointId'] = filter.byScreenSize;
+        this.query['storeReference'] = filter.byStore;
     }
 
 }

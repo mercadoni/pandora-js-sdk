@@ -4,17 +4,17 @@ class Size {
     width: number;
 
     constructor(config: {
-        height?: number,
-        width?: number
+        height: number,
+        width: number
     }) {
-        this.width = config.width || 0
-        this.height = config.height || 0
+        this.width = config.width
+        this.height = config.height
     }
 
     static fromJson(json: Record<string, any>): Size {
         return new Size({
-            height: json.height,
-            width: json.width,
+            height: json.height || 0,
+            width: json.width || 0,
         })
     }
 

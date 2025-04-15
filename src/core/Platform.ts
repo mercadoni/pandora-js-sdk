@@ -13,11 +13,14 @@ class Platform {
     private readonly baseUrl: string;
     private readonly clientId: string;
 
-    constructor(baseUrl: string, clientId: string) {
-        this.baseUrl = baseUrl;
-        this.client = new Client(baseUrl)
-        this.homeService = new GraphqlHomeService(this.client, clientId)
-        this.clientId = clientId;
+    constructor(config: {
+        baseUrl: string;
+        clientId: string;
+    }) {
+        this.baseUrl = config.baseUrl;
+        this.client = new Client(config.baseUrl)
+        this.homeService = new GraphqlHomeService(this.client, config.clientId)
+        this.clientId = config.clientId;
     }
 }
 

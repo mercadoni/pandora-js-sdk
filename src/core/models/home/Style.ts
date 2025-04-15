@@ -8,11 +8,11 @@ class Style {
     size: Size;
 
     constructor(config: {
-        position?: Position;
-        size?: Size;
+        position: Position;
+        size: Size;
     }) {
-        this.position = config.position || new Position({});
-        this.size = config.size || new Size({});
+        this.position = config.position;
+        this.size = config.size;
     }
 
     static fromJson(json: Record<string, any>): Style {

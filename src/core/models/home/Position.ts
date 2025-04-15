@@ -3,17 +3,17 @@ class Position {
     y: number;
 
     constructor(config: {
-        x?: number,
-        y?: number
+        x: number,
+        y: number
     }) {
-        this.x = config.x || 0;
-        this.y = config.y || 0;
+        this.x = config.x;
+        this.y = config.y;
     }
 
     static fromJson(json: Record<string, any>): Position {
         return new Position({
-            x: json.x,
-            y: json.y
+            x: json.x || 0,
+            y: json.y || 0
         })
 
     }
