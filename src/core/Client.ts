@@ -6,8 +6,8 @@ import GraphqlClient
 class Client implements GraphqlClient {
 
     private readonly baseUrl: string;
-    private readonly token: string = '';
-    private readonly defaultHeaders: Record<string, string>;
+    private token: string;
+    private defaultHeaders: Record<string, string>;
 
     constructor(baseUrl: string, token: string = '') {
         this.baseUrl = baseUrl;
@@ -19,6 +19,11 @@ class Client implements GraphqlClient {
         }
     }
 
+    setToken(token: string): void {
+        this.token = token;
+        this.defaultHeaders["token"] = token;
+    }
+
     async query(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
         const body = JSON.stringify({
             query: gql,
@@ -28,7 +33,11 @@ class Client implements GraphqlClient {
     }
 
     async mutation(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
-        throw new Error("Method not implemented.");
+        const body = JSON.stringify({
+            query: gql,
+            variables: variables
+        });
+        return this.fetch(body, this.defaultHeaders, 'POST');
     }
 
 
