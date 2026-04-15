@@ -78,12 +78,12 @@ class Client implements GraphqlClient {
         }
     }
 
-    private log(...args: any[]): void {
-        if (this.debug) this.logger.log(...args);
+    private log(label: string, data?: any): void {
+        if (this.debug) this.logger.log(label, data !== undefined ? JSON.stringify(data, null, 2) : '');
     }
 
-    private logError(...args: any[]): void {
-        if (this.debug) this.logger.error(...args);
+    private logError(label: string, data?: any): void {
+        if (this.debug) this.logger.error(label, data !== undefined ? JSON.stringify(data, null, 2) : '');
     }
 }
 
