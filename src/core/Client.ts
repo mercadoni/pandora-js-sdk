@@ -2,16 +2,22 @@ import fetch
     from "isomorphic-unfetch";
 import GraphqlClient
     from "./http/GraphqlClient";
+import Logger
+    from "./http/Logger";
 
 class Client implements GraphqlClient {
 
     private readonly baseUrl: string;
     private token: string;
     private defaultHeaders: Record<string, string>;
+    private readonly debug: boolean;
+    private readonly logger: Logger;
 
-    constructor(baseUrl: string, token: string = '') {
+    constructor(baseUrl: string, token: string = '', debug: boolean = false, logger: Logger = console) {
         this.baseUrl = baseUrl;
         this.token = token;
+        this.debug = debug;
+        this.logger = logger;
         this.defaultHeaders = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -26,6 +32,7 @@ class Client implements GraphqlClient {
 
     async query(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
         const body = JSON.stringify({ query: gql, variables });
+        this.log('[SDK] query', { variables });
         const data = await this.fetch(body, this.defaultHeaders, 'POST');
         this.throwIfErrors(data);
         return data;
@@ -33,34 +40,52 @@ class Client implements GraphqlClient {
 
     async mutation(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
         const body = JSON.stringify({ query: gql, variables });
+        this.log('[SDK] mutation', { variables });
         const data = await this.fetch(body, this.defaultHeaders, 'POST');
         this.throwIfErrors(data);
         return data;
     }
 
     async fetch(body: string, headers: Record<string, any>, method: string): Promise<Record<string, any>> {
+        this.log('[SDK] request', { url: this.baseUrl, method });
+
         const response = await fetch(`${this.baseUrl}`, {
             method,
             headers,
             body
         }).catch((error: Error) => {
+            this.logError('[SDK] network error', error.message);
             throw new Error(`Network error: ${error.message}`);
         });
 
         if (!response.ok) {
+            this.logError('[SDK] HTTP error', `${response.status} ${response.statusText}`);
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        return response.json().catch(() => {
+        const data = await response.json().catch(() => {
+            this.logError('[SDK] failed to parse response as JSON');
             throw new Error('Failed to parse server response as JSON');
         });
+
+        this.log('[SDK] response', { status: response.status, data });
+        return data;
     }
 
     private throwIfErrors(data: Record<string, any>): void {
         if (data.errors?.length) {
             const messages = data.errors.map((e: { message: string }) => e.message).join('; ');
+            this.logError('[SDK] GraphQL errors', messages);
             throw new Error(messages);
         }
+    }
+
+    private log(...args: any[]): void {
+        if (this.debug) this.logger.log(...args);
+    }
+
+    private logError(...args: any[]): void {
+        if (this.debug) this.logger.error(...args);
     }
 }
 

@@ -1,5 +1,6 @@
 // Core
 export { default as Platform } from './core/Platform';
+export type { default as Logger } from './core/http/Logger';
 
 // Home
 export { default as HomeFilter } from './core/services/home/HomeFilter';
