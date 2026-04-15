@@ -1,5 +1,5 @@
 {
-  "name": "@jorgeehernandez/ecommerce-js-sdk",
+  "name": "@sirosa/ecommerce-js-sdk",
   "version": "1.0.1",
   "description": "TypeScript SDK for ecommerce platform integration",
   "main": "dist/index.js",

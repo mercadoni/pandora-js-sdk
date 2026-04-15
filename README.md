@@ -1,17 +1,17 @@
-# @jorgeehernandez/ecommerce-js-sdk
+# @sirosa/ecommerce-js-sdk
 
 TypeScript SDK for ecommerce platform integration via GraphQL.
 
 ## Installation
 
 ```bash
-npm install @jorgeehernandez/ecommerce-js-sdk
+npm install @sirosa/ecommerce-js-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { Platform, HomeFilter, SignInFilter, CreateCartFilter } from '@jorgeehernandez/ecommerce-js-sdk';
+import { Platform, HomeFilter, SignInFilter, CreateCartFilter } from '@sirosa/ecommerce-js-sdk';
 
 const platform = new Platform({
   baseUrl: 'https://api.your-store.com/graphql',
