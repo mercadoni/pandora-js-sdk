@@ -1,12 +1,29 @@
 {
-  "name": "ecommerce-js-sdk",
+  "name": "@jorgeehernandez/ecommerce-js-sdk",
   "version": "1.0.1",
   "description": "TypeScript SDK for ecommerce platform integration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jorgeehernandez/ecommerce-js-sdk.git"
+  },
+  "homepage": "https://github.com/jorgeehernandez/ecommerce-js-sdk#readme",
+  "keywords": [
+    "ecommerce",
+    "sdk",
+    "graphql",
+    "typescript",
+    "cart",
+    "auth"
+  ],
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
