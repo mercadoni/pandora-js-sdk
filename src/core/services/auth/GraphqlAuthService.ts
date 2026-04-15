@@ -43,12 +43,18 @@ class GraphqlAuthService implements AuthService {
 
     async logout(): Promise<boolean> {
         const response = await this.client.mutation(logoutMutation, {});
-        return response.data?.logout?.success || false;
+        if (response.data?.logout === undefined) {
+            throw new Error('Logout failed: unexpected response from server');
+        }
+        return response.data.logout?.success ?? false;
     }
 
     async forgotPassword(filter: ForgotPasswordFilter): Promise<boolean> {
         const response = await this.client.mutation(forgotPasswordMutation, { forgotPasswordInput: filter.query });
-        return response.data?.forgotPassword?.success || false;
+        if (response.data?.forgotPassword === undefined) {
+            throw new Error('Forgot password failed: unexpected response from server');
+        }
+        return response.data.forgotPassword?.success ?? false;
     }
 }
 

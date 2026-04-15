@@ -7,9 +7,7 @@
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "dev": "concurrently \"npm run watch-ts\" \"npm run watch-node\" ",
-    "watch-ts": "tsc -w",
-    "watch-node": "nodemon dist/index.js"
+    "dev": "tsc -w"
   },
   "dependencies": {
     "isomorphic-unfetch": "^4.0.2"

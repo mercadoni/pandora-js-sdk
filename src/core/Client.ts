@@ -25,34 +25,42 @@ class Client implements GraphqlClient {
     }
 
     async query(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
-        const body = JSON.stringify({
-            query: gql,
-            variables: variables
-        });
-        return this.fetch(body, this.defaultHeaders, 'POST');
+        const body = JSON.stringify({ query: gql, variables });
+        const data = await this.fetch(body, this.defaultHeaders, 'POST');
+        this.throwIfErrors(data);
+        return data;
     }
 
     async mutation(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
-        const body = JSON.stringify({
-            query: gql,
-            variables: variables
-        });
-        return this.fetch(body, this.defaultHeaders, 'POST');
+        const body = JSON.stringify({ query: gql, variables });
+        const data = await this.fetch(body, this.defaultHeaders, 'POST');
+        this.throwIfErrors(data);
+        return data;
     }
 
-
     async fetch(body: string, headers: Record<string, any>, method: string): Promise<Record<string, any>> {
-        return fetch(`${this.baseUrl}`, {
-            method: method,
-            headers: headers,
-            body: body
-        })
-            .then((r) =>
-                r.json())
-            .catch((data) => {
-                throw new Error(data.message);
-            });
+        const response = await fetch(`${this.baseUrl}`, {
+            method,
+            headers,
+            body
+        }).catch((error: Error) => {
+            throw new Error(`Network error: ${error.message}`);
+        });
 
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        return response.json().catch(() => {
+            throw new Error('Failed to parse server response as JSON');
+        });
+    }
+
+    private throwIfErrors(data: Record<string, any>): void {
+        if (data.errors?.length) {
+            const messages = data.errors.map((e: { message: string }) => e.message).join('; ');
+            throw new Error(messages);
+        }
     }
 }
 
