@@ -59,12 +59,12 @@ class Home {
             })
             : [];
 
-        if (isValid(json.id) && isValid(json.breakpointId) && isValid(json.targetType) &&
+        if (isValid(json.id) && isValid(json.breakpoint) && isValid(json.targetType) &&
             Array.isArray(json.storeReferences) && json.storeReferences.length > 0) {
             return new Home({
                 widgets: widgets.filter(item => item !== null),
                 id: json.id,
-                screenSize: json.breakpointId,
+                screenSize: json.breakpoint,
                 platform: json.targetType,
                 stores: json.storeReferences,
                 isDefault: json.isDefault,
@@ -73,7 +73,7 @@ class Home {
                 isDraft: json.isDraft
             });
         } else {
-            throw new Error('Invalid home json: id, breakpointId, targetType, and storeReferences are required');
+            throw new Error('Invalid home json: id, targetType, and storeReferences are required');
         }
     }
 }
