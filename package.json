@@ -25,6 +25,7 @@
     "access": "public"
   },
   "scripts": {
+    "test": "ts-node src/test/index.ts",
     "build": "tsc",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
@@ -38,6 +39,7 @@
     "concurrently": "^8.2.2",
     "eslint": "^9.24.0",
     "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1"
   }
