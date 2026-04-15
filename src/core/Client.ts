@@ -32,26 +32,24 @@ class Client implements GraphqlClient {
 
     async query(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
         const body = JSON.stringify({ query: gql, variables });
-        this.log('[SDK] query', { variables });
-        const data = await this.fetch(body, this.defaultHeaders, 'POST');
+        this.log('[SDK] query →', { url: this.baseUrl, variables, query: gql });
+        const data = await this.fetch(body);
         this.throwIfErrors(data);
         return data;
     }
 
     async mutation(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
         const body = JSON.stringify({ query: gql, variables });
-        this.log('[SDK] mutation', { variables });
-        const data = await this.fetch(body, this.defaultHeaders, 'POST');
+        this.log('[SDK] mutation →', { url: this.baseUrl, variables, query: gql });
+        const data = await this.fetch(body);
         this.throwIfErrors(data);
         return data;
     }
 
-    async fetch(body: string, headers: Record<string, any>, method: string): Promise<Record<string, any>> {
-        this.log('[SDK] request', { url: this.baseUrl, method });
-
+    async fetch(body: string): Promise<Record<string, any>> {
         const response = await fetch(`${this.baseUrl}`, {
-            method,
-            headers,
+            method: 'POST',
+            headers: this.defaultHeaders,
             body
         }).catch((error: Error) => {
             this.logError('[SDK] network error', error.message);
@@ -68,7 +66,7 @@ class Client implements GraphqlClient {
             throw new Error('Failed to parse server response as JSON');
         });
 
-        this.log('[SDK] response', { status: response.status, data });
+        this.log('[SDK] response ←', { status: response.status, data });
         return data;
     }
 
