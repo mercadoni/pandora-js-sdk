@@ -51,7 +51,12 @@ class Home {
                     widgetData.data.items = widgetData.data.items.map((item: Record<string, any>) =>
                         Category.fromJson(item)
                     );
-                    console.log(widgetData.data);
+                } else if (widgetData.dataSource === 'FEATURED_CATEGORIES' && Array.isArray(widgetData.data?.categories)) {
+                    widgetData.data.items = widgetData.data.categories.map((item: Record<string, any>) =>
+                        Category.fromJson(item)
+                    );
+                } else if (widgetData.dataSource === 'MANUAL_SOURCE') {
+                    // data.items is always empty; link/src/content are preserved as-is
                 } else {
                     return null;
                 }
