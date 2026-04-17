@@ -48,7 +48,7 @@ class Home {
                         Carrusel.fromJson(item)
                     );
                 } else if (widgetData.dataSource === 'CATEGORY_AND_PRODUCTS' && Array.isArray(widgetData.data?.items)) {
-                    widgetData.data.items = widgetData.data.items.map((item: Record<string, any>) =>
+                    widgetData.data.items = widgetData.data.categories.map((item: Record<string, any>) =>
                         Category.fromJson(item)
                     );
                 } else if (widgetData.dataSource === 'FEATURED_CATEGORIES' && Array.isArray(widgetData.data?.categories)) {
