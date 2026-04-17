@@ -4,6 +4,8 @@ import Carrusel
     from "../Carousel";
 import Category
     from "../catalog/Category";
+import Product
+    from "../catalog/Product";
 import isValid
     from "../../utils/utils";
 
@@ -44,19 +46,32 @@ class Home {
         const widgets = Array.isArray(json.widgets)
             ? json.widgets.map((widgetData: any) => {
                 if (widgetData.dataSource === 'CAROUSEL' && Array.isArray(widgetData.data?.items)) {
-                    widgetData.data.items = widgetData.data.items.map((item: Record<string, any>) =>
+                    widgetData.data.carousels = widgetData.data.items.map((item: Record<string, any>) =>
                         Carrusel.fromJson(item)
                     );
-                } else if (widgetData.dataSource === 'CATEGORY_AND_PRODUCTS' && Array.isArray(widgetData.data?.items)) {
-                    widgetData.data.items = widgetData.data.categories.map((item: Record<string, any>) =>
+                } else if (widgetData.dataSource === 'CATEGORY_AND_PRODUCTS' && Array.isArray(widgetData.data?.categories)) {
+                    widgetData.data.categories = widgetData.data.categories.map((item: Record<string, any>) =>
                         Category.fromJson(item)
                     );
                 } else if (widgetData.dataSource === 'FEATURED_CATEGORIES' && Array.isArray(widgetData.data?.categories)) {
-                    widgetData.data.items = widgetData.data.categories.map((item: Record<string, any>) =>
+                    widgetData.data.categories = widgetData.data.categories.map((item: Record<string, any>) =>
                         Category.fromJson(item)
                     );
-                } else if (widgetData.dataSource === 'MANUAL_SOURCE') {
-                    // data.items is always empty; link/src/content are preserved as-is
+                } else if (
+                    (widgetData.dataSource === 'SPONSORED_HOME' ||
+                     widgetData.dataSource === 'TRENDING_PRODUCTS' ||
+                     widgetData.dataSource === 'RECOMMENDED_FOR_YOU') &&
+                    Array.isArray(widgetData.data?.items)
+                ) {
+                    widgetData.data.products = widgetData.data.items.map((item: Record<string, any>) =>
+                        Product.fromJson(item)
+                    );
+                } else if (
+                    widgetData.dataSource === 'MANUAL_SOURCE' ||
+                    widgetData.dataSource === 'MANUAL_BOX' ||
+                    widgetData.dataSource === 'MANUAL_ADS_BANNERS'
+                ) {
+                    // passed through as-is
                 } else {
                     return null;
                 }
@@ -84,4 +99,3 @@ class Home {
 }
 
 export default Home;
-
