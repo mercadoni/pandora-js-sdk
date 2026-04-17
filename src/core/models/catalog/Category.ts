@@ -54,7 +54,7 @@ class Category {
         this.boost = config.boost;
         this.isAvailableInHome = config.isAvailableInHome;
         this.pagination = new Pagination();
-        this.products = [];
+        this.products = config.products;
         this.aggregates = [];
         this.subCategories = [];
         this.categoryNamesPath = config.categoryNamesPath;
