@@ -13,13 +13,21 @@ export { default as ForgotPasswordFilter } from './core/services/auth/ForgotPass
 
 // Cart
 export { default as CreateCartFilter } from './core/services/cart/CreateCartFilter';
+export { default as CreateGuestCartFilter } from './core/services/cart/CreateGuestCartFilter';
 export { default as GetActiveCartFilter } from './core/services/cart/GetActiveCartFilter';
+export { default as GetGuestCartFilter } from './core/services/cart/GetGuestCartFilter';
 export { default as AddProductFilter } from './core/services/cart/AddProductFilter';
 export { default as AddProductsFilter } from './core/services/cart/AddProductsFilter';
+export { default as AddProductToGuestCartFilter } from './core/services/cart/AddProductToGuestCartFilter';
 export { default as UpdateProductFilter } from './core/services/cart/UpdateProductFilter';
+export { default as UpdateProductInGuestCartFilter } from './core/services/cart/UpdateProductInGuestCartFilter';
 export { default as RemoveProductFilter } from './core/services/cart/RemoveProductFilter';
+export { default as DeleteProductInGuestCartFilter } from './core/services/cart/DeleteProductInGuestCartFilter';
 export { default as UpdateCartFilter } from './core/services/cart/UpdateCartFilter';
+export { default as UpdateGuestCartFilter } from './core/services/cart/UpdateGuestCartFilter';
 export { default as ValidateCartFilter } from './core/services/cart/ValidateCartFilter';
+export { default as ValidateGuestCartFilter } from './core/services/cart/ValidateGuestCartFilter';
+export { default as ConvertGuestCartFilter } from './core/services/cart/ConvertGuestCartFilter';
 export { default as PurchaseCartFilter } from './core/services/cart/PurchaseCartFilter';
 export { default as CouponFilter } from './core/services/cart/CouponFilter';
 
