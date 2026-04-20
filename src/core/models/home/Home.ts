@@ -19,6 +19,7 @@ class Home {
     isActive: boolean;
     isDraft: boolean;
     name: string;
+    uiConfig: Record<string, any>;
 
     constructor(config: {
         widgets: Array<HomeWidget>;
@@ -30,6 +31,7 @@ class Home {
         isActive?: boolean;
         isDraft?: boolean;
         name?: string;
+        uiConfig?: Record<string, any>;
     }) {
         this.widgets = config.widgets;
         this.id = config.id;
@@ -40,6 +42,7 @@ class Home {
         this.isActive = config.isActive || false;
         this.isDraft = config.isDraft || false;
         this.name = config.name || '';
+        this.uiConfig = config.uiConfig ?? {};
     }
 
     static fromJson(json: Record<string, any>): Home {
@@ -90,7 +93,8 @@ class Home {
                 isDefault: json.isDefault,
                 name: json.name,
                 isActive: json.isActive,
-                isDraft: json.isDraft
+                isDraft: json.isDraft,
+                uiConfig: json.uiConfig ?? {},
             });
         } else {
             throw new Error('Invalid home json: id, targetType, and storeReferences are required');
