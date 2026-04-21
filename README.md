@@ -28,6 +28,11 @@ const filter = new HomeFilter({ /* filter params */ });
 const home = await platform.homeService.home({ filter });
 ```
 
+Home payload validation rules:
+
+- `id`, `breakpoint`, and `targetType` are required.
+- `storeReferences` must be an array and can be empty.
+
 ### Auth
 
 ```typescript
