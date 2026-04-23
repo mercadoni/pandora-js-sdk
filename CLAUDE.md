@@ -1,88 +1,273 @@
-# CLAUDE.md - Ecommerce JS SDK
+# CLAUDE.md — Ecommerce JS SDK
 
-## Project Overview
-TypeScript-based SDK for ecommerce platform integration with GraphQL client architecture.
+> This file is the **contract** for AI agents working on this SDK. The `feature-implementer` and `feature-reviewer` agents read it. Every rule here is testable. If you deviate from these rules, the reviewer will flag it.
 
-## Architecture Patterns
-```yaml
-Core: Platform→Services→Models | Client: GraphQL→HTTP→fetch
-Structure: /core (client, platform, services, models) | /services (home, product)
-Data Flow: Platform(config)→Service(filter)→Client(query)→API
-```
+## What this SDK is
 
-## Key Components
-
-### Platform (`src/core/Platform.ts`)
-- Entry point for SDK initialization
-- Manages GraphQL client & service instances
-- Config: `{baseUrl, clientId}`
-
-### Services
-- **HomeService**: Dynamic content retrieval
-- **ProductService**: Catalog operations
-- Pattern: Interface→GraphQL implementation
-
-### Models
-- **Home**: Homepage widgets & metadata
-- **Product**: Catalog items & stock details
-- **Filter**: Query parameters
-
-## Commands & Scripts
-```yaml
-Build: npm run build (TypeScript compilation)
-Dev: npm run dev (watch mode w/ nodemon)
-Watch: npm run watch-ts (TypeScript watch)
-Lint: Use ESLint config (eslint.config.mjs)
-```
-
-## Development Rules
-```yaml
-Code Style: 
-  - TypeScript strict mode enabled
-  - Interface-based service contracts
-  - Async/await for API calls
-  - Default exports for main classes
-
-File Organization:
-  - Models: /core/models/{domain}/
-  - Services: /core/services/{domain}/
-  - HTTP: /core/http/ (clients & interfaces)
-  - Utils: /core/utils/
-
-Dependencies:
-  - isomorphic-unfetch: HTTP requests
-  - TypeScript: Build system
-  - ESLint: Code quality
-```
-
-## Testing Patterns
-- Example usage in `src/index.ts`
-- Platform initialization→Service creation→API calls
-- Filter-based queries
-
-## Common Operations
-```typescript
-// SDK initialization
-const platform = new Platform({
-  baseUrl: 'https://api.example.com',
-  clientId: 'CLIENT_ID'
-});
-
-// Service usage
-const filter = new HomeFilter({...});
-const result = await platform.homeService.home({filter});
-```
-
-## Build Process
-- TypeScript→CommonJS (tsconfig.json)
-- Output: `/dist` directory
-- Entry: `dist/index.js`
-
-## Code Quality
-- ESLint configuration present
-- TypeScript strict mode
-- Interface-driven design
-- Error handling in Client class
+TypeScript SDK that wraps a GraphQL ecommerce API (target: `nextgentheadless.instaleap.io`). Consumers get a single `Platform` entry point, construct typed Input/Filter objects, and call service methods that return typed Model instances. The SDK hides GraphQL string construction, variable shaping, HTTP, and JSON parsing.
 
 ---
-*Generated for ecommerce-js-sdk TypeScript SDK project*
+
+## Architecture: the four layers
+
+```
+Consumer code
+    │
+    ▼
+Platform (src/core/Platform.ts)       ← entry point; wires services + client
+    │
+    ▼
+Service  (src/core/services/<domain>/) ← interface + GraphQL implementation
+    │
+    ▼
+Client   (src/core/Client.ts)          ← GraphqlClient: query() / mutation()
+    │
+    ▼
+HTTPClient (isomorphic-unfetch)        ← transport
+```
+
+**Hard rules:**
+- Consumers only touch `Platform` and the exported Input/Filter/Model classes.
+- Services never call `fetch` directly — they call `GraphqlClient.query()` or `GraphqlClient.mutation()`.
+- Models never import services or the client. They're pure data.
+- The `Client` class never knows about specific domains (auth, cart, home). It only knows GraphQL.
+
+---
+
+## File organization
+
+```
+src/
+  index.ts                          ← public SDK exports (single barrel)
+  core/
+    Platform.ts                     ← SDK entry point
+    Client.ts                       ← GraphqlClient implementation
+    http/
+      GraphqlClient.ts              ← interface { query, mutation }
+      HTTPClient.ts                 ← interface { fetch }
+      Logger.ts                     ← interface
+    models/
+      Input.ts                      ← abstract base for all Input/Filter types
+      <Domain>.ts                   ← shared models (Banner, Carousel, …)
+      <domain>/
+        <Model>.ts                  ← domain model with fromJson
+    services/
+      <domain>/
+        <Domain>Service.ts          ← interface
+        Graphql<Domain>Service.ts   ← implementation
+        <Name>Input.ts              ← mutation/action payload types
+        <Name>Filter.ts             ← selection/query types
+        queries/<Name>Query.ts      ← raw GQL string constants
+        mutations/<Name>Mutation.ts ← raw GQL string constants
+  test/
+    index.ts                        ← manual smoke test harness
+```
+
+One file per class. Default export only for the class itself.
+
+---
+
+## Naming conventions (MUST follow)
+
+### Filter vs Input
+- **`*Filter`** — ONLY for types that select/narrow across a set of entities. Today: `HomeFilter` (narrows from many homes), `GetActiveCartFilter`, `GetGuestCartFilter`, `SearchFilter`, `ProductFilter`.
+- **`*Input`** — Mutation payloads or single-action argument types. Everything passed to a `mutation(...)` call. Examples: `SignInInput`, `AddProductInput`, `PurchaseCartInput`.
+- **Base class is `Input`** (`src/core/models/Input.ts`). `*Filter` classes also `extend Input` — a filter is a kind of input.
+
+**Decision test for a new arg type:** "Does this narrow a selection from many possibilities?" Yes → `Filter`. No → `Input`.
+
+### Service methods
+- Parameter name matches the type suffix: `signIn(input: SignInInput)`, `getActiveCart(filter: GetActiveCartFilter)`.
+- Never name a parameter `filter` if its type is an `*Input`.
+
+### Other
+- Classes, interfaces, types: `PascalCase`.
+- Variables, functions, methods: `camelCase`.
+- GraphQL string constants: `camelCase` (e.g. `signInMutation`), exported as `default`.
+- File names match the default export: `SignInInput.ts` exports `SignInInput`.
+
+---
+
+## Code patterns
+
+### Input/Filter class template
+```typescript
+import Input from '../../models/Input';
+
+class FooInput extends Input {
+    constructor(config: {
+        required1: string;
+        required2: number;
+        optional?: string;
+    }) {
+        super();
+        this.query['required1'] = config.required1;
+        this.query['required2'] = config.required2;
+        if (config.optional !== undefined) this.query['optional'] = config.optional;
+    }
+}
+
+export default FooInput;
+```
+- Always a single `config` constructor arg — never positional.
+- Required fields: always set on `this.query`.
+- Optional fields: only set when defined.
+- Never do logic in the constructor beyond field copying.
+
+### Service interface + implementation template
+```typescript
+// FooService.ts
+interface FooService {
+    doThing(input: DoThingInput): Promise<FooResponse>;
+}
+export default FooService;
+```
+```typescript
+// GraphqlFooService.ts
+class GraphqlFooService implements FooService {
+    constructor(private readonly client: GraphqlClient) {}
+
+    async doThing(input: DoThingInput): Promise<FooResponse> {
+        const response = await this.client.mutation(doThingMutation, { doThingInput: input.query });
+        if (response.data?.doThing) {
+            return FooResponse.fromJson(response.data.doThing);
+        }
+        throw new Error(`doThing failed: ${JSON.stringify(response.errors || response)}`);
+    }
+}
+export default GraphqlFooService;
+```
+- Service method: check `response.data?.<op>` → `fromJson` it. Else throw with the errors serialized.
+- No retries, no caching, no logging in services — `Client` handles all of that.
+
+### Model template
+```typescript
+class Foo {
+    constructor(
+        public readonly id: string,
+        public readonly name: string,
+    ) {}
+
+    static fromJson(json: Record<string, any>): Foo {
+        return new Foo(json.id, json.name);
+    }
+}
+export default Foo;
+```
+- Models are immutable (`readonly` fields).
+- Every model has a static `fromJson(json)` factory. Never do JSON parsing outside `fromJson`.
+- Never throw from `fromJson` on missing optional fields — default to `null`/empty.
+
+### GraphQL string template
+```typescript
+const fooMutation = `
+  mutation Foo($fooInput: FooInput!) {
+    foo(fooInput: $fooInput) {
+      id
+      name
+    }
+  }
+`;
+export default fooMutation;
+```
+- One operation per file. File name matches operation name + `Mutation`/`Query`.
+
+---
+
+## Recipes
+
+### Recipe: Add a new query to an existing service
+1. Add `<Name>Filter.ts` (if selection) or `<Name>Input.ts` in `services/<domain>/`.
+2. Add `queries/<Name>Query.ts` with the GQL string.
+3. Add method to `<Domain>Service.ts` interface.
+4. Implement in `Graphql<Domain>Service.ts` — follow the template above.
+5. Export the new Input/Filter from `src/index.ts`.
+6. Update or add tests in `src/test/index.ts` for smoke coverage.
+
+### Recipe: Add a new mutation
+Same as query, but use `mutations/<Name>Mutation.ts` and call `this.client.mutation(...)`.
+
+### Recipe: Add a new service (new domain)
+1. Create `src/core/services/<domain>/` with `<Domain>Service.ts` interface.
+2. Implement `Graphql<Domain>Service.ts`.
+3. Create `queries/` and `mutations/` subdirectories as needed.
+4. Wire into `src/core/Platform.ts`: add property, instantiate in constructor.
+5. Export public types from `src/index.ts`.
+
+### Recipe: Add a new model
+1. Choose domain subdirectory under `src/core/models/`.
+2. Follow the Model template. Always include `fromJson`.
+3. If the model is a consumer-facing response, export from `src/index.ts` under the `// Models` section.
+
+---
+
+## Anti-patterns (the reviewer will flag these)
+
+- **`*Filter` suffix on mutation payloads.** Use `*Input`. (See naming conventions.)
+- **Services that import `fetch` or `isomorphic-unfetch`.** Go through `GraphqlClient`.
+- **Models that import services or `Client`.** Data layer has no dependencies on transport.
+- **JSON parsing outside `fromJson`.** Don't inline `json.foo || ''` in service methods.
+- **Multiple classes per file.** One default-exported class per file.
+- **Silent failures in service methods.** If the response doesn't have the expected shape, `throw` with the serialized error.
+- **`this.query['field'] = undefined`.** For optional fields, guard with `if (config.field !== undefined)`.
+- **Positional constructor args on Input/Filter/Model classes.** Always `config: { … }`.
+- **Logic in Input/Filter constructors.** They're just field copiers.
+- **Catching errors and logging without rethrowing.** Let them propagate.
+
+---
+
+## Known stubs & bugs (don't replicate these patterns)
+
+- `SearchFilter`, `ProductFilter`, `Search`, `Pagination`, `Aggregate`, `MetaData`, `WidgetData.fromJson` — empty stubs; fill in following the templates above.
+- `RemoteProductService.search()` throws `not implemented`.
+- `Home.fromJson` has a JS comma-operator bug (malformed condition). Needs fix.
+- `GetDynamicHomeQuery` has no field selection — returns scalar. Needs proper selection set.
+- `src/core/models/home/Home.ts` imports `{ WidgetData }` from `"./types"` which doesn't exist. Broken import.
+
+---
+
+## Commands
+
+```bash
+npm run build       # tsc → /dist
+npm run dev         # nodemon watch mode
+npm run watch-ts    # tsc --watch
+```
+
+- `npm run build` must pass clean on every PR.
+- Run smoke test via `src/test/index.ts` before claiming a feature works end-to-end.
+
+---
+
+## Spec-driven workflow
+
+Features begin as a spec under `/specs/<feature-name>/spec.md`. See `/specs/README.md` for the full workflow and `/specs/_template/` for the spec template. High level:
+
+1. User writes (or asks Claude to draft) a spec.
+2. `feature-implementer` agent reads the spec + this file, writes the code.
+3. `feature-reviewer` agent reads the diff + spec + this file, reports violations.
+4. User approves or sends it back.
+
+Agents live in `.claude/agents/`.
+
+---
+
+## Consumer usage example
+
+```typescript
+import { Platform, HomeFilter, SignInInput } from '@sirosa/ecommerce-js-sdk';
+
+const platform = new Platform({
+    baseUrl: 'https://nextgentheadless.instaleap.io/api/v3',
+    clientId: 'D1',
+});
+
+// Query (filter)
+const filter = new HomeFilter({ byStore: '11808', byPlatform: 'WEB', byScreenSize: 'large' });
+const home = await platform.homeService.home({ filter });
+
+// Mutation (input)
+const signIn = new SignInInput({ clientId: 'D1', email: 'a@b.com', password: '…' });
+const session = await platform.authService.signIn(signIn);
+platform.setToken(session.token);
+```
