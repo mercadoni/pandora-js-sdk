@@ -1,9 +1,9 @@
-import cartFragment from '../CartFragment';
+import validateGuestCartFragment from '../ValidateGuestCartFragment';
 
 const validateGuestCartMutation = `
   mutation ValidateGuestCart($cartId: ID!) {
     validateGuestCart(cartId: $cartId) {
-      ${cartFragment}
+      ${validateGuestCartFragment}
     }
   }
 `;
