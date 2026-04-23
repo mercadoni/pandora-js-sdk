@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class UpdateProductFilter extends Filter {
+class UpdateProductInGuestCartInput extends Input {
     constructor(config: {
         cartId: string;
         productId: string;
@@ -24,4 +24,4 @@ class UpdateProductFilter extends Filter {
     }
 }
 
-export default UpdateProductFilter;
+export default UpdateProductInGuestCartInput;

@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class GetActiveCartFilter extends Filter {
+class GetActiveCartFilter extends Input {
     constructor(config: {
         storeReference: string;
         operationalModel: string;

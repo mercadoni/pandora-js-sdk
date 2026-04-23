@@ -6,30 +6,30 @@ export type { default as Logger } from './core/http/Logger';
 export { default as HomeFilter } from './core/services/home/HomeFilter';
 
 // Auth
-export { default as SignInFilter } from './core/services/auth/SignInFilter';
-export { default as SignUpFilter } from './core/services/auth/SignUpFilter';
-export { default as RefreshTokensFilter } from './core/services/auth/RefreshTokensFilter';
-export { default as ForgotPasswordFilter } from './core/services/auth/ForgotPasswordFilter';
+export { default as SignInInput } from './core/services/auth/SignInInput';
+export { default as SignUpInput } from './core/services/auth/SignUpInput';
+export { default as RefreshTokensInput } from './core/services/auth/RefreshTokensInput';
+export { default as ForgotPasswordInput } from './core/services/auth/ForgotPasswordInput';
 
 // Cart
-export { default as CreateCartFilter } from './core/services/cart/CreateCartFilter';
-export { default as CreateGuestCartFilter } from './core/services/cart/CreateGuestCartFilter';
+export { default as CreateCartInput } from './core/services/cart/CreateCartInput';
+export { default as CreateGuestCartInput } from './core/services/cart/CreateGuestCartInput';
 export { default as GetActiveCartFilter } from './core/services/cart/GetActiveCartFilter';
 export { default as GetGuestCartFilter } from './core/services/cart/GetGuestCartFilter';
-export { default as AddProductFilter } from './core/services/cart/AddProductFilter';
-export { default as AddProductsFilter } from './core/services/cart/AddProductsFilter';
-export { default as AddProductToGuestCartFilter } from './core/services/cart/AddProductToGuestCartFilter';
-export { default as UpdateProductFilter } from './core/services/cart/UpdateProductFilter';
-export { default as UpdateProductInGuestCartFilter } from './core/services/cart/UpdateProductInGuestCartFilter';
-export { default as RemoveProductFilter } from './core/services/cart/RemoveProductFilter';
-export { default as DeleteProductInGuestCartFilter } from './core/services/cart/DeleteProductInGuestCartFilter';
-export { default as UpdateCartFilter } from './core/services/cart/UpdateCartFilter';
-export { default as UpdateGuestCartFilter } from './core/services/cart/UpdateGuestCartFilter';
-export { default as ValidateCartFilter } from './core/services/cart/ValidateCartFilter';
-export { default as ValidateGuestCartFilter } from './core/services/cart/ValidateGuestCartFilter';
-export { default as ConvertGuestCartFilter } from './core/services/cart/ConvertGuestCartFilter';
-export { default as PurchaseCartFilter } from './core/services/cart/PurchaseCartFilter';
-export { default as CouponFilter } from './core/services/cart/CouponFilter';
+export { default as AddProductInput } from './core/services/cart/AddProductInput';
+export { default as AddProductsInput } from './core/services/cart/AddProductsInput';
+export { default as AddProductToGuestCartInput } from './core/services/cart/AddProductToGuestCartInput';
+export { default as UpdateProductInput } from './core/services/cart/UpdateProductInput';
+export { default as UpdateProductInGuestCartInput } from './core/services/cart/UpdateProductInGuestCartInput';
+export { default as RemoveProductInput } from './core/services/cart/RemoveProductInput';
+export { default as DeleteProductInGuestCartInput } from './core/services/cart/DeleteProductInGuestCartInput';
+export { default as UpdateCartInput } from './core/services/cart/UpdateCartInput';
+export { default as UpdateGuestCartInput } from './core/services/cart/UpdateGuestCartInput';
+export { default as ValidateCartInput } from './core/services/cart/ValidateCartInput';
+export { default as ValidateGuestCartInput } from './core/services/cart/ValidateGuestCartInput';
+export { default as ConvertGuestCartInput } from './core/services/cart/ConvertGuestCartInput';
+export { default as PurchaseCartInput } from './core/services/cart/PurchaseCartInput';
+export { default as CouponInput } from './core/services/cart/CouponInput';
 
 // Models — response types for consumers
 export { default as Home } from './core/models/home/Home';

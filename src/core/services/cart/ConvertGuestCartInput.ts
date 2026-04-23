@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class ValidateGuestCartFilter extends Filter {
+class ConvertGuestCartInput extends Input {
     constructor(config: {
         cartId: string;
     }) {
@@ -9,4 +9,4 @@ class ValidateGuestCartFilter extends Filter {
     }
 }
 
-export default ValidateGuestCartFilter;
+export default ConvertGuestCartInput;

@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class PurchaseCartFilter extends Filter {
+class PurchaseCartInput extends Input {
     constructor(config: {
         cartId: string;
         paymentInput: {
@@ -30,4 +30,4 @@ class PurchaseCartFilter extends Filter {
     }
 }
 
-export default PurchaseCartFilter;
+export default PurchaseCartInput;

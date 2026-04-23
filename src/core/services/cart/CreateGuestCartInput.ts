@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class CreateGuestCartFilter extends Filter {
+class CreateGuestCartInput extends Input {
     constructor(config: {
         storeReference: string;
         operationalModel: string;
@@ -13,4 +13,4 @@ class CreateGuestCartFilter extends Filter {
     }
 }
 
-export default CreateGuestCartFilter;
+export default CreateGuestCartInput;

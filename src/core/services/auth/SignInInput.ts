@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class SignInFilter extends Filter {
+class SignInInput extends Input {
     constructor(config: {
         clientId: string;
         email: string;
@@ -13,4 +13,4 @@ class SignInFilter extends Filter {
     }
 }
 
-export default SignInFilter;
+export default SignInInput;

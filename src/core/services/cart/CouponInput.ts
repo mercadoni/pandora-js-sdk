@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class CouponFilter extends Filter {
+class CouponInput extends Input {
     constructor(config: {
         cartId: string;
         couponCode?: string;
@@ -11,4 +11,4 @@ class CouponFilter extends Filter {
     }
 }
 
-export default CouponFilter;
+export default CouponInput;

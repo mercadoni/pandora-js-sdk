@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class AddProductToGuestCartFilter extends Filter {
+class AddProductToGuestCartInput extends Input {
     constructor(config: {
         cartId: string;
         reference: string;
@@ -19,4 +19,4 @@ class AddProductToGuestCartFilter extends Filter {
     }
 }
 
-export default AddProductToGuestCartFilter;
+export default AddProductToGuestCartInput;

@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class AddProductsFilter extends Filter {
+class AddProductsInput extends Input {
     constructor(config: {
         cartId: string;
         products: Array<{
@@ -17,4 +17,4 @@ class AddProductsFilter extends Filter {
     }
 }
 
-export default AddProductsFilter;
+export default AddProductsInput;

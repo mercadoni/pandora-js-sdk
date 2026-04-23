@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class RemoveProductFilter extends Filter {
+class DeleteProductInGuestCartInput extends Input {
     constructor(config: {
         cartId: string;
         productId: string;
@@ -11,4 +11,4 @@ class RemoveProductFilter extends Filter {
     }
 }
 
-export default RemoveProductFilter;
+export default DeleteProductInGuestCartInput;

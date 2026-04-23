@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class ForgotPasswordFilter extends Filter {
+class ForgotPasswordInput extends Input {
     constructor(config: {
         clientId: string;
         email: string;
@@ -11,4 +11,4 @@ class ForgotPasswordFilter extends Filter {
     }
 }
 
-export default ForgotPasswordFilter;
+export default ForgotPasswordInput;

@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class ValidateCartFilter extends Filter {
+class ValidateCartInput extends Input {
     constructor(config: {
         cartId: string;
         allowSplitOrders?: boolean;
@@ -13,4 +13,4 @@ class ValidateCartFilter extends Filter {
     }
 }
 
-export default ValidateCartFilter;
+export default ValidateCartInput;

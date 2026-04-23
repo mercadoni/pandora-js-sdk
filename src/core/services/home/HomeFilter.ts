@@ -1,7 +1,7 @@
-import Filter
-    from "../../models/Filter";
+import Input
+    from "../../models/Input";
 
-class HomeFilter extends Filter {
+class HomeFilter extends Input {
 
     constructor(filter: {
         byPlatform: string,

@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class RefreshTokensFilter extends Filter {
+class RefreshTokensInput extends Input {
     constructor(config: {
         refreshToken: string;
     }) {
@@ -9,4 +9,4 @@ class RefreshTokensFilter extends Filter {
     }
 }
 
-export default RefreshTokensFilter;
+export default RefreshTokensInput;

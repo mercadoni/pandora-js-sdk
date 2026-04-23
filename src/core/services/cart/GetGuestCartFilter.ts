@@ -1,6 +1,6 @@
-import Filter from '../../models/Filter';
+import Input from '../../models/Input';
 
-class GetGuestCartFilter extends Filter {
+class GetGuestCartFilter extends Input {
     constructor(config: {
         cartId: string;
     }) {

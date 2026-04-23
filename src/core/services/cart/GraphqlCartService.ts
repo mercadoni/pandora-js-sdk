@@ -1,23 +1,23 @@
 import CartService from './CartService';
 import GraphqlClient from '../../http/GraphqlClient';
 import GetActiveCartFilter from './GetActiveCartFilter';
-import CreateCartFilter from './CreateCartFilter';
-import UpdateCartFilter from './UpdateCartFilter';
-import AddProductFilter from './AddProductFilter';
-import AddProductsFilter from './AddProductsFilter';
-import UpdateProductFilter from './UpdateProductFilter';
-import RemoveProductFilter from './RemoveProductFilter';
-import ValidateCartFilter from './ValidateCartFilter';
-import PurchaseCartFilter from './PurchaseCartFilter';
-import CouponFilter from './CouponFilter';
-import CreateGuestCartFilter from './CreateGuestCartFilter';
+import CreateCartInput from './CreateCartInput';
+import UpdateCartInput from './UpdateCartInput';
+import AddProductInput from './AddProductInput';
+import AddProductsInput from './AddProductsInput';
+import UpdateProductInput from './UpdateProductInput';
+import RemoveProductInput from './RemoveProductInput';
+import ValidateCartInput from './ValidateCartInput';
+import PurchaseCartInput from './PurchaseCartInput';
+import CouponInput from './CouponInput';
+import CreateGuestCartInput from './CreateGuestCartInput';
 import GetGuestCartFilter from './GetGuestCartFilter';
-import UpdateGuestCartFilter from './UpdateGuestCartFilter';
-import AddProductToGuestCartFilter from './AddProductToGuestCartFilter';
-import UpdateProductInGuestCartFilter from './UpdateProductInGuestCartFilter';
-import DeleteProductInGuestCartFilter from './DeleteProductInGuestCartFilter';
-import ValidateGuestCartFilter from './ValidateGuestCartFilter';
-import ConvertGuestCartFilter from './ConvertGuestCartFilter';
+import UpdateGuestCartInput from './UpdateGuestCartInput';
+import AddProductToGuestCartInput from './AddProductToGuestCartInput';
+import UpdateProductInGuestCartInput from './UpdateProductInGuestCartInput';
+import DeleteProductInGuestCartInput from './DeleteProductInGuestCartInput';
+import ValidateGuestCartInput from './ValidateGuestCartInput';
+import ConvertGuestCartInput from './ConvertGuestCartInput';
 import Cart from '../../models/cart/Cart';
 import ValidatedCart from '../../models/cart/ValidatedCart';
 import Purchase from '../../models/cart/Purchase';
@@ -63,16 +63,16 @@ class GraphqlCartService implements CartService {
         throw new Error(`Failed to get active cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async createCart(filter: CreateCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(createCartMutation, { createCartInput: filter.query });
+    async createCart(input: CreateCartInput): Promise<Cart> {
+        const response = await this.client.mutation(createCartMutation, { createCartInput: input.query });
         if (response.data?.createEcommerceCart) {
             return Cart.fromJson(response.data.createEcommerceCart);
         }
         throw new Error(`Failed to create cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async createGuestCart(filter: CreateGuestCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(createGuestCartMutation, { createCartInput: filter.query });
+    async createGuestCart(input: CreateGuestCartInput): Promise<Cart> {
+        const response = await this.client.mutation(createGuestCartMutation, { createCartInput: input.query });
         if (response.data?.createGuestCart) {
             return Cart.fromJson(response.data.createGuestCart);
         }
@@ -87,24 +87,24 @@ class GraphqlCartService implements CartService {
         throw new Error(`Failed to get guest cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async getOrCreateCart(filter: CreateCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(getOrCreateCartMutation, { createCartInput: filter.query });
+    async getOrCreateCart(input: CreateCartInput): Promise<Cart> {
+        const response = await this.client.mutation(getOrCreateCartMutation, { createCartInput: input.query });
         if (response.data?.getActiveOrCreateEcommerceCart) {
             return Cart.fromJson(response.data.getActiveOrCreateEcommerceCart);
         }
         throw new Error(`Failed to get or create cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async updateCart(filter: UpdateCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(updateCartMutation, { updateCartInput: filter.query });
+    async updateCart(input: UpdateCartInput): Promise<Cart> {
+        const response = await this.client.mutation(updateCartMutation, { updateCartInput: input.query });
         if (response.data?.updateEcommerceCart) {
             return Cart.fromJson(response.data.updateEcommerceCart);
         }
         throw new Error(`Failed to update cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async updateGuestCart(filter: UpdateGuestCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(updateGuestCartMutation, { updateCartInput: filter.query });
+    async updateGuestCart(input: UpdateGuestCartInput): Promise<Cart> {
+        const response = await this.client.mutation(updateGuestCartMutation, { updateCartInput: input.query });
         if (response.data?.updateGuestCart) {
             return Cart.fromJson(response.data.updateGuestCart);
         }
@@ -119,24 +119,24 @@ class GraphqlCartService implements CartService {
         throw new Error(`Failed to delete cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async addProduct(filter: AddProductFilter): Promise<Cart> {
-        const response = await this.client.mutation(addProductMutation, { addProductToCartInput: filter.query });
+    async addProduct(input: AddProductInput): Promise<Cart> {
+        const response = await this.client.mutation(addProductMutation, { addProductToCartInput: input.query });
         if (response.data?.addProductToEcommerceCart) {
             return Cart.fromJson(response.data.addProductToEcommerceCart);
         }
         throw new Error(`Failed to add product to cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async addProductToGuestCart(filter: AddProductToGuestCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(addProductToGuestCartMutation, { addProductToCartInput: filter.query });
+    async addProductToGuestCart(input: AddProductToGuestCartInput): Promise<Cart> {
+        const response = await this.client.mutation(addProductToGuestCartMutation, { addProductToCartInput: input.query });
         if (response.data?.addProductToGuestCart) {
             return Cart.fromJson(response.data.addProductToGuestCart);
         }
         throw new Error(`Failed to add product to guest cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async addProducts(filter: AddProductsFilter): Promise<{ cart: Cart; confirmationStatuses: Array<Record<string, any>> }> {
-        const response = await this.client.mutation(addProductsMutation, { addProductsToCartInput: filter.query });
+    async addProducts(input: AddProductsInput): Promise<{ cart: Cart; confirmationStatuses: Array<Record<string, any>> }> {
+        const response = await this.client.mutation(addProductsMutation, { addProductsToCartInput: input.query });
         if (response.data?.addProductsToEcommerceCart) {
             const data = response.data.addProductsToEcommerceCart;
             return {
@@ -147,42 +147,42 @@ class GraphqlCartService implements CartService {
         throw new Error(`Failed to add products to cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async updateProduct(filter: UpdateProductFilter): Promise<Cart> {
-        const response = await this.client.mutation(updateProductMutation, { updateProductInCartInput: filter.query });
+    async updateProduct(input: UpdateProductInput): Promise<Cart> {
+        const response = await this.client.mutation(updateProductMutation, { updateProductInCartInput: input.query });
         if (response.data?.updateProductInEcommerceCart) {
             return Cart.fromJson(response.data.updateProductInEcommerceCart);
         }
         throw new Error(`Failed to update product in cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async updateProductInGuestCart(filter: UpdateProductInGuestCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(updateProductInGuestCartMutation, { updateProductInCartInput: filter.query });
+    async updateProductInGuestCart(input: UpdateProductInGuestCartInput): Promise<Cart> {
+        const response = await this.client.mutation(updateProductInGuestCartMutation, { updateProductInCartInput: input.query });
         if (response.data?.updateProductInGuestCart) {
             return Cart.fromJson(response.data.updateProductInGuestCart);
         }
         throw new Error(`Failed to update product in guest cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async removeProduct(filter: RemoveProductFilter): Promise<Cart> {
-        const response = await this.client.mutation(removeProductMutation, { deleteProductInCartInput: filter.query });
+    async removeProduct(input: RemoveProductInput): Promise<Cart> {
+        const response = await this.client.mutation(removeProductMutation, { deleteProductInCartInput: input.query });
         if (response.data?.deleteProductInEcommerceCart) {
             return Cart.fromJson(response.data.deleteProductInEcommerceCart);
         }
         throw new Error(`Failed to remove product from cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async deleteProductInGuestCart(filter: DeleteProductInGuestCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(deleteProductInGuestCartMutation, { deleteProductInCartInput: filter.query });
+    async deleteProductInGuestCart(input: DeleteProductInGuestCartInput): Promise<Cart> {
+        const response = await this.client.mutation(deleteProductInGuestCartMutation, { deleteProductInCartInput: input.query });
         if (response.data?.deleteProductInGuestCart) {
             return Cart.fromJson(response.data.deleteProductInGuestCart);
         }
         throw new Error(`Failed to delete product in guest cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async validateCart(filter: ValidateCartFilter): Promise<ValidatedCart> {
-        const variables: Record<string, any> = { cartId: filter.query['cartId'] };
-        if (filter.query['allowSplitOrders'] !== undefined) {
-            variables['allowSplitOrders'] = filter.query['allowSplitOrders'];
+    async validateCart(input: ValidateCartInput): Promise<ValidatedCart> {
+        const variables: Record<string, any> = { cartId: input.query['cartId'] };
+        if (input.query['allowSplitOrders'] !== undefined) {
+            variables['allowSplitOrders'] = input.query['allowSplitOrders'];
         }
         const response = await this.client.mutation(validateCartMutation, variables);
         if (response.data?.validateEcommerceCart) {
@@ -191,32 +191,32 @@ class GraphqlCartService implements CartService {
         throw new Error(`Failed to validate cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async purchaseCart(filter: PurchaseCartFilter): Promise<Purchase> {
-        const response = await this.client.mutation(purchaseCartMutation, { purchaseCartInput: filter.query });
+    async purchaseCart(input: PurchaseCartInput): Promise<Purchase> {
+        const response = await this.client.mutation(purchaseCartMutation, { purchaseCartInput: input.query });
         if (response.data?.purchaseEcommerceCart) {
             return Purchase.fromJson(response.data.purchaseEcommerceCart);
         }
         throw new Error(`Failed to purchase cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async applyCoupon(filter: CouponFilter): Promise<ValidatedCart> {
-        const response = await this.client.mutation(updateCouponMutation, { updateCouponInput: filter.query });
+    async applyCoupon(input: CouponInput): Promise<ValidatedCart> {
+        const response = await this.client.mutation(updateCouponMutation, { updateCouponInput: input.query });
         if (response.data?.updateCouponInEcommerceCart) {
             return ValidatedCart.fromJson(response.data.updateCouponInEcommerceCart);
         }
         throw new Error(`Failed to apply coupon: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async validateGuestCart(filter: ValidateGuestCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(validateGuestCartMutation, { cartId: filter.query['cartId'] });
+    async validateGuestCart(input: ValidateGuestCartInput): Promise<Cart> {
+        const response = await this.client.mutation(validateGuestCartMutation, { cartId: input.query['cartId'] });
         if (response.data?.validateGuestCart) {
             return Cart.fromJson(response.data.validateGuestCart);
         }
         throw new Error(`Failed to validate guest cart: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async convertGuestToEcommerceCart(filter: ConvertGuestCartFilter): Promise<Cart> {
-        const response = await this.client.mutation(convertGuestToEcommerceCartMutation, { cartId: filter.query['cartId'] });
+    async convertGuestToEcommerceCart(input: ConvertGuestCartInput): Promise<Cart> {
+        const response = await this.client.mutation(convertGuestToEcommerceCartMutation, { cartId: input.query['cartId'] });
         if (response.data?.convertGuestToEcommerceCart) {
             return Cart.fromJson(response.data.convertGuestToEcommerceCart);
         }
