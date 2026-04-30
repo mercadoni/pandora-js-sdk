@@ -30,6 +30,10 @@ class Client implements GraphqlClient {
         this.defaultHeaders["token"] = token;
     }
 
+    setHeaders(headers: Record<string, string>): void {
+        Object.assign(this.defaultHeaders, headers);
+    }
+
     async query(gql: string, variables: Record<string, any>): Promise<Record<string, any>> {
         const body = JSON.stringify({ query: gql, variables });
         this.log('[SDK] query →', { url: this.baseUrl, variables, query: gql });

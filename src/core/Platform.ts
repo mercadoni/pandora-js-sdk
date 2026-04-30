@@ -15,11 +15,13 @@ class Platform {
     constructor(config: {
         baseUrl: string;
         clientId: string;
+        apiKey: string;
         debug?: boolean;
         logger?: Logger;
     }) {
         this.clientId = config.clientId;
         this.client = new Client(config.baseUrl, '', config.debug, config.logger);
+        this.client.setHeaders({ dplApiKey: config.apiKey });
         this.homeService = new GraphqlHomeService(this.client, config.clientId);
         this.authService = new GraphqlAuthService(this.client);
         this.cartService = new GraphqlCartService(this.client);
@@ -27,6 +29,10 @@ class Platform {
 
     setToken(token: string): void {
         this.client.setToken(token);
+    }
+
+    setHeaders(headers: Record<string, string>): void {
+        this.client.setHeaders(headers);
     }
 }
 
