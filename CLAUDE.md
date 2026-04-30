@@ -6,6 +6,16 @@
 
 TypeScript SDK that wraps a GraphQL ecommerce API (target: `nextgentheadless.instaleap.io`). Consumers get a single `Platform` entry point, construct typed Input/Filter objects, and call service methods that return typed Model instances. The SDK hides GraphQL string construction, variable shaping, HTTP, and JSON parsing.
 
+## The backend schema (read this before writing any GraphQL)
+
+The full backend GraphQL schema lives at the **repo root** as `graphql_schema.graphql`. It is the source of truth for operation names, input types, return types, and field shapes. **Before specing or implementing any new query/mutation, grep this file** to confirm:
+
+- The exact operation name (e.g. `getProductsBySKU`, not `getProductBySku`).
+- The input type's required vs. optional fields.
+- The return type — and whether it's a `JSON` scalar (no selection set needed, like `getDynamicHome`) or a typed object (full selection set required, like `[CatalogProductModel]!`).
+
+`grep -nE "^(input|type) <Name>" graphql_schema.graphql` is the fastest way to look up a definition. The Query/Mutation root types start around line 2650+. Do not invent operation names or input shapes — if the schema doesn't define it, the operation doesn't exist on the backend, and the spec needs an open question, not a guess.
+
 ---
 
 ## Architecture: the four layers
@@ -236,6 +246,26 @@ npm run watch-ts    # tsc --watch
 
 - `npm run build` must pass clean on every PR.
 - Run smoke test via `src/test/index.ts` before claiming a feature works end-to-end.
+
+---
+
+## Release workflow
+
+This package is published to npm and consumed by downstream apps (e.g. Pandora) **only via published versions**. Local-patching a consumer's `node_modules` is not a supported workflow — it silently goes away on the next `npm install` and breaks reproducibility.
+
+The release flow uses **conventional commits** + `commit-and-tag-version`:
+
+1. Commit your changes as a conventional commit. Bump level is derived from the prefix:
+   - `feat: …` → minor bump (e.g. `2.0.1` → `2.1.0`)
+   - `fix: …` → patch bump (e.g. `2.0.1` → `2.0.2`)
+   - `feat!: …` or a `BREAKING CHANGE:` footer → major bump
+   - `chore:` / `docs:` / `refactor:` → no version change unless paired with the above
+2. Run `npx commit-and-tag-version`. This bumps `package.json` + `package-lock.json`, regenerates `CHANGELOG.md`, creates a release commit, and creates a git tag `vX.Y.Z`.
+3. Run `git push --follow-tags origin main` — pushes the release commit and the tag.
+4. The repo owner runs `npm publish`. **Claude does NOT run `npm publish`** — npm credentials live with the user.
+5. After publish, downstream apps install via `npm install @sirosa/ecommerce-js-sdk@<new-version>`.
+
+**Implementer agents must NOT manually edit `package.json` `"version"`.** `commit-and-tag-version` owns the version field; manual bumps drift from the conventional-commits → semver mapping the tool enforces. If a spec asks for a manual bump, treat that as a spec bug and flag it instead of doing it.
 
 ---
 

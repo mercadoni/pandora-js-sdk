@@ -1,0 +1,2784 @@
+input GetAddressesInput {
+  storeReference: String!
+  customerId: String
+  pageSize: Int
+  currentPage: Int
+}
+
+input UpsertAddressInput {
+  id: ID
+  description: String!
+  address: AddressStructureInput!
+  addressTwo: String!
+  available: Boolean
+  latitude: Float!
+  longitude: Float!
+  city: String!
+  state: String
+  zipCode: String
+  removed: Boolean
+  customerId: String
+  storeReference: String!
+}
+
+input AddressStructureInput {
+  structure: JSON
+  other: String!
+}
+
+input ValidatedCoverageInput {
+  longitude: Float!
+  latitude: Float!
+  storeReference: String!
+}
+
+input UpdateAdminCustomerInput {
+  customerId: ID!
+  customerData: UpdateCustomerDataInput!
+}
+
+input UpdateCustomerDataInput {
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  documentType: String
+  documentId: String
+}
+
+input VerificationURLInput {
+  redirectUri: URL!
+}
+
+input GenerateBackofficeTokenInput {
+  accessToken: String!
+  clientId: String!
+}
+
+input SignInInput {
+  clientId: String!
+  email: String!
+  password: String!
+}
+
+input SignInWithIdTokenInput {
+  clientId: String!
+  idToken: String!
+  refreshToken: String!
+}
+
+input RefreshTokensInput {
+  refreshToken: String!
+}
+
+input ForgotPasswordInput {
+  clientId: String!
+  email: String!
+}
+
+input ResetPasswordInput {
+  clientId: String!
+  customerId: String!
+  oobCode: String!
+  newPassword: String!
+}
+
+input ChangePasswordInput {
+  clientId: String!
+  currentPassword: String!
+  newPassword: String!
+  refreshToken: String
+}
+
+input VerifyMFAInput {
+  code: String!
+  sessionId: String!
+}
+
+input UpsertBannersByStoreInput {
+  storeId: ID!
+  upsertBannersInput: [UpsertBannerInput!]!
+}
+
+input UpsertBannerInput {
+  id: ID
+  title: String!
+  desktopImage: String!
+  mobileImage: String!
+  targetUrl: String
+  targetCategory: ID
+  index: Int!
+}
+
+input UpsertBillingInput {
+  id: ID
+  name: String!
+  fields: [BillingFieldValueInput!]!
+}
+
+input BillingFieldValueInput {
+  id: ID
+  key: String!
+  value: String!
+}
+
+input GetActiveCallCenterCartInput {
+  customer: ID!
+  storeReference: ID!
+  operationalModel: OperationalModel!
+}
+
+input CreateCallCenterCartInput {
+  customer: ID!
+  storeReference: ID!
+  addressId: ID
+  operationalModel: OperationalModel!
+}
+
+input UpdateCallCenterCartInput {
+  cartId: ID!
+  groupId: ID
+  storeReference: ID
+  addressId: ID
+  paymentConfigurationId: ID
+  operationalModel: OperationalModel
+  slot: SlotInput
+  loyalty: UpdateLoyaltyInput
+  billing: BillingInput
+  onlinePaymentParams: OnlinePaymentParamsInput
+  extraField: ExtraFieldCartInput
+}
+
+input UpdateProductInCallCenterCartInput {
+  cartId: ID!
+  productId: ID!
+  variant: String
+  unit: String
+  unitQuantity: Float
+  instruction: String
+  promotion: PromotionInputModel
+  substitutes: UpdateSubstituteProductsInCartInput
+}
+
+input AddSpecialProductToCallCenterCartInput {
+  cartId: ID!
+  name: String!
+  price: Float
+  unitQuantity: Float!
+  unit: String
+  sku: String
+  instruction: String
+}
+
+input UpdateSpecialProductInCallCenterCartInput {
+  cartId: ID!
+  specialProductId: ID!
+  name: String
+  price: Float
+  unitQuantity: Float
+  unit: String
+  sku: String
+  instruction: String
+}
+
+input PromotionInputModel {
+  type: InputPromotionType!
+  condition: PromotionConditionInputModel!
+}
+
+input PromotionConditionInputModel {
+  price: Float!
+}
+
+enum InputPromotionType {
+  NEGOTIATED
+}
+
+input UpdateProductsToCartInput {
+  cartId: ID!
+  products: [UpdateProductToCartInput!]!
+}
+
+input UpdateProductToCartInput {
+  productId: String!
+  substitutes: UpdateSubstituteProductsInCartInput
+}
+
+input GetCategoryInput {
+  clientId: ID
+  storeReference: ID!
+}
+
+input GetHomeInput {
+  clientId: ID
+  storeReference: ID
+  onlyPromos: Boolean
+}
+
+input GetDynamicHomeInput {
+  clientId: ID
+  storeReference: ID
+  breakpointId: ID!
+  onlyPromos: Boolean
+  googleAnalyticsSessionId: String
+  targetType: DynamicHomeTargetType
+}
+
+input GetProductsByCategoryInput {
+  pageSize: Int
+  currentPage: Int
+  storeReference: ID!
+  categoryReference: String
+  categoryId: String
+  filters: ProductFiltersInput
+  sort: ProductSortInput
+  clientId: ID
+  googleAnalyticsSessionId: String
+}
+
+input GetProductsBySKUInput {
+  clientId: ID
+  storeReference: ID!
+  skus: [String!]!
+}
+
+input GetSearchSuggestionInput {
+  clientId: ID
+  storeReference: ID!
+  partialQuery: String!
+}
+
+input GetSuggestedProductsInput {
+  clientId: ID
+  storeReference: ID!
+  sku: String!
+}
+
+input GetProductRecommendationsInput {
+  clientId: ID
+  type: ProductRecommendationType!
+  storeReference: String!
+  cartId: ID
+  data: JSON!
+}
+
+input SearchProductsInput {
+  pageSize: Int!
+  currentPage: Int!
+  minScore: Float
+  storeReference: ID!
+  search: [SearchQueryInput!]!
+  filters: ProductFiltersInput
+  sort: ProductSortInput
+  clientId: ID
+  googleAnalyticsSessionId: String
+}
+
+input SearchQueryInput {
+  query: String!
+  fields: [SearchQueryFieldsInput!]
+}
+
+input GetProductExternalInfoInput {
+  clientId: ID!
+  storeReference: ID!
+  sku: String!
+}
+
+input AddProductToCartInput {
+  cartId: ID!
+  reference: String!
+  variant: String
+  unit: String!
+  unitQuantity: Float!
+  instruction: String
+}
+
+input AddProductsToCartInput {
+  cartId: ID!
+  products: [ProductToCartInput!]!
+}
+
+input ProductToCartInput {
+  reference: String!
+  variant: String
+  unit: String!
+  unitQuantity: Float!
+  instruction: String
+}
+
+input UpdateSubstituteProductsInCartInput {
+  substituteMode: SubstituteModeType
+  substituteProducts: [String!]!
+}
+
+input UpdateProductInCartInput {
+  cartId: ID!
+  productId: ID!
+  variant: String
+  unit: String
+  unitQuantity: Float
+  instruction: String
+  substitutes: UpdateSubstituteProductsInCartInput
+}
+
+input DeleteProductInCartInput {
+  cartId: ID!
+  productId: ID!
+}
+
+input DeleteSpecialProductInCartInput {
+  cartId: ID!
+  specialProductId: ID!
+}
+
+input PurchaseCartInput {
+  cartId: ID!
+  slot: SlotInput
+  paymentInput: PaymentInput!
+  allowSplitOrders: Boolean
+  curbside: Boolean
+}
+
+input PurchaseCartWithGroupsInput {
+  cartId: ID!
+  paymentInput: PaymentInput!
+}
+
+input PaymentMethodInput {
+  type: PaymentMethodType!
+  name: String!
+}
+
+input PaymentInput {
+  logisticPaymentMethod: String @deprecated(reason: "Use 'paymentMethod' instead")
+  paymentMethod: PaymentMethodInput
+  onlinePaymentParams: OnlinePaymentParamsInput
+  paymentMethodDetail: String
+}
+
+input OnlinePaymentParamsInput {
+  cardExternalId: String
+  type: String
+  continueUrl: String
+  currency: String!
+  due: Int
+  uuid: String
+  installments: InstallmentInput
+}
+
+input InstallmentInput {
+  term: Int
+  interval: String
+  intervalDuration: String
+  currencyCode: String
+  periodicPayment: String
+}
+
+input ExtraFieldCartInput {
+  gift: String
+  openText: String
+}
+
+input SearchCouponsInput {
+  limit: Int
+  page: Int
+  filterBy: FilterCoupon
+  sortBy: SortCouponParams
+  desc: Boolean
+}
+
+enum SortCouponParams {
+  ID
+  CODE
+}
+
+enum FilterCouponParam {
+  CODE
+  CAMPAIGN
+}
+
+input FilterCoupon {
+  param: FilterCouponParam!
+  value: String!
+}
+
+input UpsertCouponInput {
+  id: ID
+  campaign: String!
+  description: String
+  startDateTime: Date!
+  endDateTime: Date!
+  couponCode: String!
+  conditions: [CouponConditionInput!]!
+  constraints: [CouponConstraintInput!]
+  benefits: [CouponBenefitInput!]!
+  isActive: Boolean!
+  targetStores: Boolean!
+  usersFilter: UsersFilter
+}
+
+input CouponConditionInput {
+  type: CouponConditionType!
+  value: Float
+  list: [String]
+}
+
+input CouponBenefitInput {
+  type: CouponType!
+  value: Float!
+}
+
+input CouponConstraintInput {
+  type: CouponConstraintType!
+  value: Float!
+}
+
+input SetCouponUsersInput {
+  couponId: ID!
+  emails: [String!]!
+}
+
+input SetCouponStoresInput {
+  couponId: ID!
+  codes: [String!]!
+}
+
+input CouponInput {
+  cartId: ID!
+  voucher: String
+  couponCode: String
+}
+
+input FilterInput {
+  id: ID
+  type: CouponFilterType!
+  operator: CouponFilterOperator!
+  values: [String!]!
+}
+
+input UpsertCouponFiltersInput {
+  couponId: ID!
+  filters: [FilterInput!]!
+}
+
+input GetCouponFiltersInput {
+  couponId: ID!
+}
+
+input RemoveCouponFilterInput {
+  couponId: ID!
+  filterId: ID!
+}
+
+input GetAdminCustomersInput {
+  limit: Int
+  page: Int
+  filterBy: FilterCustomer
+  sortBy: SortCustomerParams
+  desc: Boolean
+}
+
+enum SortCustomerParams {
+  ID
+  EMAIL
+  DOCUMENT_ID
+  CREATED_AT
+  UPDATED_AT
+  NAME
+}
+
+enum FilterCustomerParam {
+  EMAIL
+  DOCUMENT_ID
+  NAME
+  PHONE_NUMBER
+}
+
+input FilterCustomer {
+  param: FilterCustomerParam!
+  value: String!
+}
+
+input UpdateCustomerSegmentsInput {
+  documentId: String
+  email: String
+  segments: [SegmentInput!]!
+}
+
+input SegmentInput {
+  type: String!
+  value: String!
+}
+
+input IsPhoneNumberValidInput {
+  clientId: String!
+  phoneNumber: String!
+}
+
+input SignUpInput {
+  clientId: String!
+  customerData: CustomerDataInput!
+}
+
+input CustomerDataInput {
+  name: String!
+  email: String!
+  password: String!
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  terms: Boolean
+  notifications: Boolean
+  customData: JSON
+  dynamicData: JSON
+}
+
+input GetCustomerSchemaInput {
+  clientId: String!
+}
+
+input SendEmailVerificationInput {
+  clientId: String!
+  email: String!
+}
+
+input UpdateCustomerInput {
+  name: String
+  email: String
+  phoneNumber: String
+  customData: JSON
+  segments: [SegmentInput!]
+  documentId: String
+  provider: String
+  terms: Boolean
+  notifications: Boolean
+  shoppingCartVersion: String
+  externalId: String
+  forcePasswordReset: Boolean
+  blocked: Boolean
+  dynamicData: JSON
+  mfaRequired: Boolean
+}
+
+input GetActiveEcommerceCartInput {
+  storeReference: ID!
+  operationalModel: OperationalModel!
+}
+
+input CreateEcommerceCartInput {
+  storeReference: ID!
+  addressId: ID
+  operationalModel: OperationalModel!
+}
+
+input UpdateEcommerceCartInput {
+  cartId: ID!
+  groupId: ID
+  storeReference: ID
+  addressId: ID
+  paymentConfigurationId: ID
+  operationalModel: OperationalModel
+  slot: SlotInput
+  paymentMethod: PaymentMethodInput
+  billing: BillingInput
+  loyalty: UpdateLoyaltyInput
+  onlinePaymentParams: OnlinePaymentParamsInput
+  extraField: ExtraFieldCartInput
+}
+
+input SlotInput {
+  id: String!
+  from: String!
+  to: String!
+  expiresAt: String!
+  type: String
+  prices: ShippingPriceInput
+}
+
+input ShippingPriceInput {
+  initial: Float!
+  isFreeService: Boolean!
+  final: Float!
+}
+
+input GetDeliverySlotsInput {
+  cartId: ID!
+  start: String!
+  end: String!
+  groupId: ID
+  allowSplitOrders: Boolean
+}
+
+input ExpressDeliveryAreaDetailsInput {
+  clientId: String!
+  storeReference: ID!
+  coordinates: CoordinatesInput!
+}
+
+input CoordinatesInput {
+  latitude: Float!
+  longitude: Float!
+}
+
+input BillingInput {
+  name: BillingFieldInput
+  documentId: BillingFieldInput
+  documentType: BillingFieldInput
+  general: [GeneralBillingFieldInput!]
+}
+
+input BillingFieldInput {
+  name: String!
+  value: String!
+}
+
+input GeneralBillingFieldInput {
+  key: String
+  name: String!
+  value: String!
+}
+
+input UpdateLoyaltyInput {
+  selectedRedemption: selectedRedemptionInput
+}
+
+input selectedRedemptionInput {
+  points: Float!
+}
+
+input RetryPurchaseCartInputV2 {
+  cartId: ID!
+  paymentConfigurationId: ID!
+  onlinePaymentParams: OnlinePaymentParamsInput
+}
+
+input ExtraFieldInput {
+  cartId: ID!
+  language: String!
+}
+
+input AddProductToShoppingListInput {
+  sku: String!
+  listReference: String!
+}
+
+input DeleteProductFromShoppingListInput {
+  sku: String!
+  listReference: String!
+}
+
+input GetShoppingListInput {
+  listReference: String!
+  storeReference: String!
+}
+
+input GetShoppingListsInput {
+  storeReference: String!
+}
+
+input CreateShoppingListInput {
+  listName: String!
+}
+
+input UpdateShoppingListInput {
+  listName: String!
+  listReference: String!
+}
+
+input DeleteShoppingListInput {
+  listReference: String!
+}
+
+input CreateGuestCartInput {
+  storeReference: ID!
+  operationalModel: OperationalModel!
+  clientId: ID!
+}
+
+input UpdateGuestCartInput {
+  cartId: ID!
+  storeReference: ID
+  operationalModel: OperationalModel
+}
+
+input AddUserInteractionInput {
+  sessionId: ID!
+  clientId: String
+  data: JSON!
+}
+
+input CustomerLoyaltyPointsSummaryInput {
+  pagination: LoyaltyPaginationInput
+}
+
+input CustomerLoyaltyPointsHistoryInput {
+  pagination: LoyaltyPaginationInput
+}
+
+input LoyaltyPaginationInput {
+  page: Int = 1
+  limit: Int = 10
+}
+
+input GetOrganizationConfigurationsInput {
+  targetType: String!
+  clientId: String!
+}
+
+input SearchParametersInput {
+  key: String
+  limit: Int
+  page: Int
+}
+
+input UpsertParameterInput {
+  key: String!
+  value: String!
+}
+
+input PasswordResetValidationInput {
+  email: String!
+  clientId: String!
+}
+
+input PaymentOperationInput {
+  type: PaymentOperationTypes!
+  orderExternalId: ID!
+  params: JSON!
+}
+
+enum PaymentOperationTypes {
+  CREATE_PAYMENT
+}
+
+input DeleteCardInput {
+  cardExternalId: String!
+}
+
+input GetInstallmentsPaymentMethodsInput {
+  cartId: ID!
+  cardExternalId: String!
+}
+
+input ProductFiltersInput {
+  brands: [String!]
+  categories: [String!]
+  priceRange: PriceRangeFilterInput
+  availablePromotions: Boolean
+  availablePromotionsV2: Boolean
+  tags: [String!]
+  tagReference: [String!]
+  operationalModels: [String!]
+  specifications: [SpecificationFilterInput!]
+  seals: [String!]
+}
+
+input PriceRangeFilterInput {
+  lt: Float
+  lte: Float
+  gt: Float
+  gte: Float
+}
+
+input SpecificationFilterInput {
+  label: String!
+  values: [String!]!
+}
+
+input SearchQueryFieldsInput {
+  option: SearchQueryFieldsOptionInput!
+  weight: Float
+}
+
+enum SearchQueryFieldsOptionInput {
+  BRAND
+  CATEGORIES_NAME
+  NAME
+  SEARCHKEYWORDS
+  SKU
+  TAGS_NAME
+  TAG_REFERENCE
+}
+
+input ProductSortInput {
+  asc: [ProductSortField!]
+  desc: [ProductSortField!]
+}
+
+enum ProductSortField {
+  IS_AVAILABLE
+  BOOST
+  UPDATED_AT
+  NAME
+  STOCK
+  PRICE
+  BRAND
+  CREATED_AT
+  PROMOTION_ACTIVE
+  PRICE_PER_SUB_UNIT
+  EXTERNAL_CREATION_DATE
+}
+
+input CreateQuotationInput {
+  cartId: ID!
+  comment: String
+  expirationDate: Date!
+}
+
+input GetQuotationsInput {
+  customerId: ID
+  storeReference: ID
+  page: Int
+  limit: Int
+}
+
+input GetQuotationInput {
+  quotationId: ID!
+}
+
+input ConvertQuotationToCartInput {
+  quotationId: ID!
+}
+
+input UpdateQuotationInput {
+  quotationId: ID!
+  comment: String
+}
+
+input DeleteQuotationInput {
+  quotationId: ID!
+}
+
+input ExpireQuotationInput {
+  quotationId: ID!
+}
+
+input DuplicateQuotationInput {
+  quotationId: ID!
+  comment: String
+  expirationDate: Date!
+}
+
+input SearchAdminStoresInput {
+  limit: Float!
+  page: Float!
+  filterBy: FilterStore
+  sortBy: SortStoreParams
+  desc: Boolean
+}
+
+enum SortStoreParams {
+  BANNER_COUNT
+  NAME
+  CREATED_AT
+}
+
+enum FilterStoreParam {
+  ID
+  REFERENCE
+  NAME
+}
+
+input FilterStore {
+  param: FilterStoreParam!
+  value: String!
+}
+
+input StoreConfigurationsInput {
+  clientId: ID
+  storeReference: ID!
+}
+
+input Send2FAInput {
+  clientId: String
+  type: TwoFAType!
+  value: String!
+}
+
+input Verify2FAInput {
+  clientId: String
+  requestId: String!
+  code: String!
+}
+
+enum TwoFAType {
+  SMS
+  VOICE
+  EMAIL
+  WHATSAPP
+}
+
+scalar JSON
+
+type AddressModel {
+  id: ID!
+  description: String!
+  address: AddressFormat!
+  addressTwo: String!
+  available: Boolean!
+  latitude: Float!
+  longitude: Float!
+  city: String!
+  state: String
+  zipCode: String
+  removed: Boolean!
+  customerId: String!
+  distanceToStore: Float
+}
+
+type AddressFormat {
+  structure: JSON
+  other: String!
+}
+
+type ValidatedCoverage {
+  coverage: Boolean!
+}
+
+type UpdatedCustomerData {
+  firstName: String
+  lastName: String
+  name: String
+  phoneNumber: String
+  documentType: String
+  documentId: String
+}
+
+scalar URL
+
+type AgeVerificationURLModel {
+  ageVerificationURL: URL!
+}
+
+type GenerateBackofficeTokenResponse {
+  token: String!
+}
+
+type MFAModel {
+  sessionId: String!
+}
+
+type SignInResponse {
+  token: String
+  refreshToken: String
+  customer: AuthCustomer
+  mfa: MFAModel
+}
+
+type LogoutResponse {
+  success: Boolean!
+}
+
+type ForgotPasswordResponse {
+  success: Boolean!
+}
+
+type ResetPasswordResponse {
+  success: Boolean!
+  sessionsClosed: Int!
+}
+
+type ChangePasswordResponse {
+  success: Boolean!
+  sessionsClosed: Int!
+}
+
+type AuthCustomer {
+  id: ID!
+  name: String
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  email: String
+  documentId: String
+  documentType: String
+  uid: String
+  terms: Boolean
+  notifications: Boolean
+  addresses: [AuthAddress]
+  customData: JSON
+  segments: JSON
+  shoppingCartVersion: String
+  externalId: String
+  phoneNumberValidated: Boolean
+  dynamicData: JSON
+}
+
+type AuthAddress {
+  id: ID!
+  description: String
+  address: AuthAddressFormat
+  addressTwo: String
+  city: String
+  state: String
+  zipCode: Int
+  latitude: Float
+  longitude: Float
+  available: Boolean
+  customer: AuthCustomer
+  coverage: Boolean
+  zipCodeString: String
+}
+
+type AuthAddressFormat {
+  structure: JSON
+  other: String!
+}
+
+type RefreshTokensResponse {
+  token: String!
+  refreshToken: String!
+}
+
+type VerifyMFAResponse {
+  token: String!
+  refreshToken: String!
+  customer: AuthCustomer!
+}
+
+type BannerModel {
+  id: ID!
+  storeId: ID
+  title: String!
+  desktopImage: String!
+  mobileImage: String!
+  targetUrl: String @deprecated(reason: "Take info from 'targetUrlInfo'")
+  targetUrlInfo: TargetUrlModel
+  targetCategory: ID
+  index: Int!
+  categoryId: String
+}
+
+type TargetUrlModel {
+  type: TargetUrlType
+  url: String!
+}
+
+enum TargetUrlType {
+  _self
+  _blank
+}
+
+type BillingProfileModel {
+  id: ID!
+  name: String!
+  fields: [BillingFieldValue!]!
+}
+
+type BillingFieldValue {
+  id: ID!
+  key: String!
+  value: String!
+}
+
+type DeleteBillingResponse {
+  success: Boolean!
+}
+
+type CarouselModel {
+  id: ID!
+  name: String!
+  autoplaySpeed: Int!
+  lazyLoading: Boolean!
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  banners: [BannerCarouselModel!]!
+  position: String!
+}
+
+type BannerCarouselModel {
+  id: ID!
+  name: String!
+  webImageUrl: String
+  tabletImageUrl: String
+  appImageUrl: String
+  redirectUrl: String
+  redirectMode: String!
+  isActive: Boolean!
+}
+
+type CartModel {
+  id: ID!
+  operationalModel: OperationalModel!
+  products: [CartProductModel]!
+  specialProducts: [CartSpecialProductModel!]!
+  customer: CustomerModel
+  store: StoreModel!
+  address: AddressModel
+  status: CartStatus
+  pricesSummary: PricesSummary!
+  storeConfiguration: StoreConfiguration!
+  coupon: CouponModel
+  deliverySlot: DeliverySlotModel
+  validationIssues: [ValidationIssue!]
+  billing: Billing
+  paymentConfigurationId: String
+  loyalty: LoyaltyBasicModel
+  quotation: QuotationModel
+  onlinePaymentParams: OnlinePaymentParamsModel
+}
+
+type AddProductsToCartModel {
+  cart: CartModel!
+  confirmationStatuses: [ConfirmationStatus!]!
+}
+
+type UpdateProductsToCartModel {
+  cart: CartModel!
+  confirmationStatuses: [ConfirmationStatus!]!
+}
+
+type ConfirmationStatus {
+  reference: String!
+  validationIssues: [ValidationIssue!]!
+}
+
+type Billing {
+  name: BillingField
+  documentId: BillingField
+  documentType: BillingField
+  general: [BillingField!]
+}
+
+type BillingField {
+  name: String
+  value: String
+}
+
+type StoreConfiguration {
+  minimumPurchasingAmount: Float!
+  maximumPurchasingAmount: Float!
+  serviceFee: Float!
+  minimumToFreeServiceFee: Float!
+  isCurbsidePickupEnabled: Boolean!
+}
+
+type CartTaxesSummaryModel {
+  id: String!
+  name: String!
+  value: Float!
+}
+
+type CartProductsSummaryModel {
+  missingForMinimumOrderValue: Float!
+  missingForFreeShipping: Float!
+  totalProductsDiscount: Float!
+  fullProductsPrice: Float!
+  productsTotal: Float!
+  missingForMinimumOrderValueBeforeTaxes: Float!
+  missingForFreeShippingBeforeTaxes: Float!
+  totalProductsDiscountBeforeTaxes: Float!
+  fullProductsPriceBeforeTaxes: Float!
+  productsTotalBeforeTaxes: Float!
+  isApplicableForFreeShipping: Boolean!
+}
+
+type PricesSummary {
+  shippingFee: Float!
+  serviceFee: ShippingServiceFeeModel
+  taxes: Float!
+  discounts: Float!
+  subtotal: Float!
+  fullPrice: Float!
+  total: Float!
+  totalBeforeTaxes: Float!
+  attributes: [PricesAttributes!]!
+  taxesSummary: [CartTaxesSummaryModel!]!
+  productsSummary: CartProductsSummaryModel
+  reservedAmount: Float!
+  totalBeforeReservedAmount: Float!
+}
+
+type ServiceFeePriceModel {
+  initial: Float!
+  final: Float!
+}
+
+type ShippingServiceFeeModel {
+  isPending: Boolean!
+  isFreeService: Boolean!
+  serviceFee: ServiceFeePriceModel!
+}
+
+type PricesAttributes {
+  type: PricesType!
+  name: String!
+  value: Float!
+}
+
+type LoyaltyBasicModel {
+  selectedRedemption: LoyaltyPointsEquivalenceModel
+}
+
+enum PricesType {
+  ORDER_VALUE
+  SHIPPING_FEE
+  TAXES
+  DISCOUNTS
+  SUBTOTAL
+  RESERVED_AMOUNT
+}
+
+enum OperationalModel {
+  PICK_UP
+  DELIVERY
+  PICK_AND_COLLECT
+  MULTIPLE_PICKING_AND_DELIVERY
+}
+
+enum CartStatus {
+  PROCESSING
+  PURCHASED
+  DELETED
+  VALIDATED
+}
+
+enum LogisticsPaymentMethod {
+  CASH
+  PAYMENT_LINK
+  PAYMENT_TERMINAL
+  PREPAID
+  LOYALTY_CARD
+  TRANSFER
+}
+
+type RecommendedSetModel {
+  message: String
+  missingItems: [RecommendedSetMissingItemModel]
+}
+
+type RecommendedSetMissingItemModel {
+  itemKeywords: String
+  options: [CatalogProductModel]
+}
+
+scalar Date
+
+type CartProductModel {
+  id: ID!
+  unitQuantity: Float!
+  baseUnitPrice: Float!
+  baseUnitPriceBeforeTaxes: Float!
+  reference: String!
+  unit: String
+  variant: String
+  instruction: String
+  status: ProductStatus
+  imageUrl: String
+  price: ProductPrice!
+  maxUnitQuantity: Float!
+  minUnitQuantity: Float!
+  name: String!
+  createdAt: Date!
+  updatedAt: Date!
+  availability: Boolean!
+  baseUnit: String!
+  promotion: Promotion
+  promotions: [PromotionV2]
+  stockWarning: Boolean!
+  substitutes: Substitutes!
+  type: String
+}
+
+type ProductCategory {
+  reference: String!
+  name: String!
+  path: String
+  slug: String
+  level: Int
+  boost: Int
+  isAvailableInHome: Boolean!
+  hasChildren: Boolean!
+  active: Boolean!
+  categoryNamesPath: String
+  isAssociatedToCatalog: Boolean!
+  isMainCategory: Boolean!
+}
+
+type Substitutes {
+  substituteMode: SubstituteModeType
+  substituteProducts: [String!]!
+}
+
+type Promotion {
+  type: String!
+  isActive: Boolean!
+  conditions: [PromotionCondition!]!
+  description: String!
+  endDateTime: Date
+  startDateTime: Date
+  isApplied: Boolean
+}
+
+type PromotionV2 {
+  type: String
+  description: String
+  promotionReference: String
+  startDateTime: Date!
+  endDateTime: Date!
+  isActive: Boolean!
+  conditions: [Condition!]!
+  benefit: Benefit!
+  restrictions: [Restriction]!
+}
+
+type Condition {
+  field: String!
+  operator: String!
+  values: [String]
+  value: Float
+}
+
+type Tax {
+  id: String
+  name: String
+  type: String
+  value: Float
+  rate: Float
+}
+
+type TaxInfo {
+  priceBeforeTaxes: Float
+  taxTotal: Float
+  taxes: [Tax]
+}
+
+type Benefit {
+  type: String!
+  label: String!
+  value: Float
+  values: [String]
+  imagesURL: [String]
+  qty: Int
+  taxInfo: TaxInfo
+}
+
+type Restriction {
+  field: String!
+  operator: String!
+  value: Float!
+}
+
+type PromotionCondition {
+  quantity: Float!
+  price: Float!
+  priceBeforeTaxes: Float
+  taxTotal: Float
+  taxes: [ProductTaxModel]
+}
+
+type ProductPrice {
+  taxes: Float!
+  totalBeforeTaxes: Float!
+  subtotal: Float!
+  fullPrice: Float!
+  discount: Float!
+  total: Float!
+  taxesSummary: [ProductPriceTaxesSummaryModel!]!
+  discountDetails: DiscountDetailsModel!
+}
+
+type ProductPriceTaxesSummaryModel {
+  id: String!
+  name: String!
+  value: Float!
+  type: TaxType!
+  rate: Float!
+}
+
+type DiscountDetailsModel {
+  totalDiscount: Float!
+  totalDiscountBeforeTaxes: Float!
+  promotionDetails: ProductPricePromotionDetails!
+}
+
+type ProductPricePromotionDetails {
+  totalDiscount: Float!
+  totalDiscountBeforeTaxes: Float!
+  discountTaxTotal: Float!
+  summary: [ProductPricePromotionSummary!]!
+}
+
+type ProductPricePromotionSummary {
+  promotionType: String!
+  promotionReference: String!
+  promotedQuantity: Float!
+  unpromotedQuantity: Float!
+  promotionPrice: Float!
+  promotionTaxTotal: Float!
+  promotionPriceBeforeTaxes: Float!
+}
+
+type ValidatedProductTag {
+  description: String!
+  enabled: Boolean!
+  textColor: String!
+  filter: Boolean!
+  tagReference: String!
+  backgroundColor: String!
+  name: String!
+}
+
+enum ProductStatus {
+  ADDED
+  REMOVED
+}
+
+enum SubstituteModeType {
+  SUGGESTED
+  NO_REPLACE
+  CONTACT_ME
+}
+
+type CartSpecialProductModel {
+  id: ID!
+  unitQuantity: Float!
+  unit: String!
+  instruction: String
+  imageUrl: String!
+  sku: String
+  price: ProductPrice!
+  name: String!
+  status: ProductStatus!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type HomeModel {
+  categories: [CategoryWithProductsModel]!
+  banners: [BannerModel!]!
+  store: AdminStoreModel!
+}
+
+type ProductsByCategoryModel {
+  category: CategoryWithProductsModel!
+  pagination: PaginationModel!
+  aggregates: [AggregateModel!]!
+  carousels: [CarouselModel!]!
+  banners: [BannerModel!]!
+  promoted: PromotedModel
+}
+
+type SearchProductsModel {
+  pagination: PaginationModel!
+  products: [CatalogProductModel!]!
+  aggregates: [AggregateModel!]!
+  promoted: PromotedModel
+  carousels: [CarouselModel!]!
+}
+
+type AggregateModel {
+  name: String!
+  docCount: Int
+  isFromSpecification: Boolean!
+  buckets: [AggregateBucketModel!]
+}
+
+type AggregateBucketModel {
+  min: Float
+  max: Float
+  key: String
+  docCount: Int
+}
+
+type PaginationModel {
+  page: Int!
+  pages: Int!
+  total: PaginationTotalModel
+}
+
+type PaginationTotalModel {
+  value: Int
+  relation: String
+}
+
+enum ProductRecommendationType {
+  FREQUENTLY_BOUGHT_TOGETHER
+  REPLACEMENTS
+  TRENDING
+  RECOMMENDED_FOR_YOU
+  FORGOT_SOMETHING
+}
+
+enum DynamicHomeTargetType {
+  WEB
+  MOBILE
+}
+
+type CatalogProductModel {
+  name: String!
+  price: Float!
+  priceBeforeTaxes: Float
+  taxTotal: Float
+  taxes: [ProductTaxModel]
+  photosUrl: [String!]
+  unit: String!
+  subUnit: String
+  subQty: Float
+  description: String
+  sku: String!
+  ean: [String]
+  maxQty: Float!
+  minQty: Float!
+  nutritionalDetails: String
+  nutritionalDetailsInformation: NutritionalDetailsInformation
+  isActive: Boolean!
+  slug: String!
+  brand: String
+  stock: Int!
+  securityStock: Int!
+  stockWarning: Boolean!
+  boost: Int!
+  isAvailable: Boolean!
+  location: String
+  promotion: Promotion
+  promotions: [PromotionV2]
+  categories: [CategoryModel!]! @deprecated(reason: "Use categoriesData instead")
+  categoriesData: [CategoryModel!]!
+  formats: [CatalogProductFormatModel!]
+  variants: [CatalogProductVariantModel!]
+  productVariants: JSON
+  tags: [CatalogProductTagModel!]
+  score: Float
+  relatedProducts: [String!]
+  clickMultiplier: Float!
+  ingredients: [String!]
+  promoted: PromotedModel
+  specifications: [SpecificationModel]!
+  isVariant: Boolean!
+  isDominant: Boolean!
+  seals: [JSON]
+  hasAgeRestriction: Boolean
+  availableOperationalModel: [String!]
+  previousPrice: Float
+  previousPricePerSubUnit: Float
+  pricePerSubUnit: Float
+  promotionPricePerSubUnit: Float
+  type: String
+  packages: [CatalogPackagesModel]
+  metaDescription: String
+  metaTitle: String
+  allowSubstitutions: Boolean
+}
+
+type CatalogPackagesModel {
+  name: String!
+  price: Float!
+  priceBeforeTaxes: Float
+  taxTotal: Float
+  taxes: [ProductTaxModel]
+  photosUrl: [String!]
+  unit: String!
+  subUnit: String
+  subQty: Float
+  description: String
+  sku: String!
+  ean: [String]
+  maxQty: Float!
+  minQty: Float!
+  nutritionalDetails: String
+  nutritionalDetailsInformation: NutritionalDetailsInformation
+  isActive: Boolean!
+  slug: String!
+  brand: String
+  stock: Int!
+  securityStock: Int!
+  stockWarning: Boolean!
+  boost: Int!
+  isAvailable: Boolean!
+  location: String
+  promotion: Promotion
+  promotions: [PromotionV2]
+  categories: [CategoryModel!]!
+  categoriesData: [CategoryModel!]!
+  formats: [CatalogProductFormatModel!]
+  variants: [CatalogProductVariantModel!]
+  productVariants: JSON
+  tags: [CatalogProductTagModel!]
+  score: Float
+  relatedProducts: [String!]
+  clickMultiplier: Float!
+  ingredients: [String!]
+  promoted: PromotedModel
+  specifications: [SpecificationModel]!
+  isVariant: Boolean!
+  isDominant: Boolean!
+  seals: [JSON]
+  hasAgeRestriction: Boolean
+  availableOperationalModel: [String!]
+  previousPrice: Float
+  previousPricePerSubUnit: Float
+  pricePerSubUnit: Float
+  promotionPricePerSubUnit: Float
+  type: String
+  capacity: Float
+}
+
+enum TaxType {
+  PERCENTAGE
+  AMOUNT
+}
+
+type ProductTaxModel {
+  taxId: String!
+  taxName: String!
+  taxType: TaxType!
+  taxValue: Float!
+  taxSubTotal: Float!
+}
+
+interface PromotedModel {
+  isPromoted: Boolean!
+  onLoadBeacon: String
+  onViewBeacon: String
+  onClickBeacon: String
+  onBasketChangeBeacon: String
+  onWishlistBeacon: String
+}
+
+type ProductPromotedModel implements PromotedModel {
+  isPromoted: Boolean!
+  onLoadBeacon: String
+  onViewBeacon: String
+  onClickBeacon: String
+  onBasketChangeBeacon: String
+  onWishlistBeacon: String
+  retailMediaData: PromotedRetailMediaDataProductModel
+}
+
+type RootPromotedModel implements PromotedModel {
+  isPromoted: Boolean!
+  onLoadBeacon: String
+  onViewBeacon: String
+  onClickBeacon: String
+  onBasketChangeBeacon: String
+  onWishlistBeacon: String
+  retailMediaData: PromotedRetailMediaDataModel
+}
+
+type PromotedRetailMediaDataModel {
+  products: [PromotedRetailMediaDataProductModel!]!
+  carousels: [PromotedRetailMediaDataCarouselModel!]!
+  campaignTriggerType: String
+  campaignTriggerValue: String
+  dataType: String
+}
+
+type PromotedRetailMediaDataProductModel {
+  sku: String
+  storeReference: String
+  productName: String
+  campaignRuleId: String
+  campaignId: String
+  campaignName: String
+  price: Float
+  campaignTriggerType: String
+  campaignTriggerValue: String
+  position: Float
+  dataType: String
+}
+
+type PromotedRetailMediaDataCarouselModel {
+  banners: [PromotedRetailMediaDataCarouselBannerModel!]!
+}
+
+type PromotedRetailMediaDataCarouselBannerModel {
+  carouselId: String
+  carouselName: String
+  bannerId: String
+  bannerName: String
+  storeReference: String
+  position: String
+  campaignRuleId: String
+  campaignId: String
+  campaignName: String
+  campaignTriggerType: String
+  campaignTriggerValue: String
+  dataType: String
+}
+
+type CatalogProductFormatModel {
+  format: String!
+  equivalence: Float!
+  unitEquivalence: String!
+  clickMultiplier: Float!
+  minQty: Float!
+  maxQty: Float!
+}
+
+type CatalogProductVariantModel {
+  id: String!
+  modifications: CatalogVariantModificationModel
+  types: [CatalogVariantTypeModel]
+}
+
+type CatalogProductTagModel {
+  description: String!
+  enabled: Boolean!
+  textColor: String!
+  filter: Boolean!
+  tagReference: String!
+  backgroundColor: String!
+  name: String!
+}
+
+type CatalogVariantModificationModel {
+  ean: String
+  name: String
+  stock: Float
+  photosUrl: [String!]
+}
+
+type CatalogVariantTypeModel {
+  name: String
+  value: String
+}
+
+type ProductExternalInfo {
+  description: String
+  ingredients: [String!]!
+  nutritionalDetails: NutritionalDetails
+  seals: [String!]!
+  technicalDetails: TechnicalDetails
+  warnings: [String!]!
+}
+
+type NutritionalDetails {
+  basicUnitName: String
+  portionText: String
+  portionValue: Float
+  portionUnitName: String
+  numPortions: Float
+  energy: NutritionalComponent
+  protein: NutritionalComponent
+  fatTotal: NutritionalComponent
+  fatSat: NutritionalComponent
+  fatMono: NutritionalComponent
+  fatPoli: NutritionalComponent
+  fatTrans: NutritionalComponent
+  fatCholesterol: NutritionalComponent
+  carb: NutritionalComponent
+  sugars: NutritionalComponent
+  fiber: NutritionalComponent
+  sodium: NutritionalComponent
+}
+
+type NutritionalComponent {
+  value: Float!
+  valuePerPortion: Float!
+  unitName: String!
+}
+
+type TechnicalDetails {
+  brandName: String
+  packagingTypeName: String
+  content: Float
+  drainedContent: Float
+  flavor: String
+  originCountryName: String
+}
+
+type SpecificationModel {
+  title: String!
+  values: [SpecificationValueModel!]!
+}
+
+type SpecificationValueModel {
+  label: String!
+  value: String!
+}
+
+type NutritionalDetailsInformation {
+  servingName: String
+  servingSize: Float
+  servingUnit: String
+  servingsPerPortion: Float
+  nutritionalTable: [NutritionFacts!]
+  bottomInfo: String
+}
+
+type NutritionFacts {
+  nutrientName: String!
+  quantity: Float!
+  unit: String!
+  quantityPerPortion: Float
+  dailyValue: String
+}
+
+type CategoryModel {
+  name: String!
+  reference: String
+  level: Int
+  path: String
+  hasChildren: Boolean!
+  active: Boolean!
+  boost: Int
+  isAvailableInHome: Boolean!
+  slug: String
+  photoUrl: String
+  subCategories: [CategoryModel]
+  categoryNamesPath: String
+  imageUrl: String
+  shortName: String
+  isFeatured: Boolean
+  isAssociatedToCatalog: Boolean!
+  hasAgeRestriction: Boolean
+  metaDescription: String
+  metaTitle: String
+  isMainCategory: Boolean
+}
+
+type CategoryWithProductsModel {
+  name: String!
+  reference: String!
+  level: Int!
+  path: String!
+  hasChildren: Boolean!
+  active: Boolean!
+  boost: Int!
+  isAvailableInHome: Boolean!
+  slug: String!
+  photoUrl: String
+  products: [CatalogProductModel!]!
+  categoryNamesPath: String
+  imageUrl: String
+  shortName: String
+  isFeatured: Boolean
+  oldId: String
+  hasAgeRestriction: Boolean
+  metaDescription: String
+  metaTitle: String
+}
+
+type ConfigurationsByStoreModel {
+  allowSubstituteProducts: Boolean!
+  enableDynamicHome: Boolean!
+  enforceCustomerPhoneValidation: Boolean!
+}
+
+type CouponModel {
+  id: ID!
+  benefits: [CouponBenefitModel!]!
+  conditions: [CouponConditionModel!]!
+  constraints: [CouponConstraintModel!]
+  startDate: Date!
+  endDate: Date!
+  code: String!
+}
+
+type NewCouponModel {
+  id: ID
+  campaign: String!
+  description: String
+  startDateTime: Date!
+  endDateTime: Date!
+  couponCode: String!
+  conditions: [NewCouponConditionModel!]!
+  constraints: [CouponConstraintModel!]
+  benefits: [CouponBenefitModel!]!
+  isActive: Boolean!
+  targetStores: Boolean!
+  usersFilter: UsersFilter
+  accumulatedAmount: Float
+  accumulatedRedemptions: Int
+}
+
+type CouponBenefitModel {
+  type: CouponType!
+  value: Float!
+}
+
+type CouponConstraintModel {
+  type: CouponConstraintType!
+  value: Float!
+}
+
+type CouponConditionModel {
+  field: CouponConditionField!
+  value: Float!
+  operator: CouponConditionOperator!
+}
+
+type NewCouponConditionModel {
+  type: CouponConditionType!
+  value: Float
+  list: [String]
+}
+
+enum CouponType {
+  FREE_SHIPPING
+  DISCOUNT_PERCENTAGE
+  DISCOUNT_VALUE
+}
+
+enum CouponConstraintType {
+  MAX_DISCOUNT_PER_COUPON
+}
+
+enum CouponConditionField {
+  TOTAL
+  SUBTOTAL
+  ORDERS
+}
+
+enum CouponConditionType {
+  MAX_PREVIOUS_ORDERS
+  MAX_REDEMPTIONS_PER_USER
+  MAX_COUPON_REDEMPTIONS
+  MINIMUM_AMOUNT_PURCHASE
+  PAYMENT_METHOD
+  MAX_AMOUNT_REDEMPTIONS
+}
+
+enum CouponConditionOperator {
+  GREATER_THAN
+  GREATER_EQUAL_THAN
+  LESS_THAN_OR_EQUAL
+}
+
+type CouponList {
+  couponsCount: Int!
+  coupons: [NewCouponModel!]!
+}
+
+enum UsersFilter {
+  EMAIL
+  DOCUMENT_ID
+}
+
+enum CouponFilterType {
+  CATEGORY
+  SKU
+  BRAND
+}
+
+enum CouponFilterOperator {
+  IN
+  NOT_IN
+}
+
+type Filter {
+  id: ID!
+  type: CouponFilterType!
+  operator: CouponFilterOperator!
+  values: [String!]!
+}
+
+type UpsertCouponFiltersResponse {
+  filters: [Filter!]
+}
+
+type CouponFiltersResponse {
+  filters: [Filter!]
+}
+
+type RemoveFilterValuesResponse {
+  success: Boolean!
+}
+
+type CustomerModel {
+  id: ID!
+  name: String!
+  email: String
+  phoneNumber: String
+  customData: CustomerCustomData
+  documentId: String
+  uid: String
+  provider: String
+  terms: Boolean
+  notifications: Boolean
+  shoppingCartVersion: String!
+  organizationId: String!
+  segments: JSON
+  externalId: String
+  phoneNumberValidated: Boolean!
+  createdAt: Date
+  updatedAt: Date
+  blocked: Boolean
+  documentType: String
+  firstName: String
+  lastName: String
+}
+
+type CustomerCustomData {
+  identificationType: String
+  identificationNumber: String
+  billing: JSON
+}
+
+type AdminCustomersList {
+  customersCount: Int!
+  customers: [CustomerModel!]!
+  availableFilters: [String!]!
+}
+
+type IsPhoneNumberValid {
+  isValid: Boolean!
+}
+
+type IsUpdatedCustomerMFA {
+  success: Boolean!
+}
+
+type SignUpResponse {
+  customer: AuthCustomer!
+  token: String!
+  refreshToken: String!
+}
+
+type CustomerFieldRequiredIn {
+  signUp: Boolean!
+  missingInfo: Boolean!
+}
+
+type CustomerFieldCharacterRules {
+  numbers: Boolean
+  uppercase: Boolean
+  lowercase: Boolean
+  specialCharacters: Boolean
+}
+
+type CustomerFieldPattern {
+  type: String!
+  pattern: String!
+  symbol: String
+  masks: [String!]
+  minLength: Int
+  maxLength: Int
+}
+
+type CustomerFieldValidation {
+  characterRules: CustomerFieldCharacterRules
+  allowedValues: [String!]
+  prefixes: [String!]
+  minLength: Int
+  maxLength: Int
+  minValue: Int
+  maxValue: Int
+  pattern: String
+  patterns: [CustomerFieldPattern!]
+}
+
+type CustomerFieldSchema {
+  id: ID!
+  name: String!
+  type: String!
+  requiredIn: CustomerFieldRequiredIn
+  validations: CustomerFieldValidation!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type CustomerSchema {
+  clientId: String!
+  fields: [CustomerFieldSchema!]!
+}
+
+type SendEmailVerificationResponse {
+  success: Boolean!
+}
+
+type UpdateCustomerResponse {
+  customer: CustomerModel
+  mfa: MFAModel
+}
+
+type DeliverySlotModel {
+  id: ID!
+  from: String!
+  to: String!
+  expiresAt: String!
+  groupId: ID
+  start: String @deprecated(reason: "Use 'from' instead")
+  end: String @deprecated(reason: "Use 'to' instead")
+  type: String
+  prices: ShippingPriceDetailsModel
+  extendedSlot: ExtendedSlot
+}
+
+type ExtendedSlot {
+  type: ExtendedSlotType!
+  startValue: String!
+  endValue: String!
+}
+
+enum ExtendedSlotType {
+  WEEK_DAYS
+  BUSINESS_DAYS
+}
+
+type ShippingPriceDetailsModel {
+  initial: Float!
+  isFreeService: Boolean!
+  final: Float!
+}
+
+type ExpressDeliveryAreaDetailsModel {
+  available: Boolean!
+}
+
+type ExtraFieldModel {
+  key: String!
+  copy: String!
+  options: [OptionExtraFieldModel!]
+}
+
+type OptionExtraFieldModel {
+  copy: String!
+  value: String!
+  isDefault: Boolean!
+}
+
+type AddToShoppingListResponse {
+  success: Boolean!
+}
+
+type DeleteProductFromShoppingListResponse {
+  success: Boolean!
+}
+
+type DeleteShoppingListResponse {
+  success: Boolean!
+}
+
+type UpdateShoppingListsResponse {
+  success: Boolean!
+}
+
+type AddUserInteractionResponse {
+  success: Boolean!
+}
+
+type CustomerLoyaltyDetailsModel {
+  points: Float!
+  redemptionEquivalence: RedemptionEquivalence!
+  qrCodeId: String
+}
+
+type RedemptionEquivalence {
+  conversionRate: Float!
+  conversionValue: Float!
+}
+
+type CustomerLoyaltyPointsSummaryModel {
+  currentPage: Int!
+  nextPage: Int
+  pointsToExpire: Int
+  items: [LoyaltyPointSummary]!
+}
+
+type LoyaltyPointSummary {
+  points: Float!
+  expirationDate: String!
+  description: String!
+}
+
+type CustomerLoyaltyPointsHistoryModel {
+  currentPage: Int!
+  nextPage: Int
+  items: [LoyaltyPointHistory]!
+}
+
+type LoyaltyPointHistory {
+  points: Float!
+  date: String!
+  type: String!
+  details: String!
+}
+
+type OnlinePaymentParamsModel {
+  creditCardParams: CreditCardParams
+}
+
+type CreditCardParams {
+  cardExternalId: String
+  type: String
+  continueUrl: String
+  currency: String!
+  due: Int
+  uuid: String
+  installments: Installment
+}
+
+type Installment {
+  term: Int
+  interval: String
+  intervalDuration: String
+  currencyCode: String
+  periodicPayment: String
+}
+
+type OrderModel {
+  id: ID!
+  status: OrderStatus
+  operationalModel: OperationalModel
+  jobId: String
+  jobNumber: String
+  coupon: JSON
+  store: StoreModel
+  address: AddressModel
+  customer: CustomerModel
+  lobbyScreenToken: String
+  prices: PricesSummary
+  products: [OrderProductModel]
+  deliverySlot: DeliverySlotModel
+}
+
+type PurchaseModel {
+  id: ID @deprecated(reason: "Use 'purchaseDetails.id' instead")
+  status: OrderStatus @deprecated
+  operationalModel: OperationalModel @deprecated
+  jobId: String @deprecated(reason: "Use 'purchaseDetails.jobId' instead")
+  jobNumber: String @deprecated(reason: "Use 'purchaseDetails.jobNumber' instead")
+  coupon: JSON @deprecated
+  store: StoreModel @deprecated
+  address: AddressModel @deprecated
+  customer: CustomerModel @deprecated
+  lobbyScreenToken: String
+  jobExtenalId: String
+  purchaseDetails: [PurchaseDetails]
+}
+
+type PurchaseDetails {
+  id: ID
+  jobId: String
+  jobNumber: String
+  deliverySlot: DeliverySlotModel
+}
+
+enum OrderStatus {
+  CREATED
+  PROCESSING
+  PICKING_FINISHED
+  CHECKED_OUT
+  CANCELLED
+  FINISHED
+  ALLOCATED_RECEIVED
+}
+
+type OrderProductModel {
+  id: ID!
+  reference: String
+  price: Float
+  quantity: Float
+  instruction: String
+  format: String
+  variant: String
+  promotion: Promotion
+  baseUnit: String
+  baseUnitQuantity: Float
+  name: String
+  imageUrl: String
+  type: String
+  addedBy: String
+}
+
+type ParamModel {
+  id: ID!
+  key: String!
+  value: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type ParamListModel {
+  totalParametersCount: Int!
+  parameters: [ParamModel!]!
+}
+
+type PasswordResetValidationModel {
+  forcePasswordReset: Boolean!
+}
+
+type PaymentMethodsConfig {
+  name: String!
+  defaultPaymentMethod: PaymentMethod!
+  eligiblePaymentMethods: [EligiblePaymentMethodConfig]
+}
+
+enum PolicyType {
+  ALLOW
+  BLOCK
+}
+
+enum CriteriaType {
+  MIN_AMOUNT
+  CATEGORIES
+}
+
+enum PaymentMethodType {
+  PREPAID
+  PAY_ON_DELIVERY
+}
+
+scalar AnyData
+
+type ConfigCriteria {
+  type: CriteriaType!
+  policy: PolicyType!
+  value: AnyData!
+}
+
+type PaymentMethod {
+  type: PaymentMethodType!
+  name: String!
+}
+
+type PaymentMethodsResponse {
+  type: PaymentMethodType!
+  names: [String!]!
+  paymentConfigurationId: ID
+  groupBy: String
+  requireDynamicBilling: Boolean
+}
+
+type EligiblePaymentMethodConfig {
+  type: PaymentMethodType!
+  name: String!
+  operationalModels: [OperationalModel!]!
+  criteria: [ConfigCriteria!]!
+}
+
+type PaymentOperationModel {
+  success: Boolean
+}
+
+type DeleteCardResponse {
+  success: Boolean!
+}
+
+type CanRetryOrderPaymentModel {
+  cartId: String
+  paymentStatus: String
+  canRetry: Boolean
+  store: StoreModel
+  operationalModel: String
+}
+
+type InstallmentsPaymentMethodsResponse {
+  installments: Int!
+  rate: Float!
+  amount: Float!
+  totalAmount: Float!
+  currency: String!
+}
+
+type PushNotificationResponse {
+  success: Boolean!
+}
+
+type QuotationModel {
+  id: ID!
+  status: String!
+  customer: CustomerModel
+  address: AddressModel
+  store: StoreModel
+  number: String!
+  comment: String
+  currency: String!
+  callCenterAgent: CallCenterAgent!
+  operationalModel: String!
+  clientId: String!
+  itemsQuantity: Int!
+  pricesSummary: PricesSummary!
+  expiresAt: Date!
+  purchasedAt: Date
+  products: [QuotationProductModel!]
+  createdAt: Date!
+}
+
+type CallCenterAgent {
+  name: String!
+  email: String!
+}
+
+type QuotationProductModel {
+  id: ID!
+  quotationId: ID!
+  unitQuantity: Float!
+  reference: String!
+  instruction: String
+  imageUrl: String
+  baseUnitPrice: Float!
+  baseUnitQuantity: Float!
+  conversionFactor: Float!
+  promotion: Promotion
+  unit: String!
+  baseUnit: String!
+  name: String!
+  attributes: ProductAttributes!
+  categories: [ProductCategory!]
+  price: ProductPrice!
+  pricePerBaseUnit: ProductPrice!
+  maxUnitQuantity: Float!
+  minUnitQuantity: Float!
+  stockDetails: [StockDetails!]!
+  brand: String
+  baseUnitPriceBeforeTaxes: Float!
+}
+
+type ProductSelectedFormat {
+  format: String!
+  equivalenceOnBaseUnit: Float!
+}
+
+type StockDetails {
+  storeReference: String!
+  stock: Float!
+}
+
+type ProductAttributes {
+  sku: String!
+  ean: [String!]
+  category: String
+  location: String
+}
+
+type ShoppingListModel {
+  listName: String!
+  id: String!
+  listReference: String!
+  products: [CatalogProductModel]!
+}
+
+type StoreModel {
+  id: ID!
+  name: String!
+  reference: String!
+  currency: String!
+  longitude: Float!
+  latitude: Float!
+  address: String!
+  addressTwo: String!
+  country: String!
+  state: String
+  zipCode: String
+  operationalModelsPriority: OperationalModelsPriority
+  slotSize: JSON!
+  dynamicParams: JSON
+}
+
+type OperationalModelsPriority {
+  DELIVERY: [String!]!
+  PICK_AND_COLLECT: [String!]!
+}
+
+enum DeadpoolOperationalModel {
+  PICK_AND_COLLECT
+  DELIVERY
+}
+
+type AdminStoreModel {
+  id: ID!
+  name: String!
+  reference: String!
+  latitude: Float!
+  longitude: Float!
+  phone: String!
+  address: String!
+  addressTwo: String!
+  country: String!
+  cities: [String!]!
+  state: String
+  zipCode: String
+  polygon: JSON
+  createdAt: String
+  operationalModel: DeadpoolOperationalModel!
+  kind: [String!]
+  dynamicParams: JSON
+  operationalModelsPriority: OperationalModelsPriority
+  bannersCount: Float!
+  banners: [BannerModel!]!
+  paymentMethodsConfig: PaymentMethodsConfig
+}
+
+type AdminStoreList {
+  storesCount: Float!
+  stores: [AdminStoreModel!]!
+}
+
+type Send2FAModel {
+  success: Boolean!
+  requestId: String!
+}
+
+type Verify2FAModel {
+  success: Boolean!
+}
+
+type ValidatedCartModel {
+  id: ID!
+  operationalModel: OperationalModel!
+  products: [ValidatedCartProductModel!]!
+  specialProducts: [CartSpecialProductModel!]!
+  customer: CustomerModel
+  store: StoreModel!
+  address: AddressModel
+  status: CartStatus!
+  pricesSummary: PricesSummary!
+  storeConfiguration: StoreConfiguration!
+  validationIssues: [ValidationIssue!]!
+  coupon: CouponModel
+  groups: [CartGroup]
+  loyalty: LoyaltyModel
+  quotation: QuotationModel
+  onlinePaymentParams: OnlinePaymentParamsModel
+  externalPromotions: ExternalPromotionsModel
+  paymentConfigurationId: String
+}
+
+type LoyaltyModel {
+  availablePoints: LoyaltyPointsEquivalenceModel
+  redeemable: LoyaltyPointsEquivalenceModel
+  selectedRedemption: LoyaltyPointsEquivalenceModel
+}
+
+type LoyaltyPointsEquivalenceModel {
+  points: Float!
+  conversionRate: Float!
+  conversionValue: Float!
+}
+
+type ValidationIssue {
+  reason: String!
+  productId: String
+  type: ValidationIssueType!
+}
+
+enum ValidationIssueType {
+  ERROR
+  WARNING
+}
+
+type CartGroup {
+  id: String
+  isBigOrder: Boolean
+  operationalModel: OperationalModel
+  slotsDays: Float
+  slotsStartOffset: Float
+  storeReference: String
+  store: StoreModel!
+  products: [ValidatedCartProductModel!]!
+  specialProducts: [CartSpecialProductModel!]!
+  pricesSummary: PricesSummary!
+  address: AddressModel
+  deliverySlot: DeliverySlotModel
+}
+
+type ExternalPromotionTaxSummaryModel {
+  id: String!
+  name: String!
+  value: Float!
+  rate: Float!
+}
+
+type ExternalPromotionPricePerBaseUnitModel {
+  price: Float!
+  priceBeforeTaxes: Float!
+  taxTotal: Float!
+  discount: Float!
+  taxesSummary: [ExternalPromotionTaxSummaryModel!]!
+}
+
+type ExternalPromotionModel {
+  type: String!
+  code: String!
+  subType: String!
+  description: String!
+  promotionPricePerBaseUnit: ExternalPromotionPricePerBaseUnitModel!
+}
+
+type ExternalPromotionItemModel {
+  reference: String!
+  promotions: [ExternalPromotionModel!]!
+}
+
+type ExternalCartPromotionModel {
+  type: String!
+  code: String!
+  discount: Float!
+  description: String!
+}
+
+type ExternalPromotionsModel {
+  items: [ExternalPromotionItemModel!]!
+  cartPromotions: [ExternalCartPromotionModel!]!
+  validationIssues: [ValidationIssue!]!
+}
+
+type ValidatedCartProductModel {
+  id: ID!
+  unitQuantity: Float!
+  baseUnitPrice: Float!
+  baseUnitPriceBeforeTaxes: Float!
+  reference: String!
+  unit: String
+  variant: String
+  instruction: String
+  status: ProductStatus!
+  imageUrl: String
+  price: ProductPrice!
+  pricePerBaseUnit: ProductPrice!
+  maxUnitQuantity: Float!
+  minUnitQuantity: Float!
+  slug: String
+  showSubUnit: Boolean
+  subQuantity: Float
+  subUnit: String
+  clickMultiplier: Float
+  name: String!
+  createdAt: Date!
+  updatedAt: Date!
+  availability: Boolean!
+  baseUnit: String!
+  promotion: Promotion
+  promotions: [PromotionV2]
+  brand: String!
+  stockWarning: Boolean!
+  categoriesData: [ProductCategory!]!
+  isSample: Boolean!
+  substitutes: Substitutes!
+  type: String
+  allowSubstitutions: Boolean
+  hasAgeRestriction: Boolean
+  tags: [ValidatedProductTag!]!
+}
+
+type Query {
+  getAddresses(getAddressesInput: GetAddressesInput!): [AddressModel!]!
+validateCoverage(validatedCoverageInput: ValidatedCoverageInput!): ValidatedCoverage!
+getAdminStore(adminStoreId: String!): AdminStoreModel!
+searchAdminStores(searchAdminStoresInput: SearchAdminStoresInput!): AdminStoreList!
+getAdminCustomers(getAdminCustomersInput: GetAdminCustomersInput!): AdminCustomersList!
+getPaymentMethodsConfig(paymentMethodsConfigName: String): [PaymentMethodsConfig]!
+getParameter(paramId: ID!): ParamModel!
+searchParameters(searchParametersInput: SearchParametersInput!): ParamListModel!
+getAdminCustomer(customerId: ID!): CustomerModel!
+getCoupon(couponId: ID!): NewCouponModel!
+searchCoupons(searchCouponsInput: SearchCouponsInput!): CouponList!
+getOrganizationConfigurations(getOrganizationConfigurationsInput: GetOrganizationConfigurationsInput!): [JSON]!
+getCouponFilters(getCouponFiltersInput: GetCouponFiltersInput!): CouponFiltersResponse!
+getAgeVerificationURL(verificationURLInput: VerificationURLInput!): AgeVerificationURLModel!
+getBillingProfiles: [BillingProfileModel!]!
+getCallCenterCart(cartId: ID!): CartModel!
+getActiveCallCenterCart(getActiveCartInput: GetActiveCallCenterCartInput!): CartModel!
+getCallCenterCartPaymentMethods(cartId: ID!): [PaymentMethodsResponse!]!
+getCategory(getCategoryInput: GetCategoryInput!): [CategoryModel]!
+getHome(getHomeInput: GetHomeInput!): HomeModel
+getDynamicHome(getDynamicHomeInput: GetDynamicHomeInput!): JSON
+getProductsByCategory(getProductsByCategoryInput: GetProductsByCategoryInput!): ProductsByCategoryModel!
+getProductsBySKU(getProductsBySKUInput: GetProductsBySKUInput!): [CatalogProductModel]!
+getSearchSuggestion(getSearchSuggestionInput: GetSearchSuggestionInput!): [CatalogProductModel]!
+getSearchSuggestionBar(getSearchSuggestionBarInput: JSON!): JSON
+getCartSuggestions(getCartSuggestionsInput: JSON!): JSON
+getSuggestedProducts(getSuggestedProductsInput: GetSuggestedProductsInput!): [CatalogProductModel]!
+getProductRecommendations(getProductRecommendationsInput: GetProductRecommendationsInput!): [CatalogProductModel]!
+searchProducts(searchProductsInput: SearchProductsInput!): SearchProductsModel!
+getProductExternalInfo(getProductExternalInfoInput: GetProductExternalInfoInput!): ProductExternalInfo!
+getTagLandingPages(getTagLandingPageInput: JSON!): JSON
+getStoreConfigurations(storeConfigurationsInput: StoreConfigurationsInput!): ConfigurationsByStoreModel!
+getPasswordResetValidation(passwordResetValidationInput: PasswordResetValidationInput!): PasswordResetValidationModel!
+isPhoneNumberValid(isPhoneNumberValidInput: IsPhoneNumberValidInput!): IsPhoneNumberValid!
+getCustomerSchema(getCustomerSchemaInput: GetCustomerSchemaInput!): CustomerSchema!
+getEcommerceCart(cartId: ID!): CartModel!
+getActiveEcommerceCart(getActiveCartInput: GetActiveEcommerceCartInput!): CartModel!
+getDeliverySlots(getDeliverySlotsInput: GetDeliverySlotsInput!): [DeliverySlotModel!]!
+getEcommerceCartPaymentMethods(cartId: ID!): [PaymentMethodsResponse!]!
+expressDeliveryAreaDetails(expressDeliveryAreaDetailsInput: ExpressDeliveryAreaDetailsInput!): ExpressDeliveryAreaDetailsModel!
+getExtraFieldsEcommerceCart(extraFieldInput: ExtraFieldInput!): [ExtraFieldModel!]!
+getExtraFieldsCallCenterCart(extraFieldInput: ExtraFieldInput!): [ExtraFieldModel!]!
+getShoppingList(getShoppingListInput: GetShoppingListInput!): [CatalogProductModel]!
+getShoppingLists(getShoppingListsInput: GetShoppingListsInput!): [ShoppingListModel]!
+getGuestCart(cartId: ID!): CartModel!
+customerLoyaltyDetails: CustomerLoyaltyDetailsModel!
+customerLoyaltyPointsSummary(customerLoyaltyPointsSummaryInput: CustomerLoyaltyPointsSummaryInput): CustomerLoyaltyPointsSummaryModel!
+customerLoyaltyPointsHistory(customerLoyaltyPointsHistoryInput: CustomerLoyaltyPointsHistoryInput): CustomerLoyaltyPointsHistoryModel!
+getOrdersByCustomer(customerId: ID @deprecated(reason: "Deprecate this field"), limit: Int, page: Int): [OrderModel!]!
+canRetryOrderPayment(jobNumber: String!): CanRetryOrderPaymentModel!
+getInstallmentsPaymentMethods(getInstallmentsPaymentMethodsInput: GetInstallmentsPaymentMethodsInput!): [InstallmentsPaymentMethodsResponse]!
+getQuotations(getQuotationsInput: GetQuotationsInput!): [QuotationModel!]
+getQuotation(getQuotationInput: GetQuotationInput!): QuotationModel!
+}
+
+type Mutation {
+upsertAddress(upsertAddressInput: UpsertAddressInput!): AddressModel!
+upsertBanners(upsertBannersByStoreInput: [UpsertBannersByStoreInput!]!): [BannerModel!]!
+upsertParameter(upsertParameterInput: UpsertParameterInput!): ParamModel!
+upsertCoupon(upsertCouponInput: UpsertCouponInput!): NewCouponModel!
+setCouponUsers(setCouponUsersInput: SetCouponUsersInput!): Boolean!
+setCouponStores(setCouponStoresInput: SetCouponStoresInput!): Boolean!
+updateAdminCustomer(updateAdminCustomerInput: UpdateAdminCustomerInput!): UpdatedCustomerData!
+upsertCouponFilters(upsertCouponFiltersInput: UpsertCouponFiltersInput!): UpsertCouponFiltersResponse!
+deleteCouponFilter(deleteCouponFilterInput: RemoveCouponFilterInput!): RemoveFilterValuesResponse!
+generateBackofficeToken(generateBackofficeTokenInput: GenerateBackofficeTokenInput!): GenerateBackofficeTokenResponse!
+signIn(signInInput: SignInInput!): SignInResponse
+verifyMFA(verifyMFAInput: VerifyMFAInput!): VerifyMFAResponse!
+signInWithIdToken(signInWithIdTokenInput: SignInWithIdTokenInput!): SignInResponse
+refreshTokens(refreshTokensInput: RefreshTokensInput!): RefreshTokensResponse
+forgotPassword(forgotPasswordInput: ForgotPasswordInput!): ForgotPasswordResponse!
+resetPassword(resetPasswordInput: ResetPasswordInput!): ResetPasswordResponse!
+changePassword(changePasswordInput: ChangePasswordInput!): ChangePasswordResponse!
+logout: LogoutResponse!
+upsertBillingProfile(upsertBillingInput: UpsertBillingInput!): BillingProfileModel!
+deleteBillingProfile(billingId: ID!): DeleteBillingResponse!
+createCallCenterCart(createCartInput: CreateCallCenterCartInput!): CartModel!
+getActiveOrCreateCallCenterCart(createCartInput: CreateCallCenterCartInput!): CartModel!
+updateCallCenterCart(updateCartInput: UpdateCallCenterCartInput!): CartModel!
+deleteCallCenterCart(cartId: ID!): CartModel!
+validateCallCenterCart(cartId: ID!): ValidatedCartModel!
+purchaseCallCenterCart(purchaseCartInput: PurchaseCartInput!): PurchaseModel!
+addProductToCallCenterCart(addProductToCartInput: AddProductToCartInput!): CartModel!
+updateProductInCallCenterCart(updateProductInCartInput: UpdateProductInCallCenterCartInput!): CartModel!
+deleteProductInCallCenterCart(deleteProductInCartInput: DeleteProductInCartInput!): CartModel!
+addSpecialProductToCallCenterCart(addSpecialProductToCallCenterCartInput: AddSpecialProductToCallCenterCartInput!): CartModel!
+updateSpecialProductInCallCenterCart(updateSpecialProductInCallCenterCartInput: UpdateSpecialProductInCallCenterCartInput!): CartModel!
+deleteSpecialProductInCallCenterCart(deleteSpecialProductInCartInput: DeleteSpecialProductInCartInput!): CartModel!
+updateCouponInCallCenterCart(updateCouponInput: CouponInput!): ValidatedCartModel!
+updateCustomerSegments(updateCustomerSegmentsInput: UpdateCustomerSegmentsInput!): CustomerModel!
+updateCustomerMFA(email: String!): IsUpdatedCustomerMFA!
+signUp(signUpInput: SignUpInput!): SignUpResponse
+sendEmailVerification(sendEmailVerificationInput: SendEmailVerificationInput!): SendEmailVerificationResponse!
+updateCustomer(updateCustomerInput: UpdateCustomerInput!): UpdateCustomerResponse!
+createEcommerceCart(createCartInput: CreateEcommerceCartInput!): CartModel!
+getActiveOrCreateEcommerceCart(createCartInput: CreateEcommerceCartInput!): CartModel!
+updateEcommerceCart(updateCartInput: UpdateEcommerceCartInput!): CartModel!
+deleteEcommerceCart(cartId: ID!): CartModel!
+validateEcommerceCart(cartId: ID!, allowSplitOrders: Boolean): ValidatedCartModel!
+getAIProductSetRecommendationsForEcommerceCart(cartId: ID!): [RecommendedSetModel]!
+purchaseEcommerceCart(purchaseCartInput: PurchaseCartInput!): PurchaseModel!
+retryPurchaseEcommerceCart(purchaseCartInput: PurchaseCartInput!): PurchaseModel!
+addProductToEcommerceCart(addProductToCartInput: AddProductToCartInput!): CartModel!
+addProductsToEcommerceCart(addProductsToCartInput: AddProductsToCartInput!): AddProductsToCartModel!
+updateProductsInEcommerceCart(updateProductsToCartInput: UpdateProductsToCartInput!): UpdateProductsToCartModel!
+updateProductInEcommerceCart(updateProductInCartInput: UpdateProductInCartInput!): CartModel!
+deleteProductInEcommerceCart(deleteProductInCartInput: DeleteProductInCartInput!): CartModel!
+deleteSpecialProductInEcommerceCart(deleteSpecialProductInCartInput: DeleteSpecialProductInCartInput!): CartModel!
+convertGuestToEcommerceCart(cartId: ID!): CartModel!
+updateCouponInEcommerceCart(updateCouponInput: CouponInput!): ValidatedCartModel!
+retryPurchaseEcommerceCartV2(retryPurchaseCartInput: RetryPurchaseCartInputV2!): PurchaseModel!
+addProductToShoppingList(addProductToShoppingListInput: AddProductToShoppingListInput!): AddToShoppingListResponse
+deleteProductFromShoppingList(deleteProductFromShoppingListInput: DeleteProductFromShoppingListInput!): DeleteProductFromShoppingListResponse
+createShoppingList(createShoppingListInput: CreateShoppingListInput!): ShoppingListModel
+updateShoppingList(updateShoppingListInput: UpdateShoppingListInput!): UpdateShoppingListsResponse
+deleteShoppingList(deleteShoppingListInput: DeleteShoppingListInput!): DeleteShoppingListResponse
+createGuestCart(createCartInput: CreateGuestCartInput!): CartModel!
+updateGuestCart(updateCartInput: UpdateGuestCartInput!): CartModel!
+deleteGuestCart(cartId: ID!): CartModel!
+addProductToGuestCart(addProductToCartInput: AddProductToCartInput!): CartModel!
+updateProductInGuestCart(updateProductInCartInput: UpdateProductInCartInput!): CartModel!
+deleteProductInGuestCart(deleteProductInCartInput: DeleteProductInCartInput!): CartModel!
+validateGuestCart(cartId: ID!): ValidatedCartModel!
+addUserInteraction(addUserInteractionInput: AddUserInteractionInput!): AddUserInteractionResponse!
+paymentOperation(paymentOperationInput: PaymentOperationInput!): PaymentOperationModel!
+deleteCard(deleteCardInput: DeleteCardInput!): DeleteCardResponse!
+updatePushNotificationToken(token: String!): PushNotificationResponse!
+createQuotation(createQuotationInput: CreateQuotationInput!): QuotationModel!
+convertQuotationToCart(convertQuotationToCartInput: ConvertQuotationToCartInput!): CartModel!
+updateQuotation(updateQuotationInput: UpdateQuotationInput!): QuotationModel!
+deleteQuotation(deleteQuotationInput: DeleteQuotationInput!): QuotationModel!
+expireQuotation(expireQuotationInput: ExpireQuotationInput!): QuotationModel!
+duplicateQuotation(duplicateQuotationInput: DuplicateQuotationInput!): QuotationModel!
+send2FA(send2FAInput: Send2FAInput!): Send2FAModel!
+verify2FA(verify2FAInput: Verify2FAInput!): Verify2FAModel!
+}
