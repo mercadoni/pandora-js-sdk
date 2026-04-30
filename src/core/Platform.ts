@@ -21,7 +21,7 @@ class Platform {
     }) {
         this.clientId = config.clientId;
         this.client = new Client(config.baseUrl, '', config.debug, config.logger);
-        this.client.setHeaders({ dplApiKey: config.apiKey });
+        this.client.setHeaders({ "dpl-api-key": config.apiKey });
         this.homeService = new GraphqlHomeService(this.client, config.clientId);
         this.authService = new GraphqlAuthService(this.client);
         this.cartService = new GraphqlCartService(this.client);

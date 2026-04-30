@@ -20,7 +20,7 @@ const platform = new Platform({
 });
 ```
 
-The `apiKey` is required and is forwarded as the `dplApiKey` HTTP header on every request.
+The `apiKey` is required and is forwarded as the `dpl-api-key` HTTP header on every request.
 
 ## Services
 
@@ -127,9 +127,9 @@ platform.setHeaders({
 });
 ```
 
-Merge semantics: existing headers with matching names are overwritten; non-matching headers are preserved. SDK invariants (`Content-Type`, `Accept`, `token`, `dplApiKey`) can be overridden — the SDK does not guard against this, so don't override them unless you know what you're doing.
+Merge semantics: existing headers with matching names are overwritten; non-matching headers are preserved. SDK invariants (`Content-Type`, `Accept`, `token`, `dpl-api-key`) can be overridden — the SDK does not guard against this, so don't override them unless you know what you're doing.
 
-Note: `apiKey` is set at construction via the `Platform` config and is forwarded as `dplApiKey` internally. You do not need to (and should not) pass it via `setHeaders`.
+Note: `apiKey` is set at construction via the `Platform` config and is forwarded as `dpl-api-key` internally. You do not need to (and should not) pass it via `setHeaders`.
 
 ## Error Handling
 
