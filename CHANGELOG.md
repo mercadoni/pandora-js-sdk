@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.2.1](https://github.com/jorgeehernandez/ecommerce-js-sdk/compare/v2.2.0...v2.2.1) (2026-04-30)
+
+
+### Bug Fixes
+
+* **product:** rename RemoteProductService to GraphqlProductService ([b5b7864](https://github.com/jorgeehernandez/ecommerce-js-sdk/commit/b5b78646355ae471699293eaf3de26d97a297b7d))
+
 ## [2.2.0](https://github.com/jorgeehernandez/ecommerce-js-sdk/compare/v2.0.1...v2.2.0) (2026-04-30)
 
 
