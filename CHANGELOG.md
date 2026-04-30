@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.2.0](https://github.com/jorgeehernandez/ecommerce-js-sdk/compare/v2.0.1...v2.2.0) (2026-04-30)
+
+
+### Features
+
+* **product:** add getProductsBySKU, getSuggestedProducts, getProductRecommendations ([a15420e](https://github.com/jorgeehernandez/ecommerce-js-sdk/commit/a15420e4b4615944b761fd28317f2473411f9246))
+
 ## [2.0.1](https://github.com/jorgeehernandez/ecommerce-js-sdk/compare/v2.0.0...v2.0.1) (2026-04-30)
 
 
