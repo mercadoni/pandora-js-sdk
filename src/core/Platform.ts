@@ -1,7 +1,7 @@
 import GraphqlHomeService from "./services/home/GraphqlHomeService";
 import GraphqlAuthService from "./services/auth/GraphqlAuthService";
 import GraphqlCartService from "./services/cart/GraphqlCartService";
-import RemoteProductService from "./services/product/RemoteProductService";
+import GraphqlProductService from "./services/product/GraphqlProductService";
 import Client from "./Client";
 import Logger from "./http/Logger";
 
@@ -11,7 +11,7 @@ class Platform {
     homeService: GraphqlHomeService;
     authService: GraphqlAuthService;
     cartService: GraphqlCartService;
-    productService: RemoteProductService;
+    productService: GraphqlProductService;
     private readonly clientId: string;
 
     constructor(config: {
@@ -27,7 +27,7 @@ class Platform {
         this.homeService = new GraphqlHomeService(this.client, config.clientId);
         this.authService = new GraphqlAuthService(this.client);
         this.cartService = new GraphqlCartService(this.client);
-        this.productService = new RemoteProductService(this.client, config.clientId);
+        this.productService = new GraphqlProductService(this.client, config.clientId);
     }
 
     setToken(token: string): void {

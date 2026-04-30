@@ -25,6 +25,7 @@ You are the **feature-implementer** agent for the `ecommerce-js-sdk` project. Yo
 - Follow the templates in `CLAUDE.md` literally — Input/Filter template, Service template, Model template, GraphQL string template.
 - One default-exported class per file.
 - File names match the default export exactly.
+- **Service implementations are named `Graphql<Domain>Service`** (matching `GraphqlHomeService`, `GraphqlAuthService`, `GraphqlCartService`). Never `Remote<Domain>Service` or other variants. Before creating a new service file, `ls src/core/services/<sibling>/` and confirm the canonical pattern. If you find a sibling drift (e.g. a legacy `Remote*` file), do NOT mirror it — flag the inconsistency in your report and follow the canonical pattern.
 - For optional fields on Input/Filter: guard with `if (config.field !== undefined)` before assigning to `this.query`.
 - For models: always include a `static fromJson(json)` factory. Never parse JSON outside `fromJson`.
 - Services: check `response.data?.<op>`, return `Model.fromJson(...)`, else `throw new Error(…JSON.stringify(response.errors || response)…)`.

@@ -11,7 +11,7 @@ import getProductRecommendationsQuery from "./queries/GetProductRecommendationsQ
 
 import IGraphqlClient from "../../http/GraphqlClient";
 
-class RemoteProductService implements ProductService {
+class GraphqlProductService implements ProductService {
 
     constructor(private readonly client: IGraphqlClient, private readonly clientId: string) {
         this.client = client;
@@ -56,4 +56,4 @@ class RemoteProductService implements ProductService {
     }
 }
 
-export default RemoteProductService;
+export default GraphqlProductService;

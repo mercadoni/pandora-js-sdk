@@ -6,7 +6,7 @@
 
 ## Why
 
-`ProductService.search` is a stub today (`RemoteProductService.search()` throws `not implemented`). `SearchFilter` and `Search` are empty classes. Consumers can't search the catalog, which is table-stakes for any ecommerce storefront. This spec fills in the minimum viable product search: query string + optional category + pagination, returning products with aggregates for faceted UI.
+`ProductService.search` is a stub today (`GraphqlProductService.search()` throws `not implemented`). `SearchFilter` and `Search` are empty classes. Consumers can't search the catalog, which is table-stakes for any ecommerce storefront. This spec fills in the minimum viable product search: query string + optional category + pagination, returning products with aggregates for faceted UI.
 
 ## Goals
 
@@ -107,7 +107,7 @@ query SearchProducts($searchInput: SearchProductsInput!) {
 - `src/core/models/catalog/Pagination.ts` — fill stub with fields + `fromJson`
 - `src/core/models/catalog/Aggregate.ts` — fill stub with fields + `fromJson`
 - `src/core/services/product/ProductService.ts` — add `search(filter: SearchFilter): Promise<Search>`
-- `src/core/services/product/RemoteProductService.ts` — implement `search` (stop throwing not-implemented)
+- `src/core/services/product/GraphqlProductService.ts` — implement `search` (stop throwing not-implemented)
 - `src/core/Platform.ts` — ensure `productService` is instantiated (currently not wired in)
 - `src/index.ts` — add exports listed above
 - `src/test/index.ts` — add a search smoke call
@@ -122,7 +122,7 @@ query SearchProducts($searchInput: SearchProductsInput!) {
 3. Create `SearchFilter` per CLAUDE.md Filter/Input template.
 4. Add `SearchProductsQuery` GQL string.
 5. Extend `ProductService` interface with `search`.
-6. Implement `search` in `RemoteProductService` — remove the `not implemented` throw.
+6. Implement `search` in `GraphqlProductService` — remove the `not implemented` throw.
 7. Wire `productService` into `Platform` if not already.
 8. Export new public types from `src/index.ts`; remove old `SearchFilter` stub export if any.
 9. Add a smoke search call to `src/test/index.ts`.
@@ -135,7 +135,7 @@ query SearchProducts($searchInput: SearchProductsInput!) {
 - [ ] Consumer can import `SearchFilter`, `Search`, `Pagination`, `Aggregate` from the package root.
 - [ ] `SearchFilter` extends `Input` (verifiable by type-check: `filter.query` is accessible).
 - [ ] Service method throws with a helpful message when `response.data.searchProducts` is missing.
-- [ ] No direct `fetch` in `RemoteProductService` — all calls go through `GraphqlClient`.
+- [ ] No direct `fetch` in `GraphqlProductService` — all calls go through `GraphqlClient`.
 - [ ] Old stub `src/core/models/SearchFilter.ts` is deleted, not left dangling.
 - [ ] Reviewer agent produces zero violations against CLAUDE.md conventions.
 

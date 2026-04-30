@@ -86,6 +86,13 @@ One file per class. Default export only for the class itself.
 
 **Decision test for a new arg type:** "Does this narrow a selection from many possibilities?" Yes → `Filter`. No → `Input`.
 
+### Service interface vs implementation
+
+- **Interface file: `<Domain>Service.ts`** (`HomeService`, `AuthService`, `CartService`, `ProductService`). One default-exported `interface`.
+- **GraphQL implementation file: `Graphql<Domain>Service.ts`** (`GraphqlHomeService`, `GraphqlAuthService`, `GraphqlCartService`, `GraphqlProductService`). One default-exported `class implements <Domain>Service`.
+- **Never** name an implementation `Remote<Domain>Service`, `Default<Domain>Service`, `<Domain>ServiceImpl`, or anything else. The `Graphql` prefix advertises the transport; future non-GraphQL impls would parallel it (`HttpHomeService`, `MockHomeService`, …) but currently every impl is GraphQL.
+- Before adding a new service, **`ls src/core/services/<sibling-domain>/` to confirm the file/class names match this pattern.** A drifted name from a prior commit (e.g. the legacy `RemoteProductService` that shipped briefly in 2.x) is a bug to fix, not a precedent to follow.
+
 ### Service methods
 - Parameter name matches the type suffix: `signIn(input: SignInInput)`, `getActiveCart(filter: GetActiveCartFilter)`.
 - Never name a parameter `filter` if its type is an `*Input`.
@@ -229,7 +236,7 @@ Same as query, but use `mutations/<Name>Mutation.ts` and call `this.client.mutat
 ## Known stubs & bugs (don't replicate these patterns)
 
 - `SearchFilter`, `ProductFilter`, `Search`, `Pagination`, `Aggregate`, `MetaData`, `WidgetData.fromJson` — empty stubs; fill in following the templates above.
-- `RemoteProductService.search()` throws `not implemented`.
+- `GraphqlProductService.search()` throws `not implemented`.
 - `Home.fromJson` has a JS comma-operator bug (malformed condition). Needs fix.
 - `GetDynamicHomeQuery` has no field selection — returns scalar. Needs proper selection set.
 - `src/core/models/home/Home.ts` imports `{ WidgetData }` from `"./types"` which doesn't exist. Broken import.

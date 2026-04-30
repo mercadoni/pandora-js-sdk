@@ -6,7 +6,7 @@
 
 ## Why
 
-Pandora needs to render a Product Detail Page (PDP). Today the SDK has no way to fetch a single product, no way to fetch "you may also like" suggestions, and no way to fetch recommendation rails — `RemoteProductService.search` is the only declared method and it's a stub. `productService` is also not even constructed in `Platform`. Without these calls, the PDP either scrapes data out of the home query (brittle) or bypasses the SDK with raw GraphQL (fragments the contract).
+Pandora needs to render a Product Detail Page (PDP). Today the SDK has no way to fetch a single product, no way to fetch "you may also like" suggestions, and no way to fetch recommendation rails — `GraphqlProductService.search` is the only declared method and it's a stub. `productService` is also not even constructed in `Platform`. Without these calls, the PDP either scrapes data out of the home query (brittle) or bypasses the SDK with raw GraphQL (fragments the contract).
 
 This spec adds the three product-detail reads the PDP needs, all on the same `productService` plumbing:
 
@@ -28,7 +28,7 @@ All three operations are confirmed against `graphql_schema.graphql` at the repo 
 
 ## Non-goals
 
-- Keeping `RemoteProductService.search` working — it stays a stub for `specs/search-service/spec.md` to fill.
+- Keeping `GraphqlProductService.search` working — it stays a stub for `specs/search-service/spec.md` to fill.
 - Per-store stock variation logic, caching, retries, prefetch helpers — `Client` is stateless per call.
 - Any change to `Product.ts` or `Product.fromJson`. If the implementer finds a real field-mapping bug while smoke-testing, file a follow-up; do not fix it in this spec.
 - Fixing the unrelated stubs/bugs in `CLAUDE.md` "Known stubs & bugs" (`Home.fromJson` comma bug, broken `WidgetData` import, etc.).
@@ -217,7 +217,7 @@ export default ProductService;
 ```
 
 ```typescript
-// src/core/services/product/RemoteProductService.ts (new methods only)
+// src/core/services/product/GraphqlProductService.ts (new methods only)
 async getProductsBySKU(filter: GetProductsBySKUFilter): Promise<Product[]> {
     filter.query['clientId'] = this.clientId;
     const response = await this.client.query(getProductsBySKUQuery, {
@@ -262,14 +262,14 @@ constructor(private readonly client: IGraphqlClient, private readonly clientId: 
 
 ```typescript
 // src/core/Platform.ts (additions)
-import RemoteProductService from "./services/product/RemoteProductService";
+import GraphqlProductService from "./services/product/GraphqlProductService";
 
 class Platform {
-    productService: RemoteProductService;   // new
+    productService: GraphqlProductService;   // new
 
     constructor(config: { … }) {
         // existing wiring …
-        this.productService = new RemoteProductService(this.client, config.clientId);
+        this.productService = new GraphqlProductService(this.client, config.clientId);
     }
 }
 ```
@@ -287,7 +287,7 @@ class Platform {
 
 **Modify:**
 - `src/core/services/product/ProductService.ts` — add the three new methods to the interface.
-- `src/core/services/product/RemoteProductService.ts` — add `clientId` to the constructor; implement the three methods. Leave `search` as-is (still throws `not implemented`).
+- `src/core/services/product/GraphqlProductService.ts` — add `clientId` to the constructor; implement the three methods. Leave `search` as-is (still throws `not implemented`).
 - `src/core/Platform.ts` — instantiate and expose `productService`.
 - `src/index.ts` — add a `// Product` section with the three Filter exports + `ProductRecommendationType`; add `Product` export under `// Models`.
 - `src/test/index.ts` — add three smoke calls (one per new method) inside the existing IIFE, with `console.log` lines that print enough to confirm shape.
@@ -334,7 +334,7 @@ Update the existing `import` block at the top of `src/test/index.ts` accordingly
 6. Add `GetSuggestedProductsQuery` (same selection set as #5).
 7. Add `GetProductRecommendationsQuery` (same selection set as #5).
 8. Extend `ProductService` interface with the three methods.
-9. Add `clientId` to `RemoteProductService` constructor, implement the three methods. Leave `search` untouched.
+9. Add `clientId` to `GraphqlProductService` constructor, implement the three methods. Leave `search` untouched.
 10. Wire `productService` into `Platform`.
 11. Export new types from `src/index.ts` under a new `// Product` section, plus `Product` under `// Models`.
 12. Add the three smoke calls to `src/test/index.ts`.
@@ -345,11 +345,11 @@ Update the existing `import` block at the top of `src/test/index.ts` accordingly
 
 - [ ] `npm run build` passes with zero errors.
 - [ ] `import { GetProductsBySKUFilter, GetSuggestedProductsFilter, GetProductRecommendationsFilter, ProductRecommendationType, Product } from '@sirosa/ecommerce-js-sdk'` resolves with correct types.
-- [ ] `platform.productService` is defined and an instance of `RemoteProductService`.
+- [ ] `platform.productService` is defined and an instance of `GraphqlProductService`.
 - [ ] All three filters extend `Input` and store fields on `this.query`.
 - [ ] All three service methods inject `clientId` from the Platform `clientId` (verifiable: `filter.query.clientId === 'D1'` after the call).
 - [ ] All three return `Product[]` (empty array allowed; throw on missing `data.<op>` field).
-- [ ] `RemoteProductService.search` is unchanged (still throws `not implemented`).
+- [ ] `GraphqlProductService.search` is unchanged (still throws `not implemented`).
 - [ ] No direct `fetch` in the service — all calls go through `GraphqlClient`.
 - [ ] No `*Filter` suffix on a class that's actually a mutation Input (none here, all three are selections).
 - [ ] `ProductRecommendationType` enum values match the schema strings exactly.
