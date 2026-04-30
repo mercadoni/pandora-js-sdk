@@ -16,8 +16,11 @@ import { Platform, HomeFilter, SignInFilter, CreateCartFilter } from '@sirosa/ec
 const platform = new Platform({
   baseUrl: 'https://api.your-store.com/graphql',
   clientId: 'YOUR_CLIENT_ID',
+  apiKey: 'YOUR_API_KEY',
 });
 ```
+
+The `apiKey` is required and is forwarded as the `dplApiKey` HTTP header on every request.
 
 ## Services
 
@@ -77,6 +80,25 @@ const validated = await platform.cartService.validateCart(validateFilter);
 const purchaseFilter = new PurchaseCartFilter({ cartId: cart.id });
 const purchase = await platform.cartService.purchaseCart(purchaseFilter);
 ```
+
+### Custom Headers
+
+`Platform.setHeaders(headers)` attaches arbitrary HTTP headers to every subsequent request. Use it for tracing IDs, A/B test markers, debug headers, or any per-request metadata your backend expects:
+
+```typescript
+// Single header
+platform.setHeaders({ 'X-Trace-Id': 'abc-123' });
+
+// Bulk
+platform.setHeaders({
+  'X-Trace-Id': 'abc-123',
+  'X-Customer-Tier': 'gold',
+});
+```
+
+Merge semantics: existing headers with matching names are overwritten; non-matching headers are preserved. SDK invariants (`Content-Type`, `Accept`, `token`, `dplApiKey`) can be overridden — the SDK does not guard against this, so don't override them unless you know what you're doing.
+
+Note: `apiKey` is set at construction via the `Platform` config and is forwarded as `dplApiKey` internally. You do not need to (and should not) pass it via `setHeaders`.
 
 ## Error Handling
 
