@@ -11,7 +11,7 @@ npm install @sirosa/ecommerce-js-sdk
 ## Quick Start
 
 ```typescript
-import { Platform, HomeFilter, SignInFilter, CreateCartFilter } from '@sirosa/ecommerce-js-sdk';
+import { Platform, HomeFilter, SignInInput, CreateCartInput } from '@sirosa/ecommerce-js-sdk';
 
 const platform = new Platform({
   baseUrl: 'https://api.your-store.com/graphql',
@@ -27,7 +27,11 @@ The `apiKey` is required and is forwarded as the `dplApiKey` HTTP header on ever
 ### Home
 
 ```typescript
-const filter = new HomeFilter({ /* filter params */ });
+const filter = new HomeFilter({
+  byStore: 'STORE_REFERENCE',
+  byPlatform: 'WEB',
+  byScreenSize: 'large',
+});
 const home = await platform.homeService.home({ filter });
 ```
 
@@ -40,45 +44,72 @@ Home payload validation rules:
 
 ```typescript
 // Sign in
-const signInFilter = new SignInFilter({ email: 'user@example.com', password: 'secret' });
-const session = await platform.authService.signIn(signInFilter);
+const signInInput = new SignInInput({
+  clientId: 'YOUR_CLIENT_ID',
+  email: 'user@example.com',
+  password: 'secret',
+});
+const session = await platform.authService.signIn(signInInput);
 
 // Set token for authenticated requests
 platform.setToken(session.token);
 
 // Sign up
-const signUpFilter = new SignUpFilter({ email: 'user@example.com', password: 'secret', name: 'User' });
-const account = await platform.authService.signUp(signUpFilter);
+const signUpInput = new SignUpInput({
+  clientId: 'YOUR_CLIENT_ID',
+  customerData: {
+    name: 'User',
+    email: 'user@example.com',
+    password: 'secret',
+  },
+});
+const account = await platform.authService.signUp(signUpInput);
 
 // Refresh tokens
-const refreshFilter = new RefreshTokensFilter({ refreshToken: 'token' });
-const tokens = await platform.authService.refreshTokens(refreshFilter);
+const refreshTokensInput = new RefreshTokensInput({ refreshToken: 'token' });
+const tokens = await platform.authService.refreshTokens(refreshTokensInput);
 
 // Logout
 await platform.authService.logout();
 
 // Forgot password
-const forgotFilter = new ForgotPasswordFilter({ email: 'user@example.com' });
-await platform.authService.forgotPassword(forgotFilter);
+const forgotPasswordInput = new ForgotPasswordInput({
+  clientId: 'YOUR_CLIENT_ID',
+  email: 'user@example.com',
+});
+await platform.authService.forgotPassword(forgotPasswordInput);
 ```
 
 ### Cart
 
 ```typescript
 // Create or retrieve a cart
-const createFilter = new CreateCartFilter({ customerId: 'cust_123' });
-const cart = await platform.cartService.getOrCreateCart(createFilter);
+const createCartInput = new CreateCartInput({
+  storeReference: 'STORE_REFERENCE',
+  operationalModel: 'PICKUP',
+});
+const cart = await platform.cartService.getOrCreateCart(createCartInput);
 
 // Add a product
-const addFilter = new AddProductFilter({ cartId: cart.id, productId: 'prod_456', quantity: 1 });
-const updatedCart = await platform.cartService.addProduct(addFilter);
+const addProductInput = new AddProductInput({
+  cartId: cart.id,
+  reference: 'prod_456',
+  unit: 'UN',
+  unitQuantity: 1,
+});
+const updatedCart = await platform.cartService.addProduct(addProductInput);
 
 // Validate and purchase
-const validateFilter = new ValidateCartFilter({ cartId: cart.id });
-const validated = await platform.cartService.validateCart(validateFilter);
+const validateCartInput = new ValidateCartInput({ cartId: cart.id });
+const validated = await platform.cartService.validateCart(validateCartInput);
 
-const purchaseFilter = new PurchaseCartFilter({ cartId: cart.id });
-const purchase = await platform.cartService.purchaseCart(purchaseFilter);
+const purchaseCartInput = new PurchaseCartInput({
+  cartId: cart.id,
+  paymentInput: {
+    paymentMethod: { type: 'CASH', name: 'Cash' },
+  },
+});
+const purchase = await platform.cartService.purchaseCart(purchaseCartInput);
 ```
 
 ### Custom Headers
@@ -106,7 +137,7 @@ All methods throw on failure — network errors, HTTP errors, and GraphQL errors
 
 ```typescript
 try {
-  const session = await platform.authService.signIn(filter);
+  const session = await platform.authService.signIn(signInInput);
 } catch (error) {
   console.error(error.message); // e.g. "Invalid credentials"
 }
