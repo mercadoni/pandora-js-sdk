@@ -53,7 +53,7 @@ class Category {
         this.active = config.active;
         this.boost = config.boost;
         this.isAvailableInHome = config.isAvailableInHome;
-        this.pagination = new Pagination();
+        this.pagination = config.pagination;
         this.products = config.products;
         this.aggregates = [];
         this.subCategories = [];
@@ -75,7 +75,7 @@ class Category {
             active: json.active || false,
             boost: json.boost || 0,
             isAvailableInHome: json.isAvailableInHome || false,
-            pagination: new Pagination(),
+            pagination: Pagination.fromJson(json.pagination || {}),
             products:
                 Array.isArray(json.products) ? json.products.map(product => Product.fromJson(product))
                     .filter(product => product !== null) : [],

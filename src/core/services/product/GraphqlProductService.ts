@@ -1,15 +1,16 @@
-import ProductService from "./ProductService";
-import SearchFilter from "../../models/SearchFilter";
-import Search from "../../models/Search";
-import Product from "../../models/catalog/Product";
-import GetProductsBySKUFilter from "./GetProductsBySKUFilter";
-import GetSuggestedProductsFilter from "./GetSuggestedProductsFilter";
-import GetProductRecommendationsFilter from "./GetProductRecommendationsFilter";
-import getProductsBySKUQuery from "./queries/GetProductsBySKUQuery";
-import getSuggestedProductsQuery from "./queries/GetSuggestedProductsQuery";
-import getProductRecommendationsQuery from "./queries/GetProductRecommendationsQuery";
+import ProductService from './ProductService';
+import SearchFilter from './SearchFilter';
+import Search from '../../models/catalog/Search';
+import Product from '../../models/catalog/Product';
+import GetProductsBySKUFilter from './GetProductsBySKUFilter';
+import GetSuggestedProductsFilter from './GetSuggestedProductsFilter';
+import GetProductRecommendationsFilter from './GetProductRecommendationsFilter';
+import searchProductsQuery from './queries/SearchProductsQuery';
+import getProductsBySKUQuery from './queries/GetProductsBySKUQuery';
+import getSuggestedProductsQuery from './queries/GetSuggestedProductsQuery';
+import getProductRecommendationsQuery from './queries/GetProductRecommendationsQuery';
 
-import IGraphqlClient from "../../http/GraphqlClient";
+import IGraphqlClient from '../../http/GraphqlClient';
 
 class GraphqlProductService implements ProductService {
 
@@ -19,7 +20,14 @@ class GraphqlProductService implements ProductService {
     }
 
     async search(filter: SearchFilter): Promise<Search> {
-        throw new Error("Method not implemented.");
+        filter.query['clientId'] = this.clientId;
+        const response = await this.client.query(searchProductsQuery, {
+            searchProductsInput: filter.query,
+        });
+        if (response.data?.searchProducts) {
+            return Search.fromJson(response.data.searchProducts);
+        }
+        throw new Error(`searchProducts failed: ${JSON.stringify(response.errors || response)}`);
     }
 
     async getProductsBySKU(filter: GetProductsBySKUFilter): Promise<Product[]> {

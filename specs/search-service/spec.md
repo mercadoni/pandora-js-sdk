@@ -1,146 +1,256 @@
 # Spec: SearchService — product search
 
-**Status:** draft
-**Owner:** Jorge
-**Last updated:** 2026-04-23
+**Status:** ready
+**Owner:** sago
+**Last updated:** 2026-05-12
 
 ## Why
 
-`ProductService.search` is a stub today (`GraphqlProductService.search()` throws `not implemented`). `SearchFilter` and `Search` are empty classes. Consumers can't search the catalog, which is table-stakes for any ecommerce storefront. This spec fills in the minimum viable product search: query string + optional category + pagination, returning products with aggregates for faceted UI.
+`ProductService.search` is a stub (`GraphqlProductService.search()` throws `not implemented`). `SearchFilter` and `Search` are empty classes. Consumers cannot search the catalog. This spec implements the full `searchProducts` operation against the backend schema, exposing products, pagination, aggregates, and carousels.
 
 ## Goals
 
-- Consumers can call `platform.productService.search(filter)` and get back a `Search` containing matching products, pagination info, and aggregates.
-- Filter supports: free-text query, optional category reference, page/limit pagination, optional store reference.
-- Response includes enough data for a standard search results page (products list, total count, facets/aggregates).
+- Consumers can call `platform.productService.search(filter)` and get back a `Search` containing matching products, pagination, aggregates, and carousels.
+- Filter exposes the full `SearchProductsInput` fields: query terms, pagination, optional filters, optional sort.
+- Response is typed: `Search { products, pagination, aggregates, carousels }`.
 
 ## Non-goals
 
-- Advanced filtering (price ranges, brand, tags, sort order) — follow-up spec.
-- Autocomplete / typeahead endpoint — separate feature.
-- Personalization / recommendations.
-- Caching. The `Client` is stateless per-call.
+- `getSearchSuggestion` / typeahead — separate spec.
+- Personalized recommendations (`getSuggestedProducts`, `getProductRecommendations`) — already implemented.
+- Caching, retries, logging — owned by `Client`, not services.
 
 ## Consumer-facing API
 
 ```typescript
 import { Platform, SearchFilter } from '@instaleap/pandora-js-sdk';
 
-const platform = new Platform({ baseUrl, clientId });
+const platform = new Platform({ baseUrl, clientId: 'D1' });
+
 const filter = new SearchFilter({
-    query: 'milk',
+    pageSize: 20,
+    currentPage: 1,
     storeReference: '11808',
-    categoryReference: 'dairy',   // optional
-    page: 1,
-    limit: 20,
+    search: [{ query: 'milk' }],
+    // Optional:
+    filters: { brands: ['Alpina'], priceRange: { gte: 1000 } },
+    sort: { desc: ['PRICE'] },
+    minScore: 0.5,
+    googleAnalyticsSessionId: 'abc123',
 });
+
 const result = await platform.productService.search(filter);
-// result: Search { products: Product[], pagination: Pagination, aggregates: Aggregate[] }
+// result.products: Product[]
+// result.pagination: Pagination { page, pages, total }
+// result.aggregates: Aggregate[]
+// result.carousels: Carousel[]
 ```
 
-New exports from `src/index.ts`:
+New public exports from `src/index.ts`:
 ```typescript
 export { default as SearchFilter } from './core/services/product/SearchFilter';
-export { default as Search } from './core/models/Search';
+export { default as Search } from './core/models/catalog/Search';
 export { default as Pagination } from './core/models/catalog/Pagination';
 export { default as Aggregate } from './core/models/catalog/Aggregate';
 ```
 
 ## Types
 
-### Filter
+### Filter — `SearchFilter`
 
-| Name | Kind | Fields | Notes |
-|------|------|--------|-------|
-| `SearchFilter` | Filter | `query: string`, `storeReference: string`, `categoryReference?: string`, `page?: number` (default 1), `limit?: number` (default 20) | narrows the product catalog |
+File: `src/core/services/product/SearchFilter.ts` (new — replaces the empty stub at `src/core/models/SearchFilter.ts` which is deleted)
 
-`SearchFilter` lives at `src/core/services/product/SearchFilter.ts` (replaces the stub at `src/core/models/SearchFilter.ts` — that stub gets deleted).
+Maps to `SearchProductsInput` in the backend schema (line 264). `clientId` is **not** a constructor arg — it is injected by the service at call time (same pattern as `GetProductsBySKUFilter`).
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `pageSize` | `number` | yes | |
+| `currentPage` | `number` | yes | |
+| `storeReference` | `string` | yes | |
+| `search` | `Array<{ query: string; fields?: Array<{ option: SearchQueryFieldsOption; weight?: number }> }>` | yes | |
+| `minScore` | `number` | no | |
+| `filters` | `ProductFiltersInput` (plain object — see schema lines 763–802) | no | |
+| `sort` | `{ asc?: string[]; desc?: string[] }` | no | |
+| `googleAnalyticsSessionId` | `string` | no | |
+
+`SearchQueryFieldsOption` enum values (from schema line 794): `BRAND`, `CATEGORIES_NAME`, `NAME`, `SEARCHKEYWORDS`, `SKU`, `TAGS_NAME`, `TAG_REFERENCE`.
+
+Export a TypeScript type alias `SearchQueryFieldsOption` from `SearchFilter.ts` so consumers can reference it.
 
 ### Models
 
-| Name | Fields | Notes |
-|------|--------|-------|
-| `Search` | `products: Product[]`, `pagination: Pagination`, `aggregates: Aggregate[]` | `fromJson` populates all three |
-| `Pagination` | `page: number`, `limit: number`, `total: number`, `pages: number` | fills the empty stub |
-| `Aggregate` | `key: string`, `label: string`, `buckets: { value: string; count: number }[]` | fills the empty stub |
-| `Product` | already exists at `src/core/models/catalog/Product.ts` | reuse |
+#### `Pagination` — `src/core/models/catalog/Pagination.ts` (fill empty stub)
 
-## GraphQL operations
+Schema: `PaginationModel` (line 1485).
 
-### `searchProducts` (query)
+```typescript
+class Pagination {
+    constructor(
+        public readonly page: number,
+        public readonly pages: number,
+        public readonly total: { value: number | null; relation: string | null } | null,
+    ) {}
+
+    static fromJson(json: Record<string, any>): Pagination {
+        const total = json.total
+            ? { value: json.total.value ?? null, relation: json.total.relation ?? null }
+            : null;
+        return new Pagination(json.page ?? 0, json.pages ?? 0, total);
+    }
+}
+```
+
+#### `Aggregate` — `src/core/models/catalog/Aggregate.ts` (fill empty stub)
+
+Schema: `AggregateModel` (line 1471), `AggregateBucketModel` (line 1478).
+
+```typescript
+class AggregateBucket {
+    constructor(
+        public readonly min: number | null,
+        public readonly max: number | null,
+        public readonly key: string | null,
+        public readonly docCount: number | null,
+    ) {}
+    static fromJson(json: Record<string, any>): AggregateBucket { … }
+}
+
+class Aggregate {
+    constructor(
+        public readonly name: string,
+        public readonly docCount: number | null,
+        public readonly isFromSpecification: boolean,
+        public readonly buckets: AggregateBucket[],
+    ) {}
+    static fromJson(json: Record<string, any>): Aggregate { … }
+}
+```
+
+`AggregateBucket` lives in the same file as `Aggregate` (two classes per file is acceptable when the bucket class is only used by `Aggregate` — but see CLAUDE.md "one class per file" rule). Preferred: `AggregateBucket` in its own file `src/core/models/catalog/AggregateBucket.ts`.
+
+#### `Search` — `src/core/models/catalog/Search.ts` (new, replaces empty stub at `src/core/models/Search.ts`)
+
+Schema: `SearchProductsModel` (line 1463).
+
+```typescript
+class Search {
+    constructor(
+        public readonly products: Product[],
+        public readonly pagination: Pagination,
+        public readonly aggregates: Aggregate[],
+        public readonly carousels: Carousel[],
+        public readonly promoted: any,
+    ) {}
+
+    static fromJson(json: Record<string, any>): Search { … }
+}
+```
+
+Reuses existing `Product`, `Pagination`, `Aggregate`, `Carousel` (from `src/core/models/Carousel.ts`).
+
+### GraphQL query
+
+File: `src/core/services/product/queries/SearchProductsQuery.ts`
 
 ```graphql
-query SearchProducts($searchInput: SearchProductsInput!) {
-  searchProducts(searchInput: $searchInput) {
+query SearchProducts($searchProductsInput: SearchProductsInput!) {
+  searchProducts(searchProductsInput: $searchProductsInput) {
     products {
-      # Same selection set as existing Product.fromJson expects.
-      # Reference src/core/models/catalog/Product.ts for the full field list.
+      # Full CatalogProductModel selection — same fields as GetProductsBySKUQuery
     }
     pagination {
       page
-      limit
-      total
       pages
+      total {
+        value
+        relation
+      }
     }
     aggregates {
-      key
-      label
-      buckets { value count }
+      name
+      docCount
+      isFromSpecification
+      buckets {
+        min
+        max
+        key
+        docCount
+      }
+    }
+    carousels {
+      id
+      name
+      autoplaySpeed
+      lazyLoading
+      isActive
+      createdAt
+      updatedAt
+      position
+      banners {
+        id
+        name
+        webImageUrl
+        tabletImageUrl
+        appImageUrl
+        redirectUrl
+        redirectMode
+        isActive
+      }
+    }
+    promoted {
+      isPromoted
+      onLoadBeacon
+      onViewBeacon
+      onClickBeacon
+      onBasketChangeBeacon
+      onWishlistBeacon
     }
   }
 }
 ```
 
-- Response path: `response.data.searchProducts`
-- Variables: `{ searchInput: filter.query }`
+Variable at call site: `{ searchProductsInput: filter.query }` (after injecting `clientId`).
 
-(Confirm exact GraphQL schema against the backend before implementing — adjust field names if the API uses different ones.)
+### Service method
 
-## Files to add / modify
+In `GraphqlProductService.search(filter: SearchFilter): Promise<Search>`:
+
+1. Inject `clientId`: `filter.query['clientId'] = this.clientId;`
+2. Call `this.client.query(searchProductsQuery, { searchProductsInput: filter.query })`.
+3. Check `response.data?.searchProducts` — if truthy, return `Search.fromJson(response.data.searchProducts)`.
+4. Else throw `new Error(\`searchProducts failed: \${JSON.stringify(response.errors || response)}\`)`.
+
+## Files to add / modify / delete
 
 **Add:**
-- `src/core/services/product/SearchFilter.ts` (new, follows Input template, `extends Input`)
+- `src/core/services/product/SearchFilter.ts`
 - `src/core/services/product/queries/SearchProductsQuery.ts`
-- `src/core/models/Search.ts`
+- `src/core/models/catalog/Search.ts`
+- `src/core/models/catalog/AggregateBucket.ts`
 
 **Modify:**
-- `src/core/models/catalog/Pagination.ts` — fill stub with fields + `fromJson`
-- `src/core/models/catalog/Aggregate.ts` — fill stub with fields + `fromJson`
-- `src/core/services/product/ProductService.ts` — add `search(filter: SearchFilter): Promise<Search>`
-- `src/core/services/product/GraphqlProductService.ts` — implement `search` (stop throwing not-implemented)
-- `src/core/Platform.ts` — ensure `productService` is instantiated (currently not wired in)
-- `src/index.ts` — add exports listed above
-- `src/test/index.ts` — add a search smoke call
+- `src/core/models/catalog/Pagination.ts` — fill stub
+- `src/core/models/catalog/Aggregate.ts` — fill stub (imports `AggregateBucket`)
+- `src/core/services/product/ProductService.ts` — update `SearchFilter` import to new path
+- `src/core/services/product/GraphqlProductService.ts` — implement `search`, update imports
+- `src/index.ts` — add exports; remove old `SearchFilter` stub export if present (it isn't currently)
 
 **Delete:**
-- `src/core/models/SearchFilter.ts` (stub, superseded by service-local file per CLAUDE.md file organization)
-
-## Tasks
-
-1. Fill `Pagination` and `Aggregate` models with fields + `fromJson`.
-2. Create `Search` model with `fromJson` that parses `products`, `pagination`, `aggregates`.
-3. Create `SearchFilter` per CLAUDE.md Filter/Input template.
-4. Add `SearchProductsQuery` GQL string.
-5. Extend `ProductService` interface with `search`.
-6. Implement `search` in `GraphqlProductService` — remove the `not implemented` throw.
-7. Wire `productService` into `Platform` if not already.
-8. Export new public types from `src/index.ts`; remove old `SearchFilter` stub export if any.
-9. Add a smoke search call to `src/test/index.ts`.
-10. `npm run build` must pass clean.
+- `src/core/models/SearchFilter.ts` (empty stub)
+- `src/core/models/Search.ts` (empty stub — replaced by `models/catalog/Search.ts`)
 
 ## Acceptance criteria
 
-- [ ] `npm run build` passes with no errors.
-- [ ] `platform.productService.search(new SearchFilter({ query: 'milk', storeReference: '11808' }))` returns a `Search` instance with `products`, `pagination`, and `aggregates` populated (arrays may be empty but fields must exist).
+- [ ] `npm run build` passes with no TypeScript errors.
+- [ ] `platform.productService.search(new SearchFilter({ pageSize: 20, currentPage: 1, storeReference: '11808', search: [{ query: 'milk' }] }))` returns a `Search` instance with `products`, `pagination`, `aggregates`, and `carousels` populated (arrays may be empty; fields must exist and be correctly typed).
 - [ ] Consumer can import `SearchFilter`, `Search`, `Pagination`, `Aggregate` from the package root.
-- [ ] `SearchFilter` extends `Input` (verifiable by type-check: `filter.query` is accessible).
-- [ ] Service method throws with a helpful message when `response.data.searchProducts` is missing.
-- [ ] No direct `fetch` in `GraphqlProductService` — all calls go through `GraphqlClient`.
-- [ ] Old stub `src/core/models/SearchFilter.ts` is deleted, not left dangling.
+- [ ] `SearchFilter` extends `Input` (`filter.query` is accessible and contains the correct shape).
+- [ ] `clientId` is not a constructor arg on `SearchFilter` — injected by the service.
+- [ ] Service throws with a serialized error message when `response.data.searchProducts` is missing.
+- [ ] No direct `fetch` in `GraphqlProductService`.
+- [ ] Old stubs `src/core/models/SearchFilter.ts` and `src/core/models/Search.ts` are deleted.
 - [ ] Reviewer agent produces zero violations against CLAUDE.md conventions.
 
 ## Open questions
 
-- Exact GraphQL schema for `searchProducts` — need to confirm against the backend (field names for aggregates especially).
-- Should `storeReference` be required or optional? Currently required in this spec; revisit if the API supports store-less global search.
-- Does the API return aggregates by default or does it need a flag/selection to include them?
+None — all fields confirmed against `graphql_schema.graphql`.
