@@ -26,7 +26,7 @@ The backend now requires a per-customer/per-developer API key on every request, 
 ## Consumer-facing API
 
 ```typescript
-import { Platform } from '@sirosa/ecommerce-js-sdk';
+import { Platform } from '@instaleap/pandora-js-sdk';
 
 const platform = new Platform({
     baseUrl: 'https://nextgentheadless.instaleap.io/api/v3',

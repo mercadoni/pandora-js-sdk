@@ -24,7 +24,7 @@
 ## Consumer-facing API
 
 ```typescript
-import { Platform, SearchFilter } from '@sirosa/ecommerce-js-sdk';
+import { Platform, SearchFilter } from '@instaleap/pandora-js-sdk';
 
 const platform = new Platform({ baseUrl, clientId });
 const filter = new SearchFilter({

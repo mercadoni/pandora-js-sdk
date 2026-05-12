@@ -44,7 +44,7 @@ import {
     GetProductRecommendationsFilter,
     ProductRecommendationType,
     Product,
-} from '@sirosa/ecommerce-js-sdk';
+} from '@instaleap/pandora-js-sdk';
 
 const platform = new Platform({
     baseUrl: 'https://nextgentheadless.instaleap.io/api/v3',
@@ -344,7 +344,7 @@ Update the existing `import` block at the top of `src/test/index.ts` accordingly
 ## Acceptance criteria
 
 - [ ] `npm run build` passes with zero errors.
-- [ ] `import { GetProductsBySKUFilter, GetSuggestedProductsFilter, GetProductRecommendationsFilter, ProductRecommendationType, Product } from '@sirosa/ecommerce-js-sdk'` resolves with correct types.
+- [ ] `import { GetProductsBySKUFilter, GetSuggestedProductsFilter, GetProductRecommendationsFilter, ProductRecommendationType, Product } from '@instaleap/pandora-js-sdk'` resolves with correct types.
 - [ ] `platform.productService` is defined and an instance of `GraphqlProductService`.
 - [ ] All three filters extend `Input` and store fields on `this.query`.
 - [ ] All three service methods inject `clientId` from the Platform `clientId` (verifiable: `filter.query.clientId === 'D1'` after the call).

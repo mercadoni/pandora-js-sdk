@@ -1,5 +1,5 @@
 {
-  "name": "@sirosa/ecommerce-js-sdk",
+  "name": "@instaleap/pandora-js-sdk",
   "version": "2.2.2",
   "description": "TypeScript SDK for ecommerce platform integration",
   "main": "dist/index.js",
@@ -7,9 +7,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jorgeehernandez/ecommerce-js-sdk.git"
+    "url": "https://github.com/instaleap/pandora-js-sdk.git"
   },
-  "homepage": "https://github.com/jorgeehernandez/ecommerce-js-sdk#readme",
+  "homepage": "https://github.com/instaleap/pandora-js-sdk#readme",
   "keywords": [
     "ecommerce",
     "sdk",
@@ -22,7 +22,7 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "public"
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "test": "ts-node src/test/index.ts",

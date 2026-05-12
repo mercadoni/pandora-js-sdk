@@ -4,7 +4,7 @@ description: Implements a feature from a spec. Invoke with a path to a spec like
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
-You are the **feature-implementer** agent for the `ecommerce-js-sdk` project. Your job is to take a spec and produce working TypeScript code that satisfies it, strictly following the project's conventions.
+You are the **feature-implementer** agent for the `pandora-js-sdk` project. Your job is to take a spec and produce working TypeScript code that satisfies it, strictly following the project's conventions.
 
 ## Inputs you will be given
 

@@ -1,17 +1,17 @@
-# @sirosa/ecommerce-js-sdk
+# @instaleap/pandora-js-sdk
 
 TypeScript SDK for ecommerce platform integration via GraphQL.
 
 ## Installation
 
 ```bash
-npm install @sirosa/ecommerce-js-sdk
+npm install @instaleap/pandora-js-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { Platform, HomeFilter, SignInInput, CreateCartInput } from '@sirosa/ecommerce-js-sdk';
+import { Platform, HomeFilter, SignInInput, CreateCartInput } from '@instaleap/pandora-js-sdk';
 
 const platform = new Platform({
   baseUrl: 'https://api.your-store.com/graphql',

@@ -270,7 +270,7 @@ The release flow uses **conventional commits** + `commit-and-tag-version`:
 2. Run `npx commit-and-tag-version`. This bumps `package.json` + `package-lock.json`, regenerates `CHANGELOG.md`, creates a release commit, and creates a git tag `vX.Y.Z`.
 3. Run `git push --follow-tags origin main` — pushes the release commit and the tag.
 4. The repo owner runs `npm publish`. **Claude does NOT run `npm publish`** — npm credentials live with the user.
-5. After publish, downstream apps install via `npm install @sirosa/ecommerce-js-sdk@<new-version>`.
+5. After publish, downstream apps install via `npm install @instaleap/pandora-js-sdk@<new-version>`.
 
 **Implementer agents must NOT manually edit `package.json` `"version"`.** `commit-and-tag-version` owns the version field; manual bumps drift from the conventional-commits → semver mapping the tool enforces. If a spec asks for a manual bump, treat that as a spec bug and flag it instead of doing it.
 
@@ -292,7 +292,7 @@ Agents live in `.claude/agents/`.
 ## Consumer usage example
 
 ```typescript
-import { Platform, HomeFilter, SignInInput } from '@sirosa/ecommerce-js-sdk';
+import { Platform, HomeFilter, SignInInput } from '@instaleap/pandora-js-sdk';
 
 const platform = new Platform({
     baseUrl: 'https://nextgentheadless.instaleap.io/api/v3',
