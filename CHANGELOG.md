@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.3.0](https://github.com/instaleap/pandora-js-sdk/compare/v2.2.2...v2.3.0) (2026-05-13)
+
+
+### Features
+
+* **product:** implement searchProducts — fill search stubs end-to-end ([2657906](https://github.com/instaleap/pandora-js-sdk/commit/2657906c4e2013cda625d06aeb63f063c22d6cd4))
+
+
+### Bug Fixes
+
+* update project references from ecommerce-js-sdk to pandora-js-sdk ([5a92d21](https://github.com/instaleap/pandora-js-sdk/commit/5a92d2161ad8a882a27446d4323e240d03d44731))
+
 ## [2.2.2](https://github.com/instaleap/pandora-js-sdk/compare/v2.2.1...v2.2.2) (2026-04-30)
 
 

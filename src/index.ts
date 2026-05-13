@@ -16,6 +16,7 @@ export { default as GetProductsBySKUFilter } from './core/services/product/GetPr
 export { default as GetSuggestedProductsFilter } from './core/services/product/GetSuggestedProductsFilter';
 export { default as GetProductRecommendationsFilter } from './core/services/product/GetProductRecommendationsFilter';
 export { default as ProductRecommendationType } from './core/services/product/ProductRecommendationType';
+export { default as SearchFilter } from './core/services/product/SearchFilter';
 
 // Cart
 export { default as CreateCartInput } from './core/services/cart/CreateCartInput';
@@ -40,6 +41,9 @@ export { default as CouponInput } from './core/services/cart/CouponInput';
 // Models — response types for consumers
 export { default as Home } from './core/models/home/Home';
 export { default as Product } from './core/models/catalog/Product';
+export { default as Search } from './core/models/catalog/Search';
+export { default as Pagination } from './core/models/catalog/Pagination';
+export { default as Aggregate } from './core/models/catalog/Aggregate';
 export { default as Cart } from './core/models/cart/Cart';
 export { default as CartProduct } from './core/models/cart/CartProduct';
 export { default as ValidatedCart } from './core/models/cart/ValidatedCart';
