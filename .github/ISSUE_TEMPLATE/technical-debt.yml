@@ -1,0 +1,34 @@
+name: "Technical debt (AI-doable)"
+description: "A mechanical, low-risk cleanup for an agent. Add the `ai-allowed` label when ready."
+labels: ["technical-debt"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The agent does **one** safe, mechanical cleanup and opens a PR that closes this issue.
+        It refuses (and comments) on anything touching the GraphQL schema, the release workflow, or anything needing a product/architecture decision.
+        **Add the `ai-allowed` label when ready for an agent to take it.**
+  - type: textarea
+    id: what
+    attributes:
+      label: What to clean up
+      description: The change, concretely. The narrower and more mechanical, the better.
+      placeholder: |
+        Fill in the empty stubs in SearchFilter, ProductFilter, Search, Pagination, Aggregate,
+        MetaData, and WidgetData.fromJson — they're listed in CLAUDE.md "Known stubs & bugs".
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location (file / service)
+      placeholder: src/core/services/product/SearchFilter.ts
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it's safe / no behaviour change (optional)
+      description: Note if it's a pure refactor, or what the smoke test already covers.
+    validations:
+      required: false

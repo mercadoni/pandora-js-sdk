@@ -1,0 +1,150 @@
+name: AI issue → PR
+
+# GitHub Issues are the single backlog for AI-allowed work. A developer files an
+# issue, labels it `ai-allowed` + exactly one kind (`bug` | `feature` |
+# `technical-debt`), and this workflow turns it into a reviewed PR that closes it.
+#
+# Triggers:
+#   - issues:[labeled]   -> fires the moment `ai-allowed` is added (immediate).
+#   - schedule (daily)   -> safety-net sweep: picks the oldest unclaimed
+#                           `ai-allowed` issue an event might have missed.
+#   - workflow_dispatch  -> run a specific issue by hand.
+#
+# Nothing auto-merges. Requires repo secret CLAUDE_CODE_OAUTH_TOKEN and
+# "Allow GitHub Actions to create and approve PRs".
+
+on:
+  issues:
+    types: [labeled]
+  schedule:
+    - cron: "0 13 * * 1-5"   # daily sweep, UTC (08:00 UTC-5, Bogotá)
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Issue number to work"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: ai-issue-pr-${{ github.event.issue.number || github.event.inputs.issue || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  work:
+    # On the label event, only proceed when the label just added is `ai-allowed`.
+    if: ${{ github.event_name != 'issues' || github.event.label.name == 'ai-allowed' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Resolve target issue
+        id: target
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          case "${{ github.event_name }}" in
+            issues)            n="${{ github.event.issue.number }}" ;;
+            workflow_dispatch) n="${{ github.event.inputs.issue }}" ;;
+            schedule)
+              # Oldest open ai-allowed issue not already claimed (in-progress).
+              n=$(gh issue list --repo "$REPO" --state open --label ai-allowed --limit 100 \
+                    --json number,labels --jq \
+                    '[.[] | select(any(.labels[].name; .=="in-progress") | not)] | sort_by(.number) | .[0].number // empty')
+              ;;
+          esac
+          echo "issue=${n:-}" >> "$GITHUB_OUTPUT"
+          [ -n "${n:-}" ] && echo "Working issue #$n" || echo "No eligible issue — exiting cleanly."
+
+      - name: Work the issue
+        if: ${{ steps.target.outputs.issue != '' }}
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ steps.target.outputs.issue }}
+        run: |
+          # Write to $RUNNER_TEMP, NOT the repo: /issue-pr runs git housekeeping
+          # at repo root. An untracked result.json there gets unlinked mid-run
+          # while claude still holds the fd open — the JSON then flushes to a
+          # nameless inode and the file is gone by the time we read it.
+          RESULT="$RUNNER_TEMP/result.json"
+          COST="$RUNNER_TEMP/cost.md"
+          claude -p "/issue-pr $ISSUE" \
+            --model claude-opus-4-8 \
+            --permission-mode bypassPermissions \
+            --output-format json > "$RESULT" || true
+
+          if ! jq -e . "$RESULT" >/dev/null 2>&1; then
+            echo "::error::claude produced no parseable JSON result"; cat "$RESULT" || true; exit 1
+          fi
+
+          result_text=$(jq -r '.result // ""' "$RESULT")
+          cost=$(jq -r '.total_cost_usd // 0' "$RESULT")
+          tin=$(jq -r '.usage.input_tokens // 0' "$RESULT")
+          tout=$(jq -r '.usage.output_tokens // 0' "$RESULT")
+          tcr=$(jq -r '.usage.cache_read_input_tokens // 0' "$RESULT")
+          tcc=$(jq -r '.usage.cache_creation_input_tokens // 0' "$RESULT")
+          turns=$(jq -r '.num_turns // 0' "$RESULT")
+          durms=$(jq -r '.duration_ms // 0' "$RESULT")
+          iserr=$(jq -r '.is_error // false' "$RESULT")
+          costf=$(awk "BEGIN{printf \"%.4f\", $cost}")
+          dur=$(awk "BEGIN{s=int($durms/1000); printf \"%dm%02ds\", s/60, s%60}")
+
+          {
+            echo "### 🤖 Run cost (estimate) — issue #$ISSUE"
+            echo
+            echo "| cost (est. USD) | input | output | cache read | cache write | turns | duration |"
+            echo "| --- | --- | --- | --- | --- | --- | --- |"
+            echo "| \$$costf | $tin | $tout | $tcr | $tcc | $turns | $dur |"
+            echo
+            echo "_API-equivalent estimate from Claude Code (includes sub-agents). Subscription runs are not billed per PR._"
+            echo "<!-- ai-cost usd=$costf in=$tin out=$tout turns=$turns -->"
+          } > "$COST"
+          cat "$COST" >> "$GITHUB_STEP_SUMMARY"
+
+          # Resolve the PR from the issue deterministically — match branch name
+          # or Closes #N in the body; take the freshest (highest-numbered) PR.
+          pr_url=$(gh pr list --repo "$REPO" --state all --limit 200 \
+                    --json url,number,headRefName,body \
+                    --jq '
+                      ($ENV.ISSUE) as $i
+                      | [ .[]
+                          | select(
+                              ((.headRefName // "") | test("issue-" + $i + "(-|$)"))
+                              or ((.body // "") | test("(?i)(close[sd]?|fix(e[sd])?|resolve[sd]?) #" + $i + "([^0-9]|$)"))
+                            )
+                        ]
+                      | sort_by(.number) | last | .url // empty
+                    ' 2>/dev/null || true)
+          if [ -n "$pr_url" ]; then
+            gh pr comment "$pr_url" --body-file "$COST" || true
+          elif awk "BEGIN{exit !($cost > 0)}"; then
+            echo "::warning::run for issue #$ISSUE cost \$$costf but no PR was found to attach the ai-cost marker — see the issue comment"
+            gh issue comment "$ISSUE" --body-file "$COST" || true
+          fi
+
+          echo "$result_text"
+          if [ "$iserr" = "true" ]; then echo "::error::claude run reported is_error=true"; exit 1; fi
