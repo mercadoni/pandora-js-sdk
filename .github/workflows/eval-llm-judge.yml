@@ -1,0 +1,139 @@
+name: AI LLM judge
+
+# After a PR merges, an LLM (Haiku) grades the DIFF ONLY on a fixed 1-5 rubric
+# and posts an `<!-- ai-judge ... -->` marker comment. It is the experiment's
+# reviewer-variance-free quality signal — one rubric, one ruler, applied to
+# every merged PR.
+#
+# BLINDING (the whole point): the judge sees ONLY the code diff — never the PR
+# title, body, or labels. An autonomous PR body carries "Generated with Claude
+# Code" + the pr-reviewer summary, so passing it would tell the judge the
+# ai/no-ai condition and destroy the comparison. The diff is just code.
+#
+# It runs on BOTH autonomous and human PRs (no label filter) so the two arms get
+# a comparable score under one grader.
+#
+# COST: the judge's own (tiny, Haiku) token cost is intentionally NOT posted as
+# an `ai-cost` marker — that marker feeds the cost-per-PR metric and judge cost
+# must not inflate it. Only the distinct `ai-judge` marker is emitted.
+#
+# Requires repo secret CLAUDE_CODE_OAUTH_TOKEN.
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to judge"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ai-llm-judge-${{ github.event.pull_request.number || github.event.inputs.pr }}
+  cancel-in-progress: false
+
+jobs:
+  judge:
+    # Only MERGED PRs — a closed-unmerged PR delivered nothing to grade.
+    # workflow_dispatch bypasses for manual backfill.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       github.event.pull_request.head.repo.fork == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Resolve target PR
+        id: target
+        run: |
+          set -euo pipefail
+          case "${{ github.event_name }}" in
+            pull_request)      n="${{ github.event.pull_request.number }}" ;;
+            workflow_dispatch) n="${{ github.event.inputs.pr }}" ;;
+          esac
+          echo "pr=${n:-}" >> "$GITHUB_OUTPUT"
+          echo "Judging PR #${n:-?}"
+
+      - name: Grade the diff
+        if: ${{ steps.target.outputs.pr != '' }}
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ steps.target.outputs.pr }}
+        run: |
+          set -euo pipefail
+
+          # Diff ONLY (see BLINDING note in the header). Cap size to keep Haiku
+          # cheap and inside context; truncation is fine for a holistic grade.
+          DIFF="$RUNNER_TEMP/diff.patch"
+          gh pr diff "$PR" --repo "$REPO" 2>/dev/null | head -c 120000 > "$DIFF" || true
+          if [ ! -s "$DIFF" ]; then
+            echo "::notice::PR #$PR has an empty/unavailable diff — nothing to grade"; exit 0
+          fi
+
+          PROMPT="$RUNNER_TEMP/prompt.txt"
+          {
+            echo 'You are a blinded code-quality judge. You are given ONLY a unified diff -'
+            echo 'no author, no description, no labels. Grade each dimension from 1 (poor)'
+            echo 'to 5 (excellent), judging only what the diff shows:'
+            echo '- correctness: logic sound, edge cases handled, no obvious bugs, service'
+            echo '  methods throw on unexpected response shapes?'
+            echo '- conventions: idiomatic TypeScript in a layered SDK — Filter vs Input'
+            echo '  naming, Graphql prefix on implementations, one class per file, config'
+            echo '  constructor args, readonly model fields, fromJson factory, no fetch in'
+            echo '  services, no JSON parsing outside fromJson?'
+            echo '- tests: smoke-test harness updated for the change AND exercising the new'
+            echo '  behaviour? Score 1 if a behaviour change ships with no test coverage.'
+            echo '- scope: cohesive and minimal for one change, no unrelated edits?'
+            echo 'If the diff is documentation/config ONLY (no executable code), set'
+            echo '"correctness" and "tests" to the string "NA" and grade the rest normally.'
+            echo 'Respond with ONE JSON object and NOTHING else - no markdown, no fences:'
+            echo '{"correctness":N,"conventions":N,"tests":N,"scope":N,"overall":N,"note":"<=15 words"}'
+            echo '"overall" is your holistic 1-5 (not the average). Avoid tools; everything'
+            echo 'you need is below. The diff (may be truncated):'
+            cat "$DIFF"
+          } > "$PROMPT"
+
+          RESULT="$RUNNER_TEMP/result.json"
+          cat "$PROMPT" | claude -p \
+            --model haiku \
+            --permission-mode bypassPermissions \
+            --output-format json > "$RESULT" || true
+
+          if ! jq -e . "$RESULT" >/dev/null 2>&1; then
+            echo "::error::claude produced no parseable JSON envelope"; cat "$RESULT" || true; exit 1
+          fi
+          text=$(jq -r '.result // ""' "$RESULT")
+
+          scores=$(printf '%s' "$text" | sed '/^```/d' | jq -c . 2>/dev/null || true)
+          if [ -z "$scores" ]; then
+            echo "::warning::judge did not return valid JSON for PR #$PR: $text"; exit 0
+          fi
+
+          g() { printf '%s' "$scores" | jq -r --arg k "$1" '.[$k] // "?"'; }
+          cor=$(g correctness); con=$(g conventions); tst=$(g tests); scp=$(g scope); ovr=$(g overall)
+          note=$(printf '%s' "$scores" | jq -r '.note // ""')
+
+          OUT="$RUNNER_TEMP/judge.md"
+          {
+            echo "### 🧮 LLM quality judge (Haiku) — PR #$PR"
+            echo
+            echo "| overall | correctness | conventions | tests | scope |"
+            echo "| --- | --- | --- | --- | --- |"
+            echo "| $ovr | $cor | $con | $tst | $scp |"
+            echo
+            [ -n "$note" ] && { echo "_${note}_"; echo; }
+            echo "_Graded from the code diff only — no PR description or labels — so the score is blind to whether AI authored the change. A supplement to human review, not a gate._"
+            echo "<!-- ai-judge overall=$ovr correctness=$cor conventions=$con tests=$tst scope=$scp model=haiku -->"
+          } > "$OUT"
+          cat "$OUT" >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "$PR" --repo "$REPO" --body-file "$OUT" || true

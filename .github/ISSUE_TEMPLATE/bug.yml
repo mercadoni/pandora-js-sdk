@@ -1,0 +1,46 @@
+name: "Bug (AI-fixable)"
+description: "A defect for an agent to fix. Fill every required field, then add the `ai-allowed` label to trigger the fix."
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The agent reproduces the bug **from the data in this issue** and opens a PR that closes it.
+        It will stop and comment if it can't reproduce from what you provide — so be concrete.
+        **Add the `ai-allowed` label when this is complete and you're happy for an agent to take it.**
+  - type: textarea
+    id: symptom
+    attributes:
+      label: Error / symptom
+      description: The error message, wrong return value, or observable wrong behaviour.
+      placeholder: |
+        TypeError: Cannot read properties of undefined (reading 'fromJson')
+        at GraphqlProductService.search (src/core/services/product/GraphqlProductService.ts:42)
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction (sample input / failing call / steps)
+      description: Enough for a failing test. A code snippet that triggers it is ideal.
+      placeholder: |
+        const filter = new SearchFilter({ query: 'milk', byStore: '123' });
+        const result = await platform.productService.search(filter);
+        // throws instead of returning SearchModel
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What should happen instead. Must be unambiguous — one correct answer.
+    validations:
+      required: true
+  - type: input
+    id: area
+    attributes:
+      label: Affected area (file / service, if known)
+      placeholder: src/core/services/product/GraphqlProductService.ts
+    validations:
+      required: false

@@ -1,0 +1,34 @@
+name: "Feature step (AI-implementable)"
+description: "Ask an agent to implement ONE step of an existing feature spec. Add the `ai-allowed` label when ready."
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Features are spec-driven: the design lives in `specs/<slug>/spec.md` and is built **one Implementation Plan step at a time**.
+        This issue asks the agent to implement **one** step via the `feature-implementer` agent. It stops and comments if the spec is missing, blocked, or the step isn't the next unchecked one.
+        Need a spec first? Draft one under `specs/<slug>/spec.md` following `specs/_template/spec.md` before filing this.
+        **Add the `ai-allowed` label when ready for an agent to take it.**
+  - type: input
+    id: slug
+    attributes:
+      label: Spec slug
+      description: The directory under specs/ (without /spec.md).
+      placeholder: search-service
+    validations:
+      required: true
+  - type: input
+    id: step
+    attributes:
+      label: Step number to implement
+      description: Must be the next unchecked step in that spec's Implementation Plan.
+      placeholder: "1"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / constraints (optional)
+      description: Anything the agent should know that isn't already in the spec.
+    validations:
+      required: false

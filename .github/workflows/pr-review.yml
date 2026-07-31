@@ -1,0 +1,144 @@
+name: PR review on demand
+
+# Runs the project's `pr-reviewer` agent against a PR's diff vs `main` and posts
+# the findings as a comment. Three triggers:
+#
+#   1. AUTOMATIC — every PR that is NOT from the autonomous `/issue-pr` flow gets
+#      reviewed once when it's opened (or marked ready for review). The loop's
+#      own PRs self-review inside /issue-pr, so they're skipped here (by bot
+#      author / `autonomous` label) to avoid double-reviewing.
+#   2. Manual button — Actions tab → "PR review on demand" → "Run workflow" →
+#      enter a PR number.
+#   3. A maintainer comments `/review` on the PR (re-review on demand).
+#
+# Why open-only, not on-every-push: the developer/TL review is the real quality
+# gate — this gives every human PR one automatic second opinion without becoming
+# the gate, and bounds cost to one run per PR (re-trigger via button/comment).
+#
+# Requires repo secret CLAUDE_CODE_OAUTH_TOKEN. The agent is read-only — it
+# reviews, it does not push.
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to review (e.g. 5)"
+        required: true
+        type: string
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  # A newer request for the same PR supersedes an in-flight one.
+  group: pr-review-${{ github.event.inputs.pr || github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Run when:
+    #  - a non-draft PR is opened/readied that is NOT from the autonomous loop, or
+    #  - dispatched manually, or
+    #  - a maintainer comments `/review` on a PR.
+    if: >-
+      ( github.event_name == 'pull_request' &&
+        github.event.pull_request.draft == false &&
+        github.event.pull_request.user.type != 'Bot' &&
+        !contains(github.event.pull_request.labels.*.name, 'autonomous') ) ||
+      github.event_name == 'workflow_dispatch' ||
+      ( github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request &&
+        startsWith(github.event.comment.body, '/review') &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) )
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Resolve target PR
+        id: ctx
+        run: echo "pr=${{ github.event.inputs.pr || github.event.pull_request.number || github.event.issue.number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Acknowledge the request
+        if: ${{ github.event_name == 'issue_comment' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: |
+          gh api "repos/$REPO/issues/comments/$COMMENT_ID/reactions" \
+            -f content=eyes --silent || true
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Check out the PR branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ steps.ctx.outputs.pr }}
+        run: |
+          set -euo pipefail
+          gh pr checkout "$PR" --repo "$REPO"
+          echo "Reviewing PR #$PR ($(git rev-parse --abbrev-ref HEAD))"
+
+      - name: Run pr-reviewer
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ steps.ctx.outputs.pr }}
+        run: |
+          set -euo pipefail
+
+          RESULT="$RUNNER_TEMP/result.json"
+          BODY="$RUNNER_TEMP/review.md"
+
+          claude -p "Review the current branch's diff against main for PR #$PR. Run \`npm run build\` to verify the TypeScript compiles clean. Check the diff against the rules in CLAUDE.md: naming conventions (Filter vs Input, Graphql prefix, one class per file), code patterns (Input/Filter/Model templates, service interface + impl), and anti-patterns. Output ONLY the review as markdown — severity-ranked findings with file:line references, or an explicit 'no blockers' — because your output is posted verbatim as a comment on PR #$PR." \
+            --model claude-opus-4-8 \
+            --permission-mode bypassPermissions \
+            --output-format json > "$RESULT" || true
+
+          if ! jq -e . "$RESULT" >/dev/null 2>&1; then
+            echo "::error::claude produced no parseable JSON result"; cat "$RESULT" || true; exit 1
+          fi
+
+          result_text=$(jq -r '.result // ""' "$RESULT")
+          cost=$(jq -r '.total_cost_usd // 0' "$RESULT")
+          turns=$(jq -r '.num_turns // 0' "$RESULT")
+          iserr=$(jq -r '.is_error // false' "$RESULT")
+          costf=$(awk "BEGIN{printf \"%.4f\", $cost}")
+
+          if [ -z "$result_text" ]; then
+            result_text="_pr-reviewer produced no output. Check the workflow run logs._"
+          fi
+
+          {
+            printf '%s\n\n' "$result_text"
+            echo "---"
+            echo "🤖 \`pr-reviewer\` · est. \$$costf · $turns turns · read-only, advisory — it does not replace human review."
+          } > "$BODY"
+
+          gh pr comment "$PR" --repo "$REPO" --body-file "$BODY"
+          cat "$BODY" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$iserr" = "true" ]; then echo "::error::claude run reported is_error=true"; exit 1; fi

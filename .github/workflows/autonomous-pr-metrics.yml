@@ -1,0 +1,268 @@
+name: Autonomous PR metrics
+
+# Weekly report for the autonomous PR loop. Pure gh + jq — no Claude session,
+# no API token. Reads PRs labelled `autonomous`, computes acceptance % and
+# review-friction metrics, compares them against a human (non-autonomous)
+# control group, writes it to the run summary, and appends it as a comment on
+# a single living "Autonomous PR metrics" issue.
+#
+# Acceptance % = merged / (merged + closed-unmerged). Still-open PRs excluded.
+
+on:
+  schedule:
+    - cron: "30 13 * * 1"   # Mondays 13:30 UTC = 08:30 UTC-5 (Bogotá)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+
+concurrency:
+  group: autonomous-pr-metrics
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Compute and publish metrics
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          gh pr list --repo "$REPO" --label autonomous --state all --limit 500 \
+            --json number,state,labels > prs.json 2>/dev/null || true
+          [ -s prs.json ] || echo '[]' > prs.json
+
+          SINCE=$(date -u -d '90 days ago' +%Y-%m-%d 2>/dev/null || date -u -v-90d +%Y-%m-%d)
+          WEEKS=$(awk 'BEGIN{printf "%.3f", 90/7}')
+          gh pr list --repo "$REPO" --state all --search "created:>=$SINCE" --limit 500 \
+            --json number,state,labels > win.json 2>/dev/null || true
+          [ -s win.json ] || echo '[]' > win.json
+
+          count() { jq "$1" prs.json; }
+
+          total=$(count 'length')
+          open=$(count '[.[]|select(.state=="OPEN")]|length')
+          merged=$(count '[.[]|select(.state=="MERGED")]|length')
+          closed=$(count '[.[]|select(.state=="CLOSED")]|length')
+          decided=$((merged + closed))
+          rate="n/a"
+          [ "$decided" -gt 0 ] && rate="$(awk "BEGIN{printf \"%.0f%%\", 100*$merged/$decided}")"
+
+          kind_row() {
+            k="$1"
+            m=$(jq --arg k "$k" '[.[]|select(.state=="MERGED")|select(any(.labels[].name; .==$k))]|length' prs.json)
+            c=$(jq --arg k "$k" '[.[]|select(.state=="CLOSED")|select(any(.labels[].name; .==$k))]|length' prs.json)
+            o=$(jq --arg k "$k" '[.[]|select(.state=="OPEN")|select(any(.labels[].name; .==$k))]|length' prs.json)
+            d=$((m + c)); r="n/a"
+            [ "$d" -gt 0 ] && r="$(awk "BEGIN{printf \"%.0f%%\", 100*$m/$d}")"
+            printf "| %s | %s | %s | %s | %s | %s |\n" "$k" "$o" "$m" "$c" "$d" "$r"
+          }
+
+          : > friction.tsv
+          while IFS=$'\t' read -r n state isauto; do
+            [ -n "$n" ] || continue
+            group="human"; [ "$isauto" = "true" ] && group="autonomous"
+
+            srb=$(gh pr view "$n" --repo "$REPO" --json additions,deletions,reviews,author,createdAt,mergedAt \
+              -q '(.author.login // "") as $a
+                  | (.createdAt | fromdateiso8601) as $c
+                  | ([.reviews[]?|select(.author.login!=$a)|.submittedAt // empty|fromdateiso8601]|min) as $fr
+                  | [ ((.additions//0)+(.deletions//0)),
+                      ([.reviews[]?|select(.state=="CHANGES_REQUESTED")]|length),
+                      ([.reviews[]?|select((.body//"")!="")|select(.author.login!=$a)|select((((.author.login//"")|ascii_downcase)|test("bot|github-actions"))|not)]|length),
+                      (if .mergedAt then ((.mergedAt|fromdateiso8601)-$c) else -1 end),
+                      (if $fr then ($fr-$c) else -1 end)
+                    ] | @tsv' 2>/dev/null || printf '0\t0\t0\t-1\t-1')
+            size=$(echo "$srb"   | cut -f1); size=${size:-0}
+            rounds=$(echo "$srb" | cut -f2); rounds=${rounds:-0}
+            rbody=$(echo "$srb"  | cut -f3); rbody=${rbody:-0}
+            cyc=$(echo "$srb"    | cut -f4); cyc=${cyc:--1}
+            lat=$(echo "$srb"    | cut -f5); lat=${lat:--1}
+            inline=$(gh api --paginate "repos/$REPO/pulls/$n/comments?per_page=100" \
+              --jq '.[]|select(.user.type!="Bot")|.id' 2>/dev/null | wc -l | tr -d ' ')
+            inline=${inline:-0}
+            comments=$((rbody + inline))
+            changed=0; [ "$rounds" -gt 0 ] && changed=1
+
+            printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
+              "$group" "$state" "$size" "$comments" "$rounds" "$changed" "$cyc" "$lat" >> friction.tsv
+          done < <(jq -r '.[] | [ (.number|tostring), .state, ((([.labels[].name]|index("autonomous"))!=null)|tostring) ] | @tsv' win.json)
+
+          friction_row() {
+            awk -F'\t' -v g="$1" -v label="$2" '
+              BEGIN{dec=0;mer=0;com=0;rnd=0;chg=0;sz=0}
+              $1==g && ($2=="MERGED"||$2=="CLOSED"){
+                dec++; if($2=="MERGED")mer++;
+                com+=$4; rnd+=$5; chg+=$6; sz+=$3
+              }
+              END{
+                if(dec==0){ printf "| %s | 0 | n/a | n/a | n/a | n/a | n/a | n/a |\n", label; exit }
+                acc=sprintf("%.0f%%",100*mer/dec);
+                ac=sprintf("%.2f",com/dec);
+                ar=sprintf("%.2f",rnd/dec);
+                cr=sprintf("%.0f%%",100*chg/dec);
+                per=(sz>0)?sprintf("%.2f",100*com/sz):"n/a";
+                as=sprintf("%d",sz/dec);
+                printf "| %s | %d | %s | %s | %s | %s | %s | %s |\n", label, dec, acc, ac, ar, cr, per, as
+              }' friction.tsv
+          }
+
+          median() { sort -n | awk '{a[NR]=$1} END{ if(NR==0)exit; m=int((NR+1)/2); if(NR%2)printf "%d",a[m]; else printf "%d",(a[m]+a[m+1])/2 }'; }
+
+          lead_row() {
+            g="$1"; label="$2"
+            mer=$(awk -F'\t' -v g="$g" '(g=="all"||$1==g)&&$2=="MERGED"{c++}END{print c+0}' friction.tsv)
+            thr=$(awk -v m="$mer" -v w="$WEEKS" 'BEGIN{ if(w>0) printf "%.1f", m/w; else printf "n/a" }')
+            cyc=$(awk -F'\t' -v g="$g" '(g=="all"||$1==g)&&$7>=0{print $7}' friction.tsv | median)
+            lat=$(awk -F'\t' -v g="$g" '(g=="all"||$1==g)&&$8>=0{print $8}' friction.tsv | median)
+            [ -n "$cyc" ] && cyc=$(awk -v s="$cyc" 'BEGIN{printf "%.1fh", s/3600}') || cyc="n/a"
+            [ -n "$lat" ] && lat=$(awk -v s="$lat" 'BEGIN{printf "%.1fh", s/3600}') || lat="n/a"
+            printf "| %s | %s | %s | %s |\n" "$label" "$cyc" "$lat" "$thr"
+          }
+
+          : > judge.tsv
+          while IFS=$'\t' read -r n isauto; do
+            [ -n "$n" ] || continue
+            group="human"; [ "$isauto" = "true" ] && group="autonomous"
+            marker=$(gh pr view "$n" --repo "$REPO" --json comments --jq '.comments[].body' 2>/dev/null \
+                     | grep -oE 'ai-judge overall=[0-9]+ correctness=[0-9NA]+ conventions=[0-9]+ tests=[0-9NA]+ scope=[0-9]+' \
+                     | tail -1 || true)
+            [ -n "$marker" ] || continue
+            ov=$(printf '%s' "$marker" | sed -E 's/.*overall=([0-9]+).*/\1/')
+            cr=$(printf '%s' "$marker" | sed -E 's/.*correctness=([0-9NA]+).*/\1/')
+            cv=$(printf '%s' "$marker" | sed -E 's/.*conventions=([0-9]+).*/\1/')
+            ts=$(printf '%s' "$marker" | sed -E 's/.*tests=([0-9NA]+).*/\1/')
+            sc=$(printf '%s' "$marker" | sed -E 's/.*scope=([0-9]+).*/\1/')
+            printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$group" "$ov" "$cr" "$cv" "$ts" "$sc" >> judge.tsv
+          done < <(jq -r '.[] | select(.state=="MERGED") | [ (.number|tostring), ((([.labels[].name]|index("autonomous"))!=null)|tostring) ] | @tsv' win.json)
+
+          judge_row() {
+            awk -F'\t' -v g="$1" -v label="$2" '
+              function avg(s,c){ return c>0 ? sprintf("%.2f", s/c) : "n/a" }
+              BEGIN{n=0}
+              (g=="all"||$1==g){
+                n++; ov+=$2; ovn++; cv+=$4; cvn++; sc+=$6; scn++;
+                if($3 ~ /^[0-9]+$/){cr+=$3; crn++}
+                if($5 ~ /^[0-9]+$/){ts+=$5; tsn++}
+              }
+              END{
+                if(n==0){ printf "| %s | 0 | n/a | n/a | n/a | n/a | n/a |\n", label; exit }
+                printf "| %s | %d | %s | %s | %s | %s | %s |\n", label, n,
+                  avg(ov,ovn), avg(cr,crn), avg(cv,cvn), avg(ts,tsn), avg(sc,scn)
+              }' judge.tsv
+          }
+
+          : > costs.tsv
+          for n in $(jq -r '.[].number' prs.json); do
+            usd=$(gh pr view "$n" --repo "$REPO" --json comments --jq '.comments[].body' 2>/dev/null \
+                  | grep -oE 'ai-cost usd=[0-9.]+' | sed 's/ai-cost usd=//' \
+                  | awk '{s+=$1; n++} END{if (n>0) printf "%.4f", s}' || true)
+            if [ -z "$usd" ]; then continue; fi
+            kind=$(jq -r --argjson n "$n" '.[] | select(.number==$n) | [.labels[].name] | map(select(.=="bug" or .=="feature" or .=="feature-spec" or .=="technical-debt")) | (.[0] // "unknown")' prs.json)
+            state=$(jq -r --argjson n "$n" '.[] | select(.number==$n) | .state' prs.json)
+            printf "%s\t%s\t%s\n" "$kind" "$usd" "$state" >> costs.tsv
+          done
+
+          cost_line() {
+            awk -v k="$1" 'BEGIN{n=0;s=0}
+              { if (k=="all" || $1==k) { n++; s+=$2 } }
+              END{ label=(k=="all"?"**all**":k);
+                   if (n>0) printf "| %s | %d | $%.4f | $%.4f |\n", label, n, s, s/n;
+                   else     printf "| %s | 0 | $0.0000 | n/a |\n", label }' costs.tsv
+          }
+
+          cost_outcome() {
+            awk -F'\t' -v s="$1" -v label="$2" 'BEGIN{n=0;t=0}
+              $3==s { n++; t+=$2 }
+              END{ if(n>0) printf "| %s | %d | $%.4f | $%.4f |\n", label, n, t, t/n;
+                   else    printf "| %s | 0 | $0.0000 | n/a |\n", label }' costs.tsv
+          }
+
+          {
+            echo "## Autonomous PR metrics — $(date -u '+%Y-%m-%d')"
+            echo
+            echo "_Acceptance % = merged ÷ (merged + closed-unmerged); still-open PRs excluded._"
+            echo
+            echo "| Scope | Open | Merged | Closed (unmerged) | Decided | Acceptance |"
+            echo "| --- | --- | --- | --- | --- | --- |"
+            printf "| **all** | %s | %s | %s | %s | %s |\n" "$open" "$merged" "$closed" "$decided" "$rate"
+            kind_row "bug"
+            kind_row "feature"
+            kind_row "feature-spec"
+            kind_row "technical-debt"
+            echo
+            echo "### Autonomous vs human control — review friction"
+            echo
+            echo "_Friction over **decided** PRs from the **last 90 days** (since $SINCE). Control = windowed PRs **without** the \`autonomous\` label, same repo, same reviewers._"
+            echo
+            echo "| Group | Decided | Acceptance | Avg comments | Avg rounds | Changes-req % | Comments/100 LOC | Avg PR size |"
+            echo "| --- | --- | --- | --- | --- | --- | --- | --- |"
+            friction_row "autonomous" "**Autonomous**"
+            friction_row "human" "Human (control)"
+            echo
+            echo "### Autonomous vs human control — lead time & throughput"
+            echo
+            echo "_**Cycle** = PR opened → merged. **Review latency** = PR opened → first non-author review. **Throughput** = merged PRs per week._"
+            echo
+            echo "| Group | Median cycle (PR→merge) | Median review latency | Throughput (merged/wk) |"
+            echo "| --- | --- | --- | --- |"
+            lead_row "autonomous" "**Autonomous**"
+            lead_row "human" "Human (control)"
+            echo
+            echo "### Autonomous vs human control — LLM quality judge"
+            echo
+            echo "_A model (Haiku) grades each **merged** PR's **diff only** — never its description or labels — on a 1–5 rubric. Blind to whether AI authored it. Docs-only diffs score \`NA\` on correctness/tests._"
+            echo
+            echo "| Group | Graded | Overall | Correctness | Conventions | Tests | Scope |"
+            echo "| --- | --- | --- | --- | --- | --- | --- |"
+            judge_row "autonomous" "**Autonomous**"
+            judge_row "human" "Human (control)"
+            echo
+            echo "### Cost (estimate, API-equivalent)"
+            echo
+            echo "_Each PR's total sums **all** \`ai-cost\` markers on it. Subscription usage is not billed per PR._"
+            echo
+            echo "| Scope | PRs with cost | Total | Avg/PR |"
+            echo "| --- | --- | --- | --- |"
+            cost_line "all"
+            cost_line "bug"
+            cost_line "feature"
+            cost_line "feature-spec"
+            cost_line "technical-debt"
+            echo
+            echo "| Outcome | PRs with cost | Total | Avg/PR |"
+            echo "| --- | --- | --- | --- |"
+            cost_outcome "MERGED" "Merged (accepted)"
+            cost_outcome "CLOSED" "Closed unmerged (rejected)"
+            echo
+            echo "_Total tracked: $total autonomous PRs; control = $(awk -F'\t' '$1=="human"&&($2=="MERGED"||$2=="CLOSED"){c++}END{print c+0}' friction.tsv) decided human PRs over the last 90 days._"
+          } > report.md
+
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+
+          {
+            echo "# 📊 Autonomous PR metrics — live snapshot"
+            echo
+            echo "_This issue **body** always shows the latest run; the weekly **history** is in the comments below._"
+            echo "_Updated $(date -u '+%Y-%m-%d %H:%M UTC') · refresh on demand: Actions → Autonomous PR metrics → Run workflow._"
+            echo
+            echo "---"
+            echo
+            cat report.md
+          } > body.md
+
+          issue=$(gh issue list --repo "$REPO" --state open \
+            --search 'Autonomous PR metrics in:title' --json number -q '.[0].number // empty')
+          if [ -z "$issue" ]; then
+            url=$(gh issue create --repo "$REPO" --title "Autonomous PR metrics" --body-file body.md)
+            issue="${url##*/}"
+          else
+            gh issue edit --repo "$REPO" "$issue" --body-file body.md
+          fi
+          gh issue comment --repo "$REPO" "$issue" --body-file report.md

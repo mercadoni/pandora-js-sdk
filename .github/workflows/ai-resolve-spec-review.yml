@@ -1,0 +1,130 @@
+name: AI resolve spec review
+
+# When a developer submits a "Request changes" review on an autonomous
+# feature-spec PR, fold their requested changes — including any answered
+# Open questions — back into specs/<slug>/spec.md and push the edit to the
+# PR branch. Downstream agents read the committed spec, never the PR thread, so
+# this is the bridge from review comments to a machine-readable decision.
+#
+# Triggers:
+#   - pull_request_review:[submitted] -> only when state == changes_requested
+#                                         AND the PR is labelled autonomous + feature-spec.
+#   - workflow_dispatch               -> run a specific PR by hand (e.g. to retest).
+#
+# Nothing auto-merges. The command pushes one commit to the PR branch and
+# re-requests review. Requires repo secret CLAUDE_CODE_OAUTH_TOKEN.
+#
+# NOTE: this workflow + the /resolve-spec-review command must live on the
+# DEFAULT branch (main) to fire — pull_request_review always runs the workflow
+# and command from main, not from the PR branch.
+
+on:
+  pull_request_review:
+    types: [submitted]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to resolve"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ai-resolve-spec-review-${{ github.event.pull_request.number || github.event.inputs.pr }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    # Only same-repo autonomous feature-spec PRs, and only on a "Request changes"
+    # review. workflow_dispatch bypasses the review gate for manual reruns.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.review.state == 'changes_requested' &&
+       contains(github.event.pull_request.labels.*.name, 'autonomous') &&
+       contains(github.event.pull_request.labels.*.name, 'feature-spec'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Resolve target PR
+        id: target
+        run: |
+          set -euo pipefail
+          case "${{ github.event_name }}" in
+            pull_request_review) n="${{ github.event.pull_request.number }}" ;;
+            workflow_dispatch)   n="${{ github.event.inputs.pr }}" ;;
+          esac
+          echo "pr=${n:-}" >> "$GITHUB_OUTPUT"
+          echo "Resolving review on PR #${n:-?}"
+
+      - name: Apply the review to the spec
+        if: ${{ steps.target.outputs.pr != '' }}
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.target.outputs.pr }}
+        run: |
+          # Write to $RUNNER_TEMP, NOT the repo: /resolve-spec-review runs
+          # `gh pr checkout` and pushes to the PR branch, so git housekeeping at
+          # repo root can unlink an untracked result.json mid-run.
+          RESULT="$RUNNER_TEMP/result.json"
+          COST="$RUNNER_TEMP/cost.md"
+          claude -p "/resolve-spec-review $PR" \
+            --model claude-opus-4-8 \
+            --permission-mode bypassPermissions \
+            --output-format json > "$RESULT" || true
+
+          if ! jq -e . "$RESULT" >/dev/null 2>&1; then
+            echo "::error::claude produced no parseable JSON result"; cat "$RESULT" || true; exit 1
+          fi
+
+          result_text=$(jq -r '.result // ""' "$RESULT")
+          cost=$(jq -r '.total_cost_usd // 0' "$RESULT")
+          tin=$(jq -r '.usage.input_tokens // 0' "$RESULT")
+          tout=$(jq -r '.usage.output_tokens // 0' "$RESULT")
+          tcr=$(jq -r '.usage.cache_read_input_tokens // 0' "$RESULT")
+          tcc=$(jq -r '.usage.cache_creation_input_tokens // 0' "$RESULT")
+          turns=$(jq -r '.num_turns // 0' "$RESULT")
+          durms=$(jq -r '.duration_ms // 0' "$RESULT")
+          iserr=$(jq -r '.is_error // false' "$RESULT")
+          costf=$(awk "BEGIN{printf \"%.4f\", $cost}")
+          dur=$(awk "BEGIN{s=int($durms/1000); printf \"%dm%02ds\", s/60, s%60}")
+          echo "$result_text"
+          echo "$result_text" >> "$GITHUB_STEP_SUMMARY"
+
+          # A "Request changes" round is a full Opus run — post cost marker so
+          # the weekly metrics report sums it alongside the initial /issue-pr run.
+          {
+            echo "### 🤖 Run cost (estimate) — resolve spec review, PR #$PR"
+            echo
+            echo "| cost (est. USD) | input | output | cache read | cache write | turns | duration |"
+            echo "| --- | --- | --- | --- | --- | --- | --- |"
+            echo "| \$$costf | $tin | $tout | $tcr | $tcc | $turns | $dur |"
+            echo
+            echo "_API-equivalent estimate from Claude Code (includes sub-agents). Subscription runs are not billed per PR._"
+            echo "<!-- ai-cost usd=$costf in=$tin out=$tout turns=$turns -->"
+          } > "$COST"
+          cat "$COST" >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "$PR" --body-file "$COST" || true
+
+          if [ "$iserr" = "true" ]; then echo "::error::claude run reported is_error=true"; exit 1; fi

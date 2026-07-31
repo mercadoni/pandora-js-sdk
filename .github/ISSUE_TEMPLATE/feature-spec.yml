@@ -1,0 +1,42 @@
+name: "Feature spec (AI-draftable)"
+description: "Ask an agent to draft a spec for a new SDK feature. Add the `ai-allowed` label when ready."
+labels: ["feature-spec"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The agent reads the GraphQL schema, existing services, and CLAUDE.md, then drafts `specs/<slug>/spec.md` following `specs/_template/spec.md`. It opens a PR so you can review and refine. Answering Open Questions in a review triggers `/resolve-spec-review` to fold your answers back into the spec.
+        **Add the `ai-allowed` label when ready for an agent to draft the spec.**
+  - type: input
+    id: slug
+    attributes:
+      label: Feature slug (kebab-case)
+      description: Becomes the directory name under specs/.
+      placeholder: order-history
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What does this feature do?
+      description: Plain-language description of the new SDK capability. The more concrete, the better.
+      placeholder: |
+        Wrap the `getOrdersByCustomer` query so consumers can fetch a customer's order history.
+        Return typed OrderModel instances. Auth token required.
+    validations:
+      required: true
+  - type: textarea
+    id: schema_ops
+    attributes:
+      label: GraphQL operations to wrap (if known)
+      description: Operation names from graphql_schema.graphql. Leave blank if unsure — the agent will grep the schema.
+      placeholder: |
+        Query: getOrdersByCustomer(customerId: ID, limit: Int, page: Int): [OrderModel!]!
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / constraints (optional)
+    validations:
+      required: false
