@@ -12,6 +12,7 @@ export { default as RefreshTokensInput } from './core/services/auth/RefreshToken
 export { default as ForgotPasswordInput } from './core/services/auth/ForgotPasswordInput';
 
 // Product
+export { default as GetProductsByCategoryFilter } from './core/services/product/GetProductsByCategoryFilter';
 export { default as GetProductsBySKUFilter } from './core/services/product/GetProductsBySKUFilter';
 export { default as GetSuggestedProductsFilter } from './core/services/product/GetSuggestedProductsFilter';
 export { default as GetProductRecommendationsFilter } from './core/services/product/GetProductRecommendationsFilter';
@@ -42,6 +43,8 @@ export { default as CouponInput } from './core/services/cart/CouponInput';
 export { default as Home } from './core/models/home/Home';
 export { default as Product } from './core/models/catalog/Product';
 export { default as Search } from './core/models/catalog/Search';
+export { default as CategorySearch } from './core/models/catalog/CategorySearch';
+export { default as Category } from './core/models/catalog/Category';
 export { default as Pagination } from './core/models/catalog/Pagination';
 export { default as Aggregate } from './core/models/catalog/Aggregate';
 export { default as Cart } from './core/models/cart/Cart';
