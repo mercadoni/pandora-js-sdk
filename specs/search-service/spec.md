@@ -23,7 +23,7 @@
 ## Consumer-facing API
 
 ```typescript
-import { Platform, SearchFilter } from '@instaleap/pandora-js-sdk';
+import { Platform, SearchFilter } from '@mercadoni/pandora-js-sdk';
 
 const platform = new Platform({ baseUrl, clientId: 'D1' });
 

@@ -1,5 +1,5 @@
 {
-  "name": "@instaleap/pandora-js-sdk",
+  "name": "@mercadoni/pandora-js-sdk",
   "version": "2.4.0",
   "description": "TypeScript SDK for ecommerce platform integration",
   "main": "dist/index.js",
@@ -7,9 +7,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/instaleap/pandora-js-sdk.git"
+    "url": "https://github.com/mercadoni/pandora-js-sdk.git"
   },
-  "homepage": "https://github.com/instaleap/pandora-js-sdk#readme",
+  "homepage": "https://github.com/mercadoni/pandora-js-sdk#readme",
   "keywords": [
     "ecommerce",
     "sdk",

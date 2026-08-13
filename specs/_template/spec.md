@@ -88,7 +88,7 @@ mutation Foo($fooInput: FooInput!) {
 ## Acceptance criteria
 
 - [ ] `npm run build` passes with no errors.
-- [ ] Consumer can `import { Foo, FooInput } from '@instaleap/pandora-js-sdk'` and the types are correct.
+- [ ] Consumer can `import { Foo, FooInput } from '@mercadoni/pandora-js-sdk'` and the types are correct.
 - [ ] Calling `platform.fooService.doThing(new FooInput({...}))` returns a `Foo` instance.
 - [ ] Passing malformed input results in a thrown Error with the server's error message.
 - [ ] No `*Filter` suffix used on input types per CLAUDE.md naming rules.

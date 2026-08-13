@@ -1,17 +1,17 @@
-# @instaleap/pandora-js-sdk
+# @mercadoni/pandora-js-sdk
 
 TypeScript SDK for ecommerce platform integration via GraphQL.
 
 ## Installation
 
 ```bash
-npm install @instaleap/pandora-js-sdk
+npm install @mercadoni/pandora-js-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { Platform, HomeFilter, SignInInput, CreateCartInput } from '@instaleap/pandora-js-sdk';
+import { Platform, HomeFilter, SignInInput, CreateCartInput } from '@mercadoni/pandora-js-sdk';
 
 const platform = new Platform({
   baseUrl: 'https://api.your-store.com/graphql',
