@@ -1,11 +1,14 @@
 import ProductService from './ProductService';
 import SearchFilter from './SearchFilter';
 import Search from '../../models/catalog/Search';
+import CategorySearch from '../../models/catalog/CategorySearch';
 import Product from '../../models/catalog/Product';
 import GetProductsBySKUFilter from './GetProductsBySKUFilter';
+import GetProductsByCategoryFilter from './GetProductsByCategoryFilter';
 import GetSuggestedProductsFilter from './GetSuggestedProductsFilter';
 import GetProductRecommendationsFilter from './GetProductRecommendationsFilter';
 import searchProductsQuery from './queries/SearchProductsQuery';
+import getProductsByCategoryQuery from './queries/GetProductsByCategoryQuery';
 import getProductsBySKUQuery from './queries/GetProductsBySKUQuery';
 import getSuggestedProductsQuery from './queries/GetSuggestedProductsQuery';
 import getProductRecommendationsQuery from './queries/GetProductRecommendationsQuery';
@@ -28,6 +31,17 @@ class GraphqlProductService implements ProductService {
             return Search.fromJson(response.data.searchProducts);
         }
         throw new Error(`searchProducts failed: ${JSON.stringify(response.errors || response)}`);
+    }
+
+    async getProductsByCategory(filter: GetProductsByCategoryFilter): Promise<CategorySearch> {
+        filter.query['clientId'] = this.clientId;
+        const response = await this.client.query(getProductsByCategoryQuery, {
+            getProductsByCategoryInput: filter.query,
+        });
+        if (response.data?.getProductsByCategory) {
+            return CategorySearch.fromJson(response.data.getProductsByCategory);
+        }
+        throw new Error(`getProductsByCategory failed: ${JSON.stringify(response.errors || response)}`);
     }
 
     async getProductsBySKU(filter: GetProductsBySKUFilter): Promise<Product[]> {
