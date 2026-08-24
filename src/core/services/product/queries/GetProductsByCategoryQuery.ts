@@ -2,8 +2,6 @@ const getProductsByCategoryQuery = `
   query GetProductsByCategory($getProductsByCategoryInput: GetProductsByCategoryInput!) {
     getProductsByCategory(getProductsByCategoryInput: $getProductsByCategoryInput) {
       category {
-        categoryReference
-        categoriesPath
         level
         hasChildren
         name
@@ -13,17 +11,6 @@ const getProductsByCategoryQuery = `
         imageUrl
         shortName
         isFeatured
-        subCategories {
-          categoryReference
-          name
-          slug
-          level
-          hasChildren
-          categoryNamesPath
-          imageUrl
-          shortName
-          active
-        }
         products {
           sku
           name
@@ -42,13 +29,6 @@ const getProductsByCategoryQuery = `
           description
           priceBeforeTaxes
           taxTotal
-          previousPrice
-          pricePerSubUnit
-          previousPricePerSubUnit
-          promotionPricePerSubUnit
-          hasAgeRestriction
-          allowSubstitutions
-          type
           tags {
             description
             enabled
@@ -87,19 +67,6 @@ const getProductsByCategoryQuery = `
             clickMultiplier
             minQty
             maxQty
-          }
-          variants {
-            id
-            modifications {
-              ean
-              name
-              stock
-              photosUrl
-            }
-            types {
-              name
-              value
-            }
           }
         }
       }
