@@ -1,9 +1,18 @@
 {
   "name": "@mercadoni/pandora-js-sdk",
-  "version": "2.4.5",
+  "version": "2.4.6",
   "description": "TypeScript SDK for ecommerce platform integration",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/cjs/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -28,7 +37,7 @@
     "test": "ts-node src/test/index.ts",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
     "prebuild": "npm run clean",
-    "build": "tsc",
+    "build": "tsc && tsc -p tsconfig.esm.json && node scripts/fix-esm-extensions.mjs && node -e \"require('fs').writeFileSync('dist/esm/package.json', JSON.stringify({type:'module'}))\"",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
     "dev": "tsc -w"
