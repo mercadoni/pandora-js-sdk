@@ -1,6 +1,6 @@
 {
   "name": "@mercadoni/pandora-js-sdk",
-  "version": "2.4.6",
+  "version": "3.0.0",
   "description": "TypeScript SDK for ecommerce platform integration",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

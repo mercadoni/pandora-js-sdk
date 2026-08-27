@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.0.0](https://github.com/mercadoni/pandora-js-sdk/compare/v2.4.6...v3.0.0) (2026-08-27)
+
+### ⚠ BREAKING CHANGES
+
+* use native globalThis.fetch, drop isomorphic-unfetch
+
+### Features
+
+* use native globalThis.fetch, drop isomorphic-unfetch ([2c05bba](https://github.com/mercadoni/pandora-js-sdk/commit/2c05bba7282dc5fc6e88bd627025971c72ae77ce))
 ## [2.4.5](https://github.com/mercadoni/pandora-js-sdk/compare/v2.4.4...v2.4.5) (2026-08-27)
 
 ## [2.4.4](https://github.com/mercadoni/pandora-js-sdk/compare/v2.4.3...v2.4.4) (2026-08-26)
