@@ -11,6 +11,9 @@ export { default as SignUpInput } from './core/services/auth/SignUpInput';
 export { default as RefreshTokensInput } from './core/services/auth/RefreshTokensInput';
 export { default as ForgotPasswordInput } from './core/services/auth/ForgotPasswordInput';
 
+// Category
+export { default as GetCategoryTreeFilter } from './core/services/category/GetCategoryTreeFilter';
+
 // Product
 export { default as GetProductsByCategoryFilter } from './core/services/product/GetProductsByCategoryFilter';
 export { default as GetProductsBySKUFilter } from './core/services/product/GetProductsBySKUFilter';

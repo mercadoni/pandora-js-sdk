@@ -24,6 +24,9 @@ class Category {
     imageUrl: string;
     shortName: string;
     isFeatured: boolean;
+    path?: string;
+    photoUrl?: string;
+    isAssociatedToCatalog?: boolean;
 
     constructor(config: {
         categoryReference: string;
@@ -43,6 +46,9 @@ class Category {
         imageUrl: string,
         shortName: string,
         isFeatured: boolean,
+        path?: string,
+        photoUrl?: string,
+        isAssociatedToCatalog?: boolean,
     }) {
         this.categoryReference = config.categoryReference;
         this.categoriesPath = config.categoriesPath;
@@ -56,17 +62,20 @@ class Category {
         this.pagination = config.pagination;
         this.products = config.products;
         this.aggregates = [];
-        this.subCategories = [];
+        this.subCategories = config.subCategories;
         this.categoryNamesPath = config.categoryNamesPath;
         this.imageUrl = config.imageUrl;
         this.shortName = config.shortName;
         this.isFeatured = config.isFeatured;
+        this.path = config.path;
+        this.photoUrl = config.photoUrl;
+        this.isAssociatedToCatalog = config.isAssociatedToCatalog;
     }
 
 
     static fromJson(json: Record<string, any>): Category {
         return new Category({
-            categoryReference: json.categoryReference || '',
+            categoryReference: json.categoryReference || json.reference || '',
             categoriesPath: json.categoriesPath || '',
             level: json.level || 0,
             hasChildren: json.hasChildren,
@@ -80,11 +89,14 @@ class Category {
                 Array.isArray(json.products) ? json.products.map(product => Product.fromJson(product))
                     .filter(product => product !== null) : [],
             aggregates: [],
-            subCategories: [],
+            subCategories: Array.isArray(json.subCategories) ? json.subCategories.map(Category.fromJson) : [],
             categoryNamesPath: json.categoryNamesPath || '',
             imageUrl: json.imageUrl || '',
             shortName: json.shortName || '',
             isFeatured: json.isFeatured || false,
+            path: json.path,
+            photoUrl: json.photoUrl,
+            isAssociatedToCatalog: json.isAssociatedToCatalog,
         })
     }
 }
