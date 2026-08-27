@@ -42,9 +42,7 @@
     "prepublishOnly": "npm run build",
     "dev": "tsc -w"
   },
-  "dependencies": {
-    "isomorphic-unfetch": "^4.0.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@eslint/js": "^9.24.0",
     "concurrently": "^8.2.2",

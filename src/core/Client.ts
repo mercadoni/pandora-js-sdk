@@ -1,5 +1,3 @@
-import fetch
-    from "isomorphic-unfetch";
 import GraphqlClient
     from "./http/GraphqlClient";
 import Logger
@@ -51,7 +49,7 @@ class Client implements GraphqlClient {
     }
 
     async fetch(body: string): Promise<Record<string, any>> {
-        const response = await fetch(`${this.baseUrl}`, {
+        const response = await globalThis.fetch(`${this.baseUrl}`, {
             method: 'POST',
             headers: this.defaultHeaders,
             body
