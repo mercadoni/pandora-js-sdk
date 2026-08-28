@@ -46,7 +46,7 @@ const { operationalModels } = await platform.fulfillmentService.getOperationalMo
 const nearbyFilter = new GetStoresNearbyFilter({
   clientId: 'acuenta-cl',
   operationalModel: 'DELIVERY',
-  coordinates: { lat: -33.45, lng: -70.65 },
+  coordinates: { latitude: -33.45, longitude: -70.65 },
 });
 const stores: StoreModel[] = await platform.fulfillmentService.getStoresNearby(nearbyFilter);
 
@@ -81,7 +81,7 @@ const cities: CityModel[] = await platform.fulfillmentService.getCities(citiesFi
 | Name | Fields | GraphQL variables produced |
 |------|--------|---------------------------|
 | `GetOperationalModelsFilter` | `clientId: string` | `{ clientId }` |
-| `GetStoresNearbyFilter` | `clientId: string`, `operationalModel: string`, `coordinates: { lat: number; lng: number }` | `{ clientId, operationalModel, coordinates }` |
+| `GetStoresNearbyFilter` | `clientId: string`, `operationalModel: string`, `coordinates: { latitude: number; longitude: number }` | `{ clientId, operationalModel, coordinates }` |
 | `GetPCStoresFilter` | `clientId: string`, `filterKind?: string`, `filterState?: string`, `filterCity?: string`, `storeReferences?: string[]` | `{ clientId, filter: { kind?, state?, city? }, storeReferences? }` |
 | `GetStatesFilter` | `clientId: string`, `operationalModel: string` | `{ coverageFilters: { clientId, operationalModel } }` |
 | `GetCitiesFilter` | `clientId: string`, `operationalModel: string`, `stateName: string` | `{ coverageFilters: { clientId, operationalModel, stateName } }` |
@@ -98,7 +98,11 @@ All extend `Input` base class. Use `this.query` to store the variable shape.
 
 All have `static fromJson(json)` factory. Never throw on missing optional fields — default to `null`.
 
+> **Note on `*Model` suffix:** The `StoreModel`, `StateModel`, and `CityModel` names are intentional — they mirror the backend schema's own naming convention (`OperationModel`, etc.) and are not a deviation from SDK style.
+
 ## GraphQL operations
+
+> **Note on schema:** All queries below target the v2 fulfillment endpoint (`/api/v2`). The v2 GraphQL schema is not committed to this repo — only the v3 catalog schema lives at the SDK repo root. The field selections below were validated against the live v2 endpoint.
 
 ### `getOperationalModelByClient` (query)
 

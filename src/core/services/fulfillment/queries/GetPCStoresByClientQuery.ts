@@ -11,7 +11,7 @@ const getPCStoresByClientQuery = `
     ) {
       id name code phone state
       cities { name }
-      address country dynamicParams operationModel
+      address country operationModel
       serviceFee { PICK_AND_COLLECT DELIVERY }
       usedIfNotCoverage
     }
