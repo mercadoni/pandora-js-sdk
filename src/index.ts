@@ -58,3 +58,13 @@ export { default as SignInResponse } from './core/models/auth/SignInResponse';
 export { default as SignUpResponse } from './core/models/auth/SignUpResponse';
 export { default as Banner } from './core/models/Banner';
 export { default as Carousel } from './core/models/Carousel';
+
+// Fulfillment
+export { default as GetOperationalModelsFilter } from './core/services/fulfillment/GetOperationalModelsFilter';
+export { default as GetStoresNearbyFilter } from './core/services/fulfillment/GetStoresNearbyFilter';
+export { default as GetPCStoresFilter } from './core/services/fulfillment/GetPCStoresFilter';
+export { default as GetStatesFilter } from './core/services/fulfillment/GetStatesFilter';
+export { default as GetCitiesFilter } from './core/services/fulfillment/GetCitiesFilter';
+export { default as StoreModel } from './core/models/fulfillment/StoreModel';
+export { default as StateModel } from './core/models/fulfillment/StateModel';
+export { default as CityModel } from './core/models/fulfillment/CityModel';
