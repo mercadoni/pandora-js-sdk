@@ -4,6 +4,7 @@ import GraphqlCartService from "./services/cart/GraphqlCartService";
 import GraphqlProductService from "./services/product/GraphqlProductService";
 import GraphqlCategoryService from "./services/category/GraphqlCategoryService";
 import GraphqlFulfillmentService from "./services/fulfillment/GraphqlFulfillmentService";
+import GraphqlAddressService from "./services/address/GraphqlAddressService";
 import Client from "./Client";
 import Logger from "./http/Logger";
 
@@ -17,6 +18,7 @@ class Platform {
     productService: GraphqlProductService;
     categoryService: GraphqlCategoryService;
     fulfillmentService: GraphqlFulfillmentService;
+    addressService: GraphqlAddressService;
     private readonly clientId: string;
 
     constructor(config: {
@@ -39,6 +41,7 @@ class Platform {
         this.productService = new GraphqlProductService(this.client, config.clientId);
         this.categoryService = new GraphqlCategoryService(this.client, config.clientId);
         this.fulfillmentService = new GraphqlFulfillmentService(this.fulfillmentClient);
+        this.addressService = new GraphqlAddressService(this.client);
     }
 
     setToken(token: string): void {
