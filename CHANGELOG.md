@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.2.1](https://github.com/mercadoni/pandora-js-sdk/compare/v3.2.0...v3.2.1) (2026-08-29)
+
 ## [3.2.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.0.0...v3.2.0) (2026-08-29)
 
 
