@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.2.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.0.0...v3.2.0) (2026-08-29)
+
+
+### Features
+
+* add AddressService + wire into Platform ([abf5161](https://github.com/mercadoni/pandora-js-sdk/commit/abf5161eb7a03f452524446790166dabb50dbf09))
+* add category tree services and models ([db33142](https://github.com/mercadoni/pandora-js-sdk/commit/db331420fc0f53ea4c7e043039abd299d2567a54))
+* add fulfillment service files (models, service, filters) ([cadd46f](https://github.com/mercadoni/pandora-js-sdk/commit/cadd46fe455c6e54601af7436e1d3ee8bce5d7d0))
+* add fulfillmentService + categoryService to Platform (v3.0.0 merge) ([85e947a](https://github.com/mercadoni/pandora-js-sdk/commit/85e947ad90b72afeb3bf7b43397236cb75bb655f))
+
+
+### Bug Fixes
+
+* **fulfillment:** address PR [#9](https://github.com/mercadoni/pandora-js-sdk/issues/9) review findings ([52b8816](https://github.com/mercadoni/pandora-js-sdk/commit/52b881630f01c88e085ec77bd5c7ea1cdb31628f))
+
 ## [3.0.0](https://github.com/mercadoni/pandora-js-sdk/compare/v2.4.6...v3.0.0) (2026-08-27)
 
 ### ⚠ BREAKING CHANGES
