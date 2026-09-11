@@ -2,13 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
-## Unreleased
+## [3.3.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.2.1...v3.3.0) (2026-09-11)
 
-### Features
+### ⚠ BREAKING CHANGES
 
-* route Deadpool services through the SDK-owned v2/v3 compatibility map from one `baseUrl`
-* propagate tokens and headers to every versioned client
+* Platform now accepts one baseUrl and removes fulfillmentBaseUrl.
 
+* feat!(platform): route Deadpool services by API version ([8fb1a83](https://github.com/mercadoni/pandora-js-sdk/commit/8fb1a838b580576bb9e0964e6cbe8950c484eb0c))
+
+### Bug Fixes
+
+* **ci:** avoid missing release token secret ([4f1aa56](https://github.com/mercadoni/pandora-js-sdk/commit/4f1aa5657ead0c605998b4480566514782690559))
 ## [3.2.1](https://github.com/mercadoni/pandora-js-sdk/compare/v3.2.0...v3.2.1) (2026-08-29)
 
 ## [3.2.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.0.0...v3.2.0) (2026-08-29)
