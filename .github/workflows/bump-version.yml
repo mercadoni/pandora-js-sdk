@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   bump:
@@ -22,9 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # GITHUB_TOKEN pushes do not trigger the tag publish workflow.
-          # RELEASE_PAT needs repo + workflow scopes.
-          token: ${{ secrets.RELEASE_PAT }}
+          # GITHUB_TOKEN is sufficient because publish is dispatched explicitly
+          # after the release commit and tag are pushed.
+          token: ${{ github.token }}
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
@@ -46,3 +47,8 @@ jobs:
         run: |
           npx --yes commit-and-tag-version --release-as "$BUMP"
           git push origin HEAD:main --follow-tags
+
+      - name: Trigger publish workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish.yml --repo "$GITHUB_REPOSITORY" --ref main
