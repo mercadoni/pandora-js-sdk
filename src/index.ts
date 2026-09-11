@@ -44,6 +44,7 @@ export { default as CouponInput } from './core/services/cart/CouponInput';
 
 // Models — response types for consumers
 export { default as Home } from './core/models/home/Home';
+export { default as HomeWidget } from './core/models/home/HomeWidget';
 export { default as Product } from './core/models/catalog/Product';
 export { default as Search } from './core/models/catalog/Search';
 export { default as CategorySearch } from './core/models/catalog/CategorySearch';
@@ -68,3 +69,7 @@ export { default as GetCitiesFilter } from './core/services/fulfillment/GetCitie
 export { default as StoreModel } from './core/models/fulfillment/StoreModel';
 export { default as StateModel } from './core/models/fulfillment/StateModel';
 export { default as CityModel } from './core/models/fulfillment/CityModel';
+
+// Address
+export { default as GetAddressesFilter } from './core/services/address/GetAddressesFilter';
+export { default as AddressModel } from './core/models/address/AddressModel';
