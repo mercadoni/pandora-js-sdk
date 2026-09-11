@@ -44,6 +44,7 @@ export { default as CouponInput } from './core/services/cart/CouponInput';
 
 // Models — response types for consumers
 export { default as Home } from './core/models/home/Home';
+export { default as HomeWidget } from './core/models/home/HomeWidget';
 export { default as Product } from './core/models/catalog/Product';
 export { default as Search } from './core/models/catalog/Search';
 export { default as CategorySearch } from './core/models/catalog/CategorySearch';
