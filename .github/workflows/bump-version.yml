@@ -1,0 +1,48 @@
+name: Bump version and tag
+
+# Run from the Actions tab. commit-and-tag-version updates package.json,
+# package-lock.json, CHANGELOG.md, creates the release commit and v* tag.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # GITHUB_TOKEN pushes do not trigger the tag publish workflow.
+          # RELEASE_PAT needs repo + workflow scopes.
+          token: ${{ secrets.RELEASE_PAT }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump, commit, and tag
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          npx --yes commit-and-tag-version --release-as "$BUMP"
+          git push origin HEAD:main --follow-tags
