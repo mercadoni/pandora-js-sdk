@@ -68,6 +68,8 @@ export { default as GetStatesFilter } from './core/services/fulfillment/GetState
 export { default as GetCitiesFilter } from './core/services/fulfillment/GetCitiesFilter';
 export { default as StoreModel } from './core/models/fulfillment/StoreModel';
 export { default as StateModel } from './core/models/fulfillment/StateModel';
+export { default as GetStoreFilter } from './core/services/fulfillment/GetStoreFilter';
+export { default as GetStoreByReferenceFilter } from './core/services/fulfillment/GetStoreByReferenceFilter';
 export { default as CityModel } from './core/models/fulfillment/CityModel';
 
 // Address
