@@ -4,6 +4,8 @@ import GetStoresNearbyFilter from './GetStoresNearbyFilter';
 import GetPCStoresFilter from './GetPCStoresFilter';
 import GetStatesFilter from './GetStatesFilter';
 import GetCitiesFilter from './GetCitiesFilter';
+import GetStoreFilter from './GetStoreFilter';
+import GetStoreByReferenceFilter from './GetStoreByReferenceFilter';
 import StoreModel from '../../models/fulfillment/StoreModel';
 import StateModel from '../../models/fulfillment/StateModel';
 import CityModel from '../../models/fulfillment/CityModel';
@@ -12,6 +14,8 @@ import getStoresNearbyQuery from './queries/GetStoresNearbyQuery';
 import getPCStoresByClientQuery from './queries/GetPCStoresByClientQuery';
 import getStatesQuery from './queries/GetStatesQuery';
 import getCitiesQuery from './queries/GetCitiesQuery';
+import getStoreQuery from './queries/GetStoreQuery';
+import getStoreByReferenceQuery from './queries/GetStoreByReferenceQuery';
 import IGraphqlClient from '../../http/GraphqlClient';
 
 class GraphqlFulfillmentService implements FulfillmentService {
@@ -56,6 +60,24 @@ class GraphqlFulfillmentService implements FulfillmentService {
             return response.data.getCities.map((c: Record<string, any>) => CityModel.fromJson(c));
         }
         throw new Error(`getCities failed: ${JSON.stringify(response.errors || response)}`);
+    }
+
+    async getStore(filter: GetStoreFilter): Promise<StoreModel | null> {
+        const response = await this.client.query(getStoreQuery, filter.query);
+        if (response.data && Object.prototype.hasOwnProperty.call(response.data, 'getStore')) {
+            const store = response.data.getStore;
+            return store === null ? null : StoreModel.fromJson(store);
+        }
+        throw new Error(`getStore failed: ${JSON.stringify(response.errors || response)}`);
+    }
+
+    async getStoreByReference(filter: GetStoreByReferenceFilter): Promise<StoreModel | null> {
+        const response = await this.client.query(getStoreByReferenceQuery, filter.query);
+        if (response.data && Object.prototype.hasOwnProperty.call(response.data, 'getStoreIdByStoreReference')) {
+            const store = response.data.getStoreIdByStoreReference;
+            return store === null ? null : StoreModel.fromJson(store);
+        }
+        throw new Error(`getStoreIdByStoreReference failed: ${JSON.stringify(response.errors || response)}`);
     }
 }
 
