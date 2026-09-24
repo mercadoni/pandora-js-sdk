@@ -9,6 +9,13 @@ class GetPCStoresFilter extends Input {
         storeReferences?: string[];
     }) {
         super();
+        if (!config.filterKind && !config.filterState && !config.filterCity && !config.storeReferences?.length) {
+            // An empty filter makes getPCStoresByClient return the organization's
+            // entire store catalog; reject it at construction time instead.
+            throw new Error(
+                'GetPCStoresFilter requires at least one filter criterion: filterKind, filterState, filterCity or storeReferences'
+            );
+        }
         this.query['clientId'] = config.clientId;
         const filter: Record<string, string> = {};
         if (config.filterKind !== undefined) filter['kind'] = config.filterKind;
