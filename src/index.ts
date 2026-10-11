@@ -77,4 +77,5 @@ export { default as CityModel } from './core/models/fulfillment/CityModel';
 
 // Address
 export { default as GetAddressesFilter } from './core/services/address/GetAddressesFilter';
+export { default as CreateAddressInput } from './core/services/address/CreateAddressInput';
 export { default as AddressModel } from './core/models/address/AddressModel';
