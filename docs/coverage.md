@@ -88,10 +88,12 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 
 `createAddress` notes:
 
-- Wraps `upsertAddress` in create-only mode; `id` is never sent. Requires a customer token.
+- Wraps `upsertAddress` in create-only mode; `id` is never sent. Guest tokens are rejected as unauthorized.
+- `customerId` follows the same rule as `getAddresses`: omit with a customer token (the customer is inferred from the token); required with an agent/call-center token.
+- `storeReference` must be a store that covers the address: the backend validates the coordinates against it server-side and rejects the request when the address has no coverage for that store. The SDK does not check coverage client-side.
 - `addressTwo` defaults to an empty string (non-null in the schema). `documentType`, update and remove are out of scope.
 - Validated before any request: non-empty `description`, `address.other`, `city`, `storeReference`; `latitude` in [-90, 90]; `longitude` in [-180, 180].
-- Open questions: whether coverage must be validated before saving, and which `storeReference` to pass before a store is selected.
+- A possible `validateCoverage` wrapper (v3 query, not wrapped yet) is a follow-up.
 
 ## Exported type families
 

@@ -10,7 +10,9 @@ class CreateAddressInput extends Input {
         city: string;
         state?: string;
         zipCode?: string;
+        /** Must be a store that covers the address coordinates; the backend rejects the request otherwise. */
         storeReference: string;
+        /** Same rule as `GetAddressesFilter.customerId`: omit with a customer token; required with an agent token. */
         customerId?: string;
     }) {
         super();
