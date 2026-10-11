@@ -3,6 +3,7 @@ import Input from '../../models/Input';
 class GetAddressesFilter extends Input {
     constructor(config: {
         storeReference: string;
+        /** Omit with a customer token; required with an agent token. */
         customerId?: string;
         pageSize?: number;
         currentPage?: number;

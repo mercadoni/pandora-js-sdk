@@ -19,7 +19,7 @@ A storefront needs the saved addresses of the logged-in customer. `addressServic
 ## Non-goals
 
 - Making `customerId` required, or removing it.
-- Changing how the customer is identified (see open questions).
+- Changing how the customer is identified (the backend infers it from the token; see Backend behavior).
 - Creating, updating or removing addresses.
 
 ## Consumer-facing API
@@ -86,9 +86,17 @@ query GetAddresses($getAddressesInput: GetAddressesInput!) {
 - [ ] `fromJson` maps the new fields and defaults them to `null` when absent.
 - [ ] `pageSize: 0` or `currentPage: 0` (or non-integers) throw without calling the client.
 - [ ] Populated, empty and error responses are covered by tests.
-- [ ] `docs/coverage.md` states `storeReference` is required and the token behavior is unconfirmed.
+- [ ] `docs/coverage.md` states `storeReference` is required and records the `customerId` token rules.
+
+## Backend behavior (confirmed)
+
+- The customer is inferred from the authentication token.
+- Customer (ecommerce) token: `customerId` must be omitted; the backend rejects it.
+- Agent/call-center token: `customerId` is required.
+- Guest token: rejected as unauthorized.
+- `storeReference` is required.
+- The SDK does not enforce these rules client-side; violations surface as a thrown `Error` from the backend response. `GetAddressesFilter.customerId` is documented accordingly.
 
 ## Open questions
 
-- Does `getAddresses` infer the customer from the auth token, making `customerId` unnecessary? UNCONFIRMED; the schema only shows `customerId: String` as optional. Until confirmed, consumers should not assume either behavior.
-- What does a call without a valid token return? Unknown; the SDK surfaces whatever the backend returns as an `Error`.
+- Exact error message/shape of the backend rejection for a guest token or a wrongly sent `customerId`: not verified; the SDK surfaces whatever the backend returns as an `Error`.
