@@ -30,6 +30,7 @@ test('byAddress returns StoreModel[] and sends variables', async () => {
     );
     assert.ok(stores[0] instanceof StoreModel);
     assert.strictEqual(stores[0].dynamicParams, null);
+    assert.strictEqual(stores[0].sphereDistance, null);
     assert.deepStrictEqual(calls[0].variables, { clientId: 'c', addressId: 'a1', operationalModel: 'DELIVERY', storeReferences: ['r'] });
     assert.ok(calls[0].gql.includes('getStoresNearbyByAddress'));
 });
@@ -65,4 +66,44 @@ test('getStoresNearby still accepts a plain string operationalModel', async () =
 
 test('StoreModel.fromJson keeps dynamicParams when present', async () => {
     assert.deepStrictEqual(StoreModel.fromJson({ ...storeJson, dynamicParams: { a: 1 } }).dynamicParams, { a: 1 });
+});
+
+test('StoreModel.fromJson maps sphereDistance and dynamicParams', async () => {
+    const s = StoreModel.fromJson({ ...storeJson, sphereDistance: 1.5, dynamicParams: { k: 'v' } });
+    assert.strictEqual(s.sphereDistance, 1.5);
+    assert.deepStrictEqual(s.dynamicParams, { k: 'v' });
+    assert.strictEqual(StoreModel.fromJson({ ...storeJson, sphereDistance: 0 }).sphereDistance, 0);
+});
+
+test('both nearby queries select sphereDistance and dynamicParams and accept filter', async () => {
+    const a = mockClient({ data: { getStoresNearbyByAddress: [] } });
+    const c = mockClient({ data: { getStoresNearbyByCoords: [] } });
+    const filter = { city: 'x', kind: 'k' };
+    await new GraphqlFulfillmentService(a.client).getStoresNearbyByAddress(
+        new GetStoresNearbyByAddressFilter({ clientId: 'c', addressId: 'a1', filter }),
+    );
+    await new GraphqlFulfillmentService(c.client).getStoresNearby(
+        new GetStoresNearbyFilter({ clientId: 'c', operationalModel: 'PICK_AND_COLLECT', coordinates: { latitude: 1, longitude: 2 }, filter }),
+    );
+    for (const call of [a.calls[0], c.calls[0]]) {
+        assert.ok(call.gql.includes('sphereDistance dynamicParams'));
+        assert.ok(call.gql.includes('filter: $filter'));
+        assert.deepStrictEqual(call.variables['filter'], filter);
+    }
+});
+
+test('filter is omitted from variables when undefined', async () => {
+    const f = new GetStoresNearbyFilter({ clientId: 'c', operationalModel: 'DELIVERY', coordinates: { latitude: 1, longitude: 2 } });
+    assert.ok(!('filter' in f.query));
+});
+
+test('byAddress sends no token handling: authentication is the caller\'s responsibility', async () => {
+    // The service only forwards variables; a missing customer token surfaces as a backend error.
+    const { client } = mockClient({ errors: [{ message: 'unauthenticated' }] });
+    await assert.rejects(
+        new GraphqlFulfillmentService(client).getStoresNearbyByAddress(
+            new GetStoresNearbyByAddressFilter({ clientId: 'c', addressId: 'a1' }),
+        ),
+        /unauthenticated/,
+    );
 });

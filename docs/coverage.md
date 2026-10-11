@@ -68,8 +68,8 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 ### Fulfillment
 
 - `getOperationalModels(filter)`
-- `getStoresNearby(filter)`
-- `getStoresNearbyByAddress(filter)` (unverified against the v2 backend)
+- `getStoresNearby(filter)` (stores expose `sphereDistance`, unit not documented, and `dynamicParams`)
+- `getStoresNearbyByAddress(filter)` (requires a customer token via `setToken`; optional `filter` with `city`, `state`, `kind`)
 - `getPCStores(filter)`
 - `getStates(filter)`
 - `getCities(filter)`
