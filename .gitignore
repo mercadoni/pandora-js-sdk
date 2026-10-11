@@ -2,7 +2,6 @@
 /out-tsc
 dist/
 src/**/*.js
-src/test/
 
 /node_modules
 npm-debug.log*
