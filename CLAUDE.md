@@ -199,7 +199,7 @@ export default fooMutation;
 3. Add method to `<Domain>Service.ts` interface.
 4. Implement in `Graphql<Domain>Service.ts` — follow the template above.
 5. Export the new Input/Filter from `src/index.ts`.
-6. Update or add tests in `src/test/index.ts` for smoke coverage.
+6. Add tests in `tests/<feature>.test.ts` using `test()` from `tests/harness.ts` (auto-discovered by `tests/index.ts`; do not edit shared files).
 
 ### Recipe: Add a new mutation
 Same as query, but use `mutations/<Name>Mutation.ts` and call `this.client.mutation(...)`.
@@ -252,7 +252,7 @@ npm run watch-ts    # tsc --watch
 ```
 
 - `npm run build` must pass clean on every PR.
-- Run smoke test via `src/test/index.ts` before claiming a feature works end-to-end.
+- Run `npm test` (versioned harness in `tests/`) before claiming a feature works end-to-end.
 
 ---
 

@@ -34,7 +34,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "test": "ts-node src/test/index.ts",
+    "test": "ts-node tests/index.ts",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
     "prebuild": "npm run clean",
     "build": "tsc && tsc -p tsconfig.esm.json && node scripts/fix-esm-extensions.mjs && node -e \"require('fs').writeFileSync('dist/esm/package.json', JSON.stringify({type:'module'}))\"",
