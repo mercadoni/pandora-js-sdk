@@ -1,9 +1,10 @@
 import Input from '../../models/Input';
+import OperationalModel from './OperationalModel';
 
 class GetStoresNearbyFilter extends Input {
     constructor(config: {
         clientId: string;
-        operationalModel: string;
+        operationalModel: OperationalModel;
         coordinates: { latitude: number; longitude: number };
     }) {
         super();

@@ -11,6 +11,7 @@ class StoreModel {
         public readonly operationModel: string | null,
         public readonly serviceFee: { PICK_AND_COLLECT: number; DELIVERY: number } | null,
         public readonly usedIfNotCoverage: boolean | null,
+        public readonly dynamicParams: unknown | null = null,
     ) {}
 
     static fromJson(json: Record<string, any>): StoreModel {
@@ -26,6 +27,7 @@ class StoreModel {
             json.operationModel ?? null,
             json.serviceFee ?? null,
             json.usedIfNotCoverage ?? null,
+            json.dynamicParams ?? null,
         );
     }
 }

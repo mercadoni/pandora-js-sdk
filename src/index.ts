@@ -63,6 +63,8 @@ export { default as Carousel } from './core/models/Carousel';
 // Fulfillment
 export { default as GetOperationalModelsFilter } from './core/services/fulfillment/GetOperationalModelsFilter';
 export { default as GetStoresNearbyFilter } from './core/services/fulfillment/GetStoresNearbyFilter';
+export { default as GetStoresNearbyByAddressFilter } from './core/services/fulfillment/GetStoresNearbyByAddressFilter';
+export type { default as OperationalModel } from './core/services/fulfillment/OperationalModel';
 export { default as GetPCStoresFilter } from './core/services/fulfillment/GetPCStoresFilter';
 export { default as GetStatesFilter } from './core/services/fulfillment/GetStatesFilter';
 export { default as GetCitiesFilter } from './core/services/fulfillment/GetCitiesFilter';

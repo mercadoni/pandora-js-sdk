@@ -69,6 +69,7 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 
 - `getOperationalModels(filter)`
 - `getStoresNearby(filter)`
+- `getStoresNearbyByAddress(filter)` (unverified against the v2 backend)
 - `getPCStores(filter)`
 - `getStates(filter)`
 - `getCities(filter)`

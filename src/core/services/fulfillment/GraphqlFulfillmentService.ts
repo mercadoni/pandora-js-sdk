@@ -1,6 +1,7 @@
 import FulfillmentService from './FulfillmentService';
 import GetOperationalModelsFilter from './GetOperationalModelsFilter';
 import GetStoresNearbyFilter from './GetStoresNearbyFilter';
+import GetStoresNearbyByAddressFilter from './GetStoresNearbyByAddressFilter';
 import GetPCStoresFilter from './GetPCStoresFilter';
 import GetStatesFilter from './GetStatesFilter';
 import GetCitiesFilter from './GetCitiesFilter';
@@ -11,6 +12,7 @@ import StateModel from '../../models/fulfillment/StateModel';
 import CityModel from '../../models/fulfillment/CityModel';
 import getOperationalModelsQuery from './queries/GetOperationalModelsQuery';
 import getStoresNearbyQuery from './queries/GetStoresNearbyQuery';
+import getStoresNearbyByAddressQuery from './queries/GetStoresNearbyByAddressQuery';
 import getPCStoresByClientQuery from './queries/GetPCStoresByClientQuery';
 import getStatesQuery from './queries/GetStatesQuery';
 import getCitiesQuery from './queries/GetCitiesQuery';
@@ -36,6 +38,14 @@ class GraphqlFulfillmentService implements FulfillmentService {
             return response.data.getStoresNearbyByCoords.map((s: Record<string, any>) => StoreModel.fromJson(s));
         }
         throw new Error(`getStoresNearbyByCoords failed: ${JSON.stringify(response.errors || response)}`);
+    }
+
+    async getStoresNearbyByAddress(filter: GetStoresNearbyByAddressFilter): Promise<StoreModel[]> {
+        const response = await this.client.query(getStoresNearbyByAddressQuery, filter.query);
+        if (Array.isArray(response.data?.getStoresNearbyByAddress)) {
+            return response.data.getStoresNearbyByAddress.map((s: Record<string, any>) => StoreModel.fromJson(s));
+        }
+        throw new Error(`getStoresNearbyByAddress failed: ${JSON.stringify(response.errors || response)}`);
     }
 
     async getPCStores(filter: GetPCStoresFilter): Promise<StoreModel[]> {
