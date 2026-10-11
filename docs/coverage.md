@@ -76,6 +76,7 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 ### Address
 
 - `getAddresses(filter)`
+- `createAddress(input)`
 
 `getAddresses` notes:
 
@@ -84,6 +85,13 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 - `pageSize` and `currentPage`, when set, must be integers `>= 1`; otherwise the call throws before any request.
 - An empty list is a valid result. Backend errors (including an unauthenticated call) surface as thrown `Error`s.
 - Models expose `address.structure`, `removed` and `distanceToStore` as nullable fields.
+
+`createAddress` notes:
+
+- Wraps `upsertAddress` in create-only mode; `id` is never sent. Requires a customer token.
+- `addressTwo` defaults to an empty string (non-null in the schema). `documentType`, update and remove are out of scope.
+- Validated before any request: non-empty `description`, `address.other`, `city`, `storeReference`; `latitude` in [-90, 90]; `longitude` in [-180, 180].
+- Open questions: whether coverage must be validated before saving, and which `storeReference` to pass before a store is selected.
 
 ## Exported type families
 
