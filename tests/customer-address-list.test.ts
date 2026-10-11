@@ -1,20 +1,18 @@
 import assert from 'assert';
-import GraphqlAddressService from '../core/services/address/GraphqlAddressService';
-import GetAddressesFilter from '../core/services/address/GetAddressesFilter';
-import GraphqlClient from '../core/http/GraphqlClient';
+import GraphqlAddressService from '../src/core/services/address/GraphqlAddressService';
+import GetAddressesFilter from '../src/core/services/address/GetAddressesFilter';
+import GraphqlClient from '../src/core/http/GraphqlClient';
+import { test } from './harness';
 
-type Call = { gql: string; variables: Record<string, any> };
+type Call = { gql: string; variables: Record<string, unknown> };
 
-function mockClient(response: Record<string, any>, calls: Call[] = []): GraphqlClient {
-    const handler = async (gql: string, variables: Record<string, any>) => {
+function mockClient(response: Record<string, unknown>, calls: Call[] = []): GraphqlClient {
+    const handler = async (gql: string, variables: Record<string, unknown>) => {
         calls.push({ gql, variables });
         return response;
     };
     return { query: handler, mutation: handler, fetch: handler } as unknown as GraphqlClient;
 }
-
-const tests: Array<[string, () => Promise<void>]> = [];
-const test = (name: string, fn: () => Promise<void>) => tests.push([name, fn]);
 
 const addressJson = {
     id: 'a1',
@@ -73,18 +71,3 @@ test('getAddresses rejects invalid paging without calling the client', async () 
     await service.getAddresses(new GetAddressesFilter({ storeReference: 'S1', pageSize: 1, currentPage: 1 }));
     assert.strictEqual(calls.length, 1);
 });
-
-(async () => {
-    let failed = 0;
-    for (const [name, fn] of tests) {
-        try {
-            await fn();
-            console.log(`ok   ${name}`);
-        } catch (e) {
-            failed++;
-            console.error(`FAIL ${name}\n${e}`);
-        }
-    }
-    console.log(`${tests.length - failed}/${tests.length} passed`);
-    if (failed) process.exit(1);
-})();
