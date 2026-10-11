@@ -15,7 +15,9 @@ The SDK exposes no address write path, so a storefront cannot save a new custome
 - `addressTwo` is non-null in the schema; the SDK defaults it to an empty string.
 - Client-side validation before any request: non-empty `description`, `address.other`, `city`, `storeReference`; `latitude` in [-90, 90]; `longitude` in [-180, 180].
 - Throw `createAddress failed: ...` when `data.upsertAddress` is missing.
-- Auth: a customer token is required (set with `platform.setToken`).
+- Auth: a customer or agent token is required (set with `platform.setToken`); a guest token is rejected as unauthorized by the backend.
+- `customerId`: the customer is inferred from the token. Omit it with a customer token; it is required with an agent/call-center token. The SDK forwards it only when provided and does not enforce this client-side.
+- `storeReference` must be a store that covers the address. The backend validates server-side that the coordinates are covered by it and rejects the request otherwise. The SDK forwards it verbatim and does not check coverage client-side; the rejection surfaces as `createAddress failed: ...`.
 - Errors are plain `Error`; no client-side retry.
 
 ## Non-goals
@@ -86,7 +88,10 @@ mutation UpsertAddress($upsertAddressInput: UpsertAddressInput!) {
 - [ ] Backend error and missing `upsertAddress` throw `createAddress failed: ...`.
 - [ ] `CreateAddressInput` exported from the package root.
 
+## Follow-up
+
+A `validateCoverage(validatedCoverageInput: { longitude, latitude, storeReference }) { coverage }` v3 query exists and is not wrapped by the SDK. A wrapper could let clients check coverage before saving. Out of scope here; track separately if wanted.
+
 ## Open questions
 
-- Must a coverage validation (`ValidatedCoverageInput`) run before saving? Unconfirmed; the SDK does not do it.
-- Which `storeReference` should a client pass before a store is selected? Unconfirmed; the field is required by the schema.
+- Exact error message/shape of the backend rejections (uncovered address, guest token, wrongly sent `customerId`): not verified; the SDK surfaces whatever the backend returns.

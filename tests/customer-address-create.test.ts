@@ -100,3 +100,18 @@ test('createAddress throws when upsertAddress is missing', async () => {
     const service = new GraphqlAddressService(mockClient({ data: {} }));
     await assert.rejects(() => service.createAddress(new CreateAddressInput(validCreate)), /createAddress failed/);
 });
+
+test('createAddress forwards storeReference and customerId verbatim and does not check coverage client-side', async () => {
+    const calls: Call[] = [];
+    const service = new GraphqlAddressService(mockClient({ data: { upsertAddress: addressJson } }, calls));
+    await service.createAddress(new CreateAddressInput({ ...validCreate, storeReference: 'ANY-STORE', customerId: 'agent-target' }));
+    assert.strictEqual(calls.length, 1);
+    const sent = calls[0].variables.upsertAddressInput as SentInput & { storeReference: string };
+    assert.strictEqual(sent.storeReference, 'ANY-STORE');
+    assert.strictEqual(sent.customerId, 'agent-target');
+});
+
+test('createAddress surfaces a backend coverage rejection as a thrown error', async () => {
+    const service = new GraphqlAddressService(mockClient({ errors: [{ message: 'Address has no coverage for the store' }] }));
+    await assert.rejects(() => service.createAddress(new CreateAddressInput(validCreate)), /createAddress failed: .*no coverage/);
+});
