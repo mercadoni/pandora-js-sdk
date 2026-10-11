@@ -5,6 +5,7 @@ const getAddressesQuery = `
       description
       address {
         other
+        structure
       }
       addressTwo
       available
@@ -13,7 +14,9 @@ const getAddressesQuery = `
       city
       state
       zipCode
+      removed
       customerId
+      distanceToStore
     }
   }
 `;

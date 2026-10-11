@@ -77,6 +77,14 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 
 - `getAddresses(filter)`
 
+`getAddresses` notes:
+
+- `storeReference` is required by the schema; `customerId`, `pageSize` and `currentPage` are optional.
+- `pageSize` and `currentPage`, when set, must be integers `>= 1`; otherwise the call throws before any request.
+- Whether the backend infers the customer from the session token is unconfirmed. Do not rely on either behavior; `customerId` stays optional.
+- An empty list is a valid result. Backend errors (including an unauthenticated call) surface as thrown `Error`s.
+- Models expose `address.structure`, `removed` and `distanceToStore` as nullable fields.
+
 ## Exported type families
 
 The package root exports the `Platform`, service inputs and filters, and response models for:
