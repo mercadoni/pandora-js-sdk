@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.4.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.3.1...v3.4.0) (2026-10-12)
+
+### ⚠ BREAKING CHANGES
+
+* **fulfillment:** constructing a GetPCStoresFilter without any of
+  filterKind, filterState, filterCity or storeReferences now throws.
+  An empty filter previously made getPCStoresByClient return the
+  organization's entire store catalog.
+
+  🤖 Generated with [Claude Code](https://claude.com/claude-code)
+* **fulfillment:** GetPCStoresFilter now requires filterState and
+  filterCity; TypeScript consumers constructing it without them no
+  longer compile. An empty filter made getPCStoresByClient return
+  the organization's entire store catalog.
+
+  🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+### Features
+
+* **address:** add createAddress wrapping upsertAddress ([e9494b3](https://github.com/mercadoni/pandora-js-sdk/commit/e9494b3cb1036f566b3681762f2422bb78d36f57)), references [#17](https://github.com/mercadoni/pandora-js-sdk/issues/17)
+* **address:** expose structure, removed and distanceToStore and validate paging ([272c29d](https://github.com/mercadoni/pandora-js-sdk/commit/272c29df07ff5f50bebf88ada53cee0654ab8dd2)), references [#16](https://github.com/mercadoni/pandora-js-sdk/issues/16)
+* **fulfillment:** add getStoresNearbyByAddress and typed operationalModel ([172e599](https://github.com/mercadoni/pandora-js-sdk/commit/172e599fe0d1cb69dd98e0e83cd10d1dc300a454)), references [#15](https://github.com/mercadoni/pandora-js-sdk/issues/15)
+* **fulfillment:** make filterState and filterCity required in GetPCStoresFilter ([6b6035e](https://github.com/mercadoni/pandora-js-sdk/commit/6b6035ee40f35fe2e6031e0ceb0f98a4f38d06bc))
+* **fulfillment:** reject empty GetPCStoresFilter construction ([7355536](https://github.com/mercadoni/pandora-js-sdk/commit/73555360e6433c789a682bd17344c24cbbebda02))
+* **fulfillment:** select distance and dynamic params for nearby stores ([9526be8](https://github.com/mercadoni/pandora-js-sdk/commit/9526be89804fb669ff11d4e69d22d4411cf65020))
+
 ## [3.3.1](https://github.com/mercadoni/pandora-js-sdk/compare/v3.3.0...v3.3.1) (2026-09-13)
 
 ### Features
