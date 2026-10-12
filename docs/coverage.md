@@ -68,7 +68,8 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 ### Fulfillment
 
 - `getOperationalModels(filter)`
-- `getStoresNearby(filter)`
+- `getStoresNearby(filter)` (stores expose `sphereDistance`, unit not documented, and `dynamicParams`)
+- `getStoresNearbyByAddress(filter)` (requires a customer token via `setToken`; optional `filter` with `city`, `state`, `kind`)
 - `getPCStores(filter)`
 - `getStates(filter)`
 - `getCities(filter)`
@@ -76,6 +77,14 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 ### Address
 
 - `getAddresses(filter)`
+
+`getAddresses` notes:
+
+- `storeReference` is required by the schema; `customerId`, `pageSize` and `currentPage` are optional.
+- The backend infers the customer from the authentication token. With a customer token, omit `customerId` (the backend rejects it). With an agent/call-center token, `customerId` is required. A guest token is rejected as unauthorized.
+- `pageSize` and `currentPage`, when set, must be integers `>= 1`; otherwise the call throws before any request.
+- An empty list is a valid result. Backend errors (including an unauthenticated call) surface as thrown `Error`s.
+- Models expose `address.structure`, `removed` and `distanceToStore` as nullable fields.
 
 ## Exported type families
 

@@ -2,7 +2,7 @@ class AddressModel {
     constructor(
         public readonly id: string,
         public readonly description: string,
-        public readonly address: { other: string } | null,
+        public readonly address: { other: string; structure: unknown } | null,
         public readonly addressTwo: string | null,
         public readonly available: boolean | null,
         public readonly latitude: number,
@@ -11,13 +11,15 @@ class AddressModel {
         public readonly state: string | null,
         public readonly zipCode: string | null,
         public readonly customerId: string | null,
+        public readonly removed: boolean | null = null,
+        public readonly distanceToStore: number | null = null,
     ) {}
 
     static fromJson(json: Record<string, any>): AddressModel {
         return new AddressModel(
             json.id,
             json.description,
-            json.address ?? null,
+            json.address ? { other: json.address.other, structure: json.address.structure ?? null } : null,
             json.addressTwo ?? null,
             json.available ?? null,
             json.latitude,
@@ -26,6 +28,8 @@ class AddressModel {
             json.state ?? null,
             json.zipCode ?? null,
             json.customerId ?? null,
+            json.removed ?? null,
+            json.distanceToStore ?? null,
         );
     }
 }
