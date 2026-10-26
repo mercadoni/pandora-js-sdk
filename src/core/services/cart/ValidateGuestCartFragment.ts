@@ -1,40 +1,13 @@
-const PRICE_FIELDS = `
-  taxes
-  subtotal
-  fullPrice
-  discount
-  total
-  totalBeforeTaxes
-`;
+import validatedCartProductFields from './fields/ValidatedCartProductFields';
+import pricesSummaryFields from './fields/PricesSummaryFields';
+import validationIssueFields from './fields/ValidationIssueFields';
 
 const validateGuestCartFragment = `
   id
   operationalModel
   status
   products {
-    id
-    unitQuantity
-    baseUnitPrice
-    baseUnitPriceBeforeTaxes
-    reference
-    unit
-    variant
-    instruction
-    status
-    imageUrl
-    name
-    availability
-    baseUnit
-    stockWarning
-    maxUnitQuantity
-    minUnitQuantity
-    price {
-      ${PRICE_FIELDS}
-    }
-    substitutes {
-      substituteMode
-      substituteProducts
-    }
+    ${validatedCartProductFields}
   }
   store {
     id
@@ -43,13 +16,7 @@ const validateGuestCartFragment = `
     currency
   }
   pricesSummary {
-    shippingFee
-    taxes
-    discounts
-    subtotal
-    total
-    totalBeforeTaxes
-    fullPrice
+    ${pricesSummaryFields}
   }
   storeConfiguration {
     minimumPurchasingAmount
@@ -59,9 +26,7 @@ const validateGuestCartFragment = `
     isCurbsidePickupEnabled
   }
   validationIssues {
-    reason
-    type
-    productId
+    ${validationIssueFields}
   }
 `;
 

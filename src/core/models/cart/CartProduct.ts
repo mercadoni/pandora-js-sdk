@@ -22,6 +22,10 @@ class CartProduct {
         substituteMode: string | null;
         substituteProducts: Array<string>;
     };
+    type: string | null;
+    createdAt: string | null;
+    isSample: boolean | null;
+    clickMultiplier: number | null;
 
     constructor(config: {
         id: string;
@@ -45,6 +49,10 @@ class CartProduct {
             substituteMode: string | null;
             substituteProducts: Array<string>;
         };
+        type?: string | null;
+        createdAt?: string | null;
+        isSample?: boolean | null;
+        clickMultiplier?: number | null;
     }) {
         this.id = config.id;
         this.unitQuantity = config.unitQuantity;
@@ -64,6 +72,10 @@ class CartProduct {
         this.minUnitQuantity = config.minUnitQuantity;
         this.price = config.price;
         this.substitutes = config.substitutes || { substituteMode: null, substituteProducts: [] };
+        this.type = config.type ?? null;
+        this.createdAt = config.createdAt ?? null;
+        this.isSample = config.isSample ?? null;
+        this.clickMultiplier = config.clickMultiplier ?? null;
     }
 
     static fromJson(json: Record<string, any>): CartProduct {
@@ -86,6 +98,10 @@ class CartProduct {
             minUnitQuantity: json.minUnitQuantity || 0,
             price: json.price ? Price.fromJson(json.price) : new Price({}),
             substitutes: json.substitutes || { substituteMode: null, substituteProducts: [] },
+            type: json.type,
+            createdAt: json.createdAt,
+            isSample: json.isSample,
+            clickMultiplier: json.clickMultiplier,
         });
     }
 }

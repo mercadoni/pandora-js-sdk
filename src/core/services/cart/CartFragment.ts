@@ -1,37 +1,6 @@
-const PRICE_FIELDS = `
-  taxes
-  subtotal
-  fullPrice
-  discount
-  total
-  totalBeforeTaxes
-`;
-
-const CART_PRODUCT_FIELDS = `
-  id
-  unitQuantity
-  baseUnitPrice
-  baseUnitPriceBeforeTaxes
-  reference
-  unit
-  variant
-  instruction
-  status
-  imageUrl
-  name
-  availability
-  baseUnit
-  stockWarning
-  maxUnitQuantity
-  minUnitQuantity
-  price {
-    ${PRICE_FIELDS}
-  }
-  substitutes {
-    substituteMode
-    substituteProducts
-  }
-`;
+import cartProductFields from './fields/CartProductFields';
+import specialProductFields from './fields/SpecialProductFields';
+import pricesSummaryFields from './fields/PricesSummaryFields';
 
 const cartFragment = `
   id
@@ -39,20 +8,10 @@ const cartFragment = `
   status
   paymentConfigurationId
   products {
-    ${CART_PRODUCT_FIELDS}
+    ${cartProductFields}
   }
   specialProducts {
-    id
-    unitQuantity
-    unit
-    instruction
-    imageUrl
-    sku
-    name
-    status
-    price {
-      ${PRICE_FIELDS}
-    }
+    ${specialProductFields}
   }
   customer {
     id
@@ -77,13 +36,7 @@ const cartFragment = `
     zipCode
   }
   pricesSummary {
-    shippingFee
-    taxes
-    discounts
-    subtotal
-    total
-    totalBeforeTaxes
-    fullPrice
+    ${pricesSummaryFields}
   }
   storeConfiguration {
     minimumPurchasingAmount

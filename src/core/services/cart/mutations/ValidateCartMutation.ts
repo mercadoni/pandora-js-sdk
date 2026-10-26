@@ -1,9 +1,9 @@
-import cartFragment from '../CartFragment';
+import validateCartFragment from '../ValidateCartFragment';
 
 const validateCartMutation = `
   mutation ValidateEcommerceCart($cartId: ID!, $allowSplitOrders: Boolean) {
     validateEcommerceCart(cartId: $cartId, allowSplitOrders: $allowSplitOrders) {
-      ${cartFragment}
+      ${validateCartFragment}
       groups {
         id
         isBigOrder
