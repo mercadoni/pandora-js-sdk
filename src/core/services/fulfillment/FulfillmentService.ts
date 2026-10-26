@@ -6,9 +6,11 @@ import GetStatesFilter from './GetStatesFilter';
 import GetCitiesFilter from './GetCitiesFilter';
 import GetStoreFilter from './GetStoreFilter';
 import GetStoreByReferenceFilter from './GetStoreByReferenceFilter';
+import ExpressDeliveryAreaDetailsFilter from './ExpressDeliveryAreaDetailsFilter';
 import StoreModel from '../../models/fulfillment/StoreModel';
 import StateModel from '../../models/fulfillment/StateModel';
 import CityModel from '../../models/fulfillment/CityModel';
+import ExpressDeliveryAreaDetailsModel from '../../models/fulfillment/ExpressDeliveryAreaDetailsModel';
 
 interface FulfillmentService {
     getOperationalModels(filter: GetOperationalModelsFilter): Promise<{ operationalModels: string[] }>;
@@ -19,6 +21,7 @@ interface FulfillmentService {
     getCities(filter: GetCitiesFilter): Promise<CityModel[]>;
     getStore(filter: GetStoreFilter): Promise<StoreModel | null>;
     getStoreByReference(filter: GetStoreByReferenceFilter): Promise<StoreModel | null>;
+    getExpressDeliveryAreaDetails(filter: ExpressDeliveryAreaDetailsFilter): Promise<ExpressDeliveryAreaDetailsModel>;
 }
 
 export default FulfillmentService;
