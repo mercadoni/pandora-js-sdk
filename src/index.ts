@@ -33,6 +33,7 @@ export { default as AddProductToGuestCartInput } from './core/services/cart/AddP
 export { default as UpdateProductInput } from './core/services/cart/UpdateProductInput';
 export { default as UpdateProductInGuestCartInput } from './core/services/cart/UpdateProductInGuestCartInput';
 export { default as RemoveProductInput } from './core/services/cart/RemoveProductInput';
+export { default as RemoveSpecialProductInput } from './core/services/cart/RemoveSpecialProductInput';
 export { default as DeleteProductInGuestCartInput } from './core/services/cart/DeleteProductInGuestCartInput';
 export { default as UpdateCartInput } from './core/services/cart/UpdateCartInput';
 export { default as UpdateGuestCartInput } from './core/services/cart/UpdateGuestCartInput';
@@ -53,6 +54,9 @@ export { default as Pagination } from './core/models/catalog/Pagination';
 export { default as Aggregate } from './core/models/catalog/Aggregate';
 export { default as Cart } from './core/models/cart/Cart';
 export { default as CartProduct } from './core/models/cart/CartProduct';
+export { default as SpecialProduct } from './core/models/cart/SpecialProduct';
+export { default as PricesSummary } from './core/models/cart/PricesSummary';
+export { default as ProductsSummary } from './core/models/cart/ProductsSummary';
 export { default as ValidatedCart } from './core/models/cart/ValidatedCart';
 export { default as Purchase } from './core/models/cart/Purchase';
 export { default as SignInResponse } from './core/models/auth/SignInResponse';

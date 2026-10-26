@@ -10,6 +10,7 @@ class SpecialProduct {
     name: string;
     status: string;
     price: Price;
+    createdAt: string | null;
 
     constructor(config: {
         id: string;
@@ -21,6 +22,7 @@ class SpecialProduct {
         name: string;
         status: string;
         price: Price;
+        createdAt?: string | null;
     }) {
         this.id = config.id;
         this.unitQuantity = config.unitQuantity;
@@ -31,6 +33,7 @@ class SpecialProduct {
         this.name = config.name;
         this.status = config.status;
         this.price = config.price;
+        this.createdAt = config.createdAt ?? null;
     }
 
     static fromJson(json: Record<string, any>): SpecialProduct {
@@ -44,6 +47,7 @@ class SpecialProduct {
             name: json.name || '',
             status: json.status || '',
             price: json.price ? Price.fromJson(json.price) : new Price({}),
+            createdAt: json.createdAt,
         });
     }
 }

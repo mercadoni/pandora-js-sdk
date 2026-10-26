@@ -7,6 +7,7 @@ import AddProductInput from './AddProductInput';
 import AddProductsInput from './AddProductsInput';
 import UpdateProductInput from './UpdateProductInput';
 import RemoveProductInput from './RemoveProductInput';
+import RemoveSpecialProductInput from './RemoveSpecialProductInput';
 import ValidateCartInput from './ValidateCartInput';
 import PurchaseCartInput from './PurchaseCartInput';
 import CouponInput from './CouponInput';
@@ -30,12 +31,14 @@ import getOrCreateCartMutation from './mutations/GetOrCreateCartMutation';
 import updateCartMutation from './mutations/UpdateCartMutation';
 import updateGuestCartMutation from './mutations/UpdateGuestCartMutation';
 import deleteCartMutation from './mutations/DeleteCartMutation';
+import deleteGuestCartMutation from './mutations/DeleteGuestCartMutation';
 import addProductMutation from './mutations/AddProductMutation';
 import addProductsMutation from './mutations/AddProductsMutation';
 import addProductToGuestCartMutation from './mutations/AddProductToGuestCartMutation';
 import updateProductMutation from './mutations/UpdateProductMutation';
 import updateProductInGuestCartMutation from './mutations/UpdateProductInGuestCartMutation';
 import removeProductMutation from './mutations/RemoveProductMutation';
+import deleteSpecialProductMutation from './mutations/DeleteSpecialProductMutation';
 import deleteProductInGuestCartMutation from './mutations/DeleteProductInGuestCartMutation';
 import validateCartMutation from './mutations/ValidateCartMutation';
 import validateGuestCartMutation from './mutations/ValidateGuestCartMutation';
@@ -119,6 +122,14 @@ class GraphqlCartService implements CartService {
         throw new Error(`Failed to delete cart: ${JSON.stringify(response.errors || response)}`);
     }
 
+    async deleteGuestCart(cartId: string): Promise<Cart> {
+        const response = await this.client.mutation(deleteGuestCartMutation, { cartId });
+        if (response.data?.deleteGuestCart) {
+            return Cart.fromJson(response.data.deleteGuestCart);
+        }
+        throw new Error(`Failed to delete guest cart: ${JSON.stringify(response.errors || response)}`);
+    }
+
     async addProduct(input: AddProductInput): Promise<Cart> {
         const response = await this.client.mutation(addProductMutation, { addProductToCartInput: input.query });
         if (response.data?.addProductToEcommerceCart) {
@@ -171,6 +182,14 @@ class GraphqlCartService implements CartService {
         throw new Error(`Failed to remove product from cart: ${JSON.stringify(response.errors || response)}`);
     }
 
+    async removeSpecialProduct(input: RemoveSpecialProductInput): Promise<Cart> {
+        const response = await this.client.mutation(deleteSpecialProductMutation, { deleteSpecialProductInCartInput: input.query });
+        if (response.data?.deleteSpecialProductInEcommerceCart) {
+            return Cart.fromJson(response.data.deleteSpecialProductInEcommerceCart);
+        }
+        throw new Error(`Failed to remove special product from cart: ${JSON.stringify(response.errors || response)}`);
+    }
+
     async deleteProductInGuestCart(input: DeleteProductInGuestCartInput): Promise<Cart> {
         const response = await this.client.mutation(deleteProductInGuestCartMutation, { deleteProductInCartInput: input.query });
         if (response.data?.deleteProductInGuestCart) {
@@ -207,10 +226,10 @@ class GraphqlCartService implements CartService {
         throw new Error(`Failed to apply coupon: ${JSON.stringify(response.errors || response)}`);
     }
 
-    async validateGuestCart(input: ValidateGuestCartInput): Promise<Cart> {
+    async validateGuestCart(input: ValidateGuestCartInput): Promise<ValidatedCart> {
         const response = await this.client.mutation(validateGuestCartMutation, { cartId: input.query['cartId'] });
         if (response.data?.validateGuestCart) {
-            return Cart.fromJson(response.data.validateGuestCart);
+            return ValidatedCart.fromJson(response.data.validateGuestCart);
         }
         throw new Error(`Failed to validate guest cart: ${JSON.stringify(response.errors || response)}`);
     }

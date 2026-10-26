@@ -1,9 +1,9 @@
-import cartFragment from '../CartFragment';
+import validateCartFragment from '../ValidateCartFragment';
 
 const updateCouponMutation = `
   mutation UpdateCouponInEcommerceCart($updateCouponInput: CouponInput!) {
     updateCouponInEcommerceCart(updateCouponInput: $updateCouponInput) {
-      ${cartFragment}
+      ${validateCartFragment}
     }
   }
 `;

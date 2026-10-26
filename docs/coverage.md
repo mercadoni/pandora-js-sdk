@@ -61,9 +61,18 @@ Consumers do not provide `fulfillmentBaseUrl` and do not retry an operation agai
 ### Cart
 
 - Ecommerce cart: `getCart`, `getActiveCart`, `createCart`, `getOrCreateCart`, `updateCart`, `deleteCart`
-- Ecommerce products: `addProduct`, `addProducts`, `updateProduct`, `removeProduct`
+- Ecommerce products: `addProduct`, `addProducts`, `updateProduct`, `removeProduct`, `removeSpecialProduct`
 - Ecommerce checkout: `validateCart`, `purchaseCart`, `applyCoupon`
-- Guest cart: `createGuestCart`, `getGuestCart`, `updateGuestCart`, `deleteProductInGuestCart`, `addProductToGuestCart`, `updateProductInGuestCart`, `validateGuestCart`, `convertGuestToEcommerceCart`
+- Guest cart: `createGuestCart`, `getGuestCart`, `updateGuestCart`, `deleteGuestCart`, `deleteProductInGuestCart`, `addProductToGuestCart`, `updateProductInGuestCart`, `validateGuestCart`, `convertGuestToEcommerceCart`
+
+`removeSpecialProduct(input)` takes a `RemoveSpecialProductInput { cartId, specialProductId }` (authenticated carts only; a guest cart holds no special products in v3). `deleteGuestCart(cartId)` takes the cart id. Both return the cart.
+
+Cart field rules:
+
+- `pricesSummary.productsSummary` is a `ProductsSummary` (totals, full price, discount, minimum-order and free-shipping amounts, each with a `...BeforeTaxes` variant) or `null` when the backend omits it. `null` means unknown, not zero.
+- Every line has `type` (raw backend string, for example `DEFAULT`, `PACKAGE`, `SAMPLE`, `BAG`) and `createdAt`; special products have `createdAt`. Both are `null` when the backend does not send them.
+- `validateCart`, `applyCoupon` and `validateGuestCart` return a `ValidatedCart` and are the only operations that select `isSample` and `clickMultiplier` on lines (`null` on lines from any other operation; `false` and `0` are kept), `metadata` (`minUnitQuantity`, `maxUnitQuantity`, `clickMultiplier`, `suggestedUnit`) on `validationIssues` (still raw records), and, for the authenticated ones, `address.address.other` (the street line).
+- A `ValidatedCart` never carries `deliverySlot` (the backend type has none; it is always `null`), and the guest validation selects no address, customer or special products (a guest cart cannot hold them in v3).
 
 ### Fulfillment
 

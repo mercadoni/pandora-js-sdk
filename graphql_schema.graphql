@@ -67,6 +67,7 @@ input SignInWithIdTokenInput {
 }
 
 input RefreshTokensInput {
+  clientId: String
   refreshToken: String!
 }
 
@@ -77,7 +78,6 @@ input ForgotPasswordInput {
 
 input ResetPasswordInput {
   clientId: String!
-  customerId: String!
   oobCode: String!
   newPassword: String!
 }
@@ -89,7 +89,7 @@ input ChangePasswordInput {
   refreshToken: String
 }
 
-input VerifyMFAInput {
+input SignInMFAVerifiedInput {
   code: String!
   sessionId: String!
 }
@@ -107,6 +107,11 @@ input UpsertBannerInput {
   targetUrl: String
   targetCategory: ID
   index: Int!
+}
+
+input GetBenefitProgressInput {
+  cartId: String!
+  promotionId: String!
 }
 
 input UpsertBillingInput {
@@ -531,6 +536,7 @@ input CustomerDataInput {
   notifications: Boolean
   customData: JSON
   dynamicData: JSON
+  mfaRequired: Boolean
 }
 
 input GetCustomerSchemaInput {
@@ -558,6 +564,11 @@ input UpdateCustomerInput {
   blocked: Boolean
   dynamicData: JSON
   mfaRequired: Boolean
+}
+
+input UpdateCustomerMFAVerifiedInput {
+  sessionId: String!
+  code: String!
 }
 
 input GetActiveEcommerceCartInput {
@@ -650,6 +661,7 @@ input RetryPurchaseCartInputV2 {
   cartId: ID!
   paymentConfigurationId: ID!
   onlinePaymentParams: OnlinePaymentParamsInput
+  billing: BillingInput
 }
 
 input ExtraFieldInput {
@@ -718,6 +730,11 @@ input CustomerLoyaltyPointsHistoryInput {
 input LoyaltyPaginationInput {
   page: Int = 1
   limit: Int = 10
+}
+
+input FilterOrdersByCustomer {
+  jobId: String
+  jobNumber: String
 }
 
 input GetOrganizationConfigurationsInput {
@@ -956,6 +973,7 @@ type GenerateBackofficeTokenResponse {
 
 type MFAModel {
   sessionId: String!
+  maskedPhoneNumber: String!
 }
 
 type SignInResponse {
@@ -966,6 +984,10 @@ type SignInResponse {
 }
 
 type LogoutResponse {
+  success: Boolean!
+}
+
+type BaseResponse {
   success: Boolean!
 }
 
@@ -1002,6 +1024,7 @@ type AuthCustomer {
   externalId: String
   phoneNumberValidated: Boolean
   dynamicData: JSON
+  mfaRequired: Boolean
 }
 
 type AuthAddress {
@@ -1030,10 +1053,15 @@ type RefreshTokensResponse {
   refreshToken: String!
 }
 
-type VerifyMFAResponse {
+type SignInMFAVerifiedResponse {
   token: String!
   refreshToken: String!
   customer: AuthCustomer!
+}
+
+type UpdateCustomerMFAVerifiedResponse {
+  customer: CustomerModel
+  mfa: MFAModel
 }
 
 type BannerModel {
@@ -1057,6 +1085,25 @@ type TargetUrlModel {
 enum TargetUrlType {
   _self
   _blank
+}
+
+type BenefitProgressMetadataProgress {
+  requiredQuantity: Float!
+  currentQuantity: Float!
+  remainingQuantity: Float!
+}
+
+type BenefitProgressMetadata {
+  maxBundleApplications: Int
+  totalDiscount: Float!
+  completedBundles: Int!
+  progress: BenefitProgressMetadataProgress!
+}
+
+type BenefitProgressModel {
+  type: String!
+  promotionId: String!
+  metadata: BenefitProgressMetadata!
 }
 
 type BillingProfileModel {
@@ -1117,6 +1164,7 @@ type CartModel {
   loyalty: LoyaltyBasicModel
   quotation: QuotationModel
   onlinePaymentParams: OnlinePaymentParamsModel
+  externalPromotions: ExternalPromotionsModel
 }
 
 type AddProductsToCartModel {
@@ -1223,8 +1271,8 @@ enum PricesType {
 enum OperationalModel {
   PICK_UP
   DELIVERY
-  PICK_AND_COLLECT
   MULTIPLE_PICKING_AND_DELIVERY
+  PICK_AND_COLLECT
 }
 
 enum CartStatus {
@@ -1253,12 +1301,18 @@ type RecommendedSetMissingItemModel {
   options: [CatalogProductModel]
 }
 
+type SuggestedEcommerceCartResponse {
+  status: String!
+  cart: CartModel
+}
+
 scalar Date
 
 type CartProductModel {
   id: ID!
   unitQuantity: Float!
   baseUnitPrice: Float!
+  baseUnitQuantity: Float
   baseUnitPriceBeforeTaxes: Float!
   reference: String!
   unit: String
@@ -1279,6 +1333,8 @@ type CartProductModel {
   stockWarning: Boolean!
   substitutes: Substitutes!
   type: String
+  selectedFormat: SelectedFormatProductModel
+  validationIssues: [ValidationIssue!]!
 }
 
 type ProductCategory {
@@ -1312,6 +1368,7 @@ type Promotion {
 }
 
 type PromotionV2 {
+  id: ID!
   type: String
   description: String
   promotionReference: String
@@ -1352,6 +1409,7 @@ type Benefit {
   imagesURL: [String]
   qty: Int
   taxInfo: TaxInfo
+  bundleSize: Int
 }
 
 type Restriction {
@@ -1401,6 +1459,7 @@ type ProductPricePromotionDetails {
 }
 
 type ProductPricePromotionSummary {
+  promotionId: String!
   promotionType: String!
   promotionReference: String!
   promotedQuantity: Float!
@@ -1431,9 +1490,20 @@ enum SubstituteModeType {
   CONTACT_ME
 }
 
+type SelectedFormatProductModel {
+  format: String!
+  equivalence: Float!
+  unitEquivalence: String!
+  clickMultiplier: Float!
+  minQty: Float!
+  maxQty: Float!
+  equivalenceOnBaseUnit: Float!
+}
+
 type CartSpecialProductModel {
   id: ID!
   unitQuantity: Float!
+  baseUnitQuantity: Float
   unit: String!
   instruction: String
   imageUrl: String!
@@ -1529,6 +1599,8 @@ type CatalogProductModel {
   stock: Int!
   securityStock: Int!
   stockWarning: Boolean!
+  soldByThirdParty: Boolean
+  seller: CatalogSellerModel
   boost: Int!
   isAvailable: Boolean!
   location: String
@@ -1560,6 +1632,8 @@ type CatalogProductModel {
   metaDescription: String
   metaTitle: String
   allowSubstitutions: Boolean
+  weight: Float
+  weightUnit: String
 }
 
 type CatalogPackagesModel {
@@ -1585,6 +1659,8 @@ type CatalogPackagesModel {
   stock: Int!
   securityStock: Int!
   stockWarning: Boolean!
+  soldByThirdParty: Boolean
+  seller: CatalogSellerModel
   boost: Int!
   isAvailable: Boolean!
   location: String
@@ -1613,6 +1689,8 @@ type CatalogPackagesModel {
   promotionPricePerSubUnit: Float
   type: String
   capacity: Float
+  weight: Float
+  weightUnit: String
 }
 
 enum TaxType {
@@ -1705,6 +1783,10 @@ type CatalogProductFormatModel {
   clickMultiplier: Float!
   minQty: Float!
   maxQty: Float!
+  price: Float
+  priceBeforeTaxes: Float
+  formatSpecialPrice: Float
+  formatSpecialPriceBeforeTaxes: Float
 }
 
 type CatalogProductVariantModel {
@@ -1721,6 +1803,15 @@ type CatalogProductTagModel {
   tagReference: String!
   backgroundColor: String!
   name: String!
+}
+
+type CatalogSellerModel {
+  sellerReference: String
+  name: String
+  type: String
+  disclaimer: String
+  sentBy: String
+  enabled: Boolean
 }
 
 type CatalogVariantModificationModel {
@@ -1929,6 +2020,7 @@ enum CouponConditionType {
   MINIMUM_AMOUNT_PURCHASE
   PAYMENT_METHOD
   MAX_AMOUNT_REDEMPTIONS
+  MAX_AMOUNT_REDEMPTIONS_PER_USER
 }
 
 enum CouponConditionOperator {
@@ -1999,6 +2091,7 @@ type CustomerModel {
   documentType: String
   firstName: String
   lastName: String
+  mfaRequired: Boolean
 }
 
 type CustomerCustomData {
@@ -2022,9 +2115,10 @@ type IsUpdatedCustomerMFA {
 }
 
 type SignUpResponse {
-  customer: AuthCustomer!
-  token: String!
-  refreshToken: String!
+  customer: AuthCustomer
+  token: String
+  refreshToken: String
+  mfa: MFAModel
 }
 
 type CustomerFieldRequiredIn {
@@ -2064,6 +2158,8 @@ type CustomerFieldSchema {
   id: ID!
   name: String!
   type: String!
+  displayOrder: Int!
+  editable: Boolean!
   requiredIn: CustomerFieldRequiredIn
   validations: CustomerFieldValidation!
   createdAt: String!
@@ -2223,6 +2319,8 @@ type OrderModel {
   prices: PricesSummary
   products: [OrderProductModel]
   deliverySlot: DeliverySlotModel
+  cartId: String
+  billing: Billing
 }
 
 type PurchaseModel {
@@ -2525,6 +2623,7 @@ type ValidatedCartModel {
   quotation: QuotationModel
   onlinePaymentParams: OnlinePaymentParamsModel
   externalPromotions: ExternalPromotionsModel
+  extraField: ExtraFieldCartModel
   paymentConfigurationId: String
 }
 
@@ -2544,6 +2643,16 @@ type ValidationIssue {
   reason: String!
   productId: String
   type: ValidationIssueType!
+  metadata: ValidationIssueMetadata
+}
+
+type ValidationIssueMetadata {
+  minUnitQuantity: Float
+  maxUnitQuantity: Float
+  clickMultiplier: Float
+  suggestedQuantity: Float
+  selectedFormat: String
+  suggestedUnit: String
 }
 
 enum ValidationIssueType {
@@ -2601,10 +2710,21 @@ type ExternalCartPromotionModel {
   description: String!
 }
 
+type AppliedCodeModel {
+  type: String!
+  code: String!
+}
+
 type ExternalPromotionsModel {
+  appliedCodes: [AppliedCodeModel!]!
   items: [ExternalPromotionItemModel!]!
   cartPromotions: [ExternalCartPromotionModel!]!
   validationIssues: [ValidationIssue!]!
+}
+
+type ExtraFieldCartModel {
+  gift: String
+  openText: String
 }
 
 type ValidatedCartProductModel {
@@ -2643,10 +2763,12 @@ type ValidatedCartProductModel {
   allowSubstitutions: Boolean
   hasAgeRestriction: Boolean
   tags: [ValidatedProductTag!]!
+  selectedFormat: SelectedFormatProductModel
+  validationIssues: [ValidationIssue!]!
 }
 
 type Query {
-  getAddresses(getAddressesInput: GetAddressesInput!): [AddressModel!]!
+getAddresses(getAddressesInput: GetAddressesInput!): [AddressModel!]!
 validateCoverage(validatedCoverageInput: ValidatedCoverageInput!): ValidatedCoverage!
 getAdminStore(adminStoreId: String!): AdminStoreModel!
 searchAdminStores(searchAdminStoresInput: SearchAdminStoresInput!): AdminStoreList!
@@ -2660,6 +2782,7 @@ searchCoupons(searchCouponsInput: SearchCouponsInput!): CouponList!
 getOrganizationConfigurations(getOrganizationConfigurationsInput: GetOrganizationConfigurationsInput!): [JSON]!
 getCouponFilters(getCouponFiltersInput: GetCouponFiltersInput!): CouponFiltersResponse!
 getAgeVerificationURL(verificationURLInput: VerificationURLInput!): AgeVerificationURLModel!
+getBenefitProgress(benefitProgressInput: GetBenefitProgressInput!): BenefitProgressModel!
 getBillingProfiles: [BillingProfileModel!]!
 getCallCenterCart(cartId: ID!): CartModel!
 getActiveCallCenterCart(getActiveCartInput: GetActiveCallCenterCartInput!): CartModel!
@@ -2677,12 +2800,14 @@ getProductRecommendations(getProductRecommendationsInput: GetProductRecommendati
 searchProducts(searchProductsInput: SearchProductsInput!): SearchProductsModel!
 getProductExternalInfo(getProductExternalInfoInput: GetProductExternalInfoInput!): ProductExternalInfo!
 getTagLandingPages(getTagLandingPageInput: JSON!): JSON
+getLandingPagePromotions(getLandingPagePromotionsInput: JSON!): JSON
 getStoreConfigurations(storeConfigurationsInput: StoreConfigurationsInput!): ConfigurationsByStoreModel!
 getPasswordResetValidation(passwordResetValidationInput: PasswordResetValidationInput!): PasswordResetValidationModel!
 isPhoneNumberValid(isPhoneNumberValidInput: IsPhoneNumberValidInput!): IsPhoneNumberValid!
 getCustomerSchema(getCustomerSchemaInput: GetCustomerSchemaInput!): CustomerSchema!
 getEcommerceCart(cartId: ID!): CartModel!
 getActiveEcommerceCart(getActiveCartInput: GetActiveEcommerceCartInput!): CartModel!
+getSuggestedEcommerceCart: SuggestedEcommerceCartResponse!
 getDeliverySlots(getDeliverySlotsInput: GetDeliverySlotsInput!): [DeliverySlotModel!]!
 getEcommerceCartPaymentMethods(cartId: ID!): [PaymentMethodsResponse!]!
 expressDeliveryAreaDetails(expressDeliveryAreaDetailsInput: ExpressDeliveryAreaDetailsInput!): ExpressDeliveryAreaDetailsModel!
@@ -2694,7 +2819,7 @@ getGuestCart(cartId: ID!): CartModel!
 customerLoyaltyDetails: CustomerLoyaltyDetailsModel!
 customerLoyaltyPointsSummary(customerLoyaltyPointsSummaryInput: CustomerLoyaltyPointsSummaryInput): CustomerLoyaltyPointsSummaryModel!
 customerLoyaltyPointsHistory(customerLoyaltyPointsHistoryInput: CustomerLoyaltyPointsHistoryInput): CustomerLoyaltyPointsHistoryModel!
-getOrdersByCustomer(customerId: ID @deprecated(reason: "Deprecate this field"), limit: Int, page: Int): [OrderModel!]!
+getOrdersByCustomer(customerId: ID @deprecated(reason: "Deprecate this field"), limit: Int, page: Int, filterBy: FilterOrdersByCustomer): [OrderModel!]!
 canRetryOrderPayment(jobNumber: String!): CanRetryOrderPaymentModel!
 getInstallmentsPaymentMethods(getInstallmentsPaymentMethodsInput: GetInstallmentsPaymentMethodsInput!): [InstallmentsPaymentMethodsResponse]!
 getQuotations(getQuotationsInput: GetQuotationsInput!): [QuotationModel!]
@@ -2713,7 +2838,7 @@ upsertCouponFilters(upsertCouponFiltersInput: UpsertCouponFiltersInput!): Upsert
 deleteCouponFilter(deleteCouponFilterInput: RemoveCouponFilterInput!): RemoveFilterValuesResponse!
 generateBackofficeToken(generateBackofficeTokenInput: GenerateBackofficeTokenInput!): GenerateBackofficeTokenResponse!
 signIn(signInInput: SignInInput!): SignInResponse
-verifyMFA(verifyMFAInput: VerifyMFAInput!): VerifyMFAResponse!
+signInMFAVerified(signInMFAVerifiedInput: SignInMFAVerifiedInput!): SignInMFAVerifiedResponse!
 signInWithIdToken(signInWithIdTokenInput: SignInWithIdTokenInput!): SignInResponse
 refreshTokens(refreshTokensInput: RefreshTokensInput!): RefreshTokensResponse
 forgotPassword(forgotPasswordInput: ForgotPasswordInput!): ForgotPasswordResponse!
@@ -2737,6 +2862,7 @@ deleteSpecialProductInCallCenterCart(deleteSpecialProductInCartInput: DeleteSpec
 updateCouponInCallCenterCart(updateCouponInput: CouponInput!): ValidatedCartModel!
 updateCustomerSegments(updateCustomerSegmentsInput: UpdateCustomerSegmentsInput!): CustomerModel!
 updateCustomerMFA(email: String!): IsUpdatedCustomerMFA!
+updateCustomerMFAVerified(updateCustomerMFAVerifiedInput: UpdateCustomerMFAVerifiedInput!): UpdateCustomerMFAVerifiedResponse!
 signUp(signUpInput: SignUpInput!): SignUpResponse
 sendEmailVerification(sendEmailVerificationInput: SendEmailVerificationInput!): SendEmailVerificationResponse!
 updateCustomer(updateCustomerInput: UpdateCustomerInput!): UpdateCustomerResponse!
