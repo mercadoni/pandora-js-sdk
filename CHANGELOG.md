@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.5.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.4.0...v3.5.0) (2026-10-26)
+
+### Features
+
+* **cart:** expose the fields the cart drawer reads and wrap deleteGuestCart and removeSpecialProduct ([5c16e56](https://github.com/mercadoni/pandora-js-sdk/commit/5c16e56a6f2192180608ef359eb615b98598bf9f))
+
 ## [3.4.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.3.1...v3.4.0) (2026-10-12)
 
 ### ⚠ BREAKING CHANGES
