@@ -83,3 +83,5 @@ export { default as CityModel } from './core/models/fulfillment/CityModel';
 export { default as GetAddressesFilter } from './core/services/address/GetAddressesFilter';
 export { default as CreateAddressInput } from './core/services/address/CreateAddressInput';
 export { default as AddressModel } from './core/models/address/AddressModel';
+export { default as ExpressDeliveryAreaDetailsFilter } from './core/services/fulfillment/ExpressDeliveryAreaDetailsFilter';
+export { default as ExpressDeliveryAreaDetailsModel } from './core/models/fulfillment/ExpressDeliveryAreaDetailsModel';

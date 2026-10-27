@@ -7,9 +7,11 @@ import GetStatesFilter from './GetStatesFilter';
 import GetCitiesFilter from './GetCitiesFilter';
 import GetStoreFilter from './GetStoreFilter';
 import GetStoreByReferenceFilter from './GetStoreByReferenceFilter';
+import ExpressDeliveryAreaDetailsFilter from './ExpressDeliveryAreaDetailsFilter';
 import StoreModel from '../../models/fulfillment/StoreModel';
 import StateModel from '../../models/fulfillment/StateModel';
 import CityModel from '../../models/fulfillment/CityModel';
+import ExpressDeliveryAreaDetailsModel from '../../models/fulfillment/ExpressDeliveryAreaDetailsModel';
 import getOperationalModelsQuery from './queries/GetOperationalModelsQuery';
 import getStoresNearbyQuery from './queries/GetStoresNearbyQuery';
 import getStoresNearbyByAddressQuery from './queries/GetStoresNearbyByAddressQuery';
@@ -18,6 +20,7 @@ import getStatesQuery from './queries/GetStatesQuery';
 import getCitiesQuery from './queries/GetCitiesQuery';
 import getStoreQuery from './queries/GetStoreQuery';
 import getStoreByReferenceQuery from './queries/GetStoreByReferenceQuery';
+import expressDeliveryAreaDetailsQuery from './queries/ExpressDeliveryAreaDetailsQuery';
 import IGraphqlClient from '../../http/GraphqlClient';
 
 class GraphqlFulfillmentService implements FulfillmentService {
@@ -88,6 +91,14 @@ class GraphqlFulfillmentService implements FulfillmentService {
             return store === null ? null : StoreModel.fromJson(store);
         }
         throw new Error(`getStoreIdByStoreReference failed: ${JSON.stringify(response.errors || response)}`);
+    }
+
+    async getExpressDeliveryAreaDetails(filter: ExpressDeliveryAreaDetailsFilter): Promise<ExpressDeliveryAreaDetailsModel> {
+        const response = await this.client.query(expressDeliveryAreaDetailsQuery, { expressDeliveryAreaDetailsInput: filter.query });
+        if (response.data?.expressDeliveryAreaDetails) {
+            return ExpressDeliveryAreaDetailsModel.fromJson(response.data.expressDeliveryAreaDetails);
+        }
+        throw new Error(`getExpressDeliveryAreaDetails failed: ${JSON.stringify(response.errors || response)}`);
     }
 }
 
