@@ -7,11 +7,9 @@ class ExpressDeliveryAreaDetailsFilter extends Input {
         coordinates: { latitude: number; longitude: number };
     }) {
         super();
-        this.query['expressDeliveryAreaDetailsInput'] = {
-            clientId: config.clientId,
-            storeReference: config.storeReference,
-            coordinates: config.coordinates,
-        };
+        this.query['clientId'] = config.clientId;
+        this.query['storeReference'] = config.storeReference;
+        this.query['coordinates'] = config.coordinates;
     }
 }
 

@@ -43,7 +43,7 @@ test('returns available=false when outside express area', async () => {
     assert.strictEqual(result.available, false);
 });
 
-test('sends expressDeliveryAreaDetailsInput as a single nested variable', async () => {
+test('wraps flat filter into expressDeliveryAreaDetailsInput at the call site', async () => {
     const { client, calls } = mockClient({ data: { expressDeliveryAreaDetails: { available: true } } });
 
     await new GraphqlFulfillmentService(client).getExpressDeliveryAreaDetails(
@@ -64,7 +64,7 @@ test('throws without exposing coordinates when backend returns errors', async ()
             new ExpressDeliveryAreaDetailsFilter({ clientId: 'c1', storeReference: 'store-1', coordinates: coords }),
         ),
         (err: Error) => {
-            assert.match(err.message, /expressDeliveryAreaDetails failed/);
+            assert.match(err.message, /getExpressDeliveryAreaDetails failed/);
             assert.ok(!err.message.includes('4.711'), 'error must not contain coordinates');
             assert.ok(!err.message.includes('-74.072'), 'error must not contain coordinates');
             return true;

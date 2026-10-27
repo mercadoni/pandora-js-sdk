@@ -94,11 +94,11 @@ class GraphqlFulfillmentService implements FulfillmentService {
     }
 
     async getExpressDeliveryAreaDetails(filter: ExpressDeliveryAreaDetailsFilter): Promise<ExpressDeliveryAreaDetailsModel> {
-        const response = await this.client.query(expressDeliveryAreaDetailsQuery, filter.query);
+        const response = await this.client.query(expressDeliveryAreaDetailsQuery, { expressDeliveryAreaDetailsInput: filter.query });
         if (response.data?.expressDeliveryAreaDetails) {
             return ExpressDeliveryAreaDetailsModel.fromJson(response.data.expressDeliveryAreaDetails);
         }
-        throw new Error(`expressDeliveryAreaDetails failed: ${JSON.stringify(response.errors || response)}`);
+        throw new Error(`getExpressDeliveryAreaDetails failed: ${JSON.stringify(response.errors || response)}`);
     }
 }
 
