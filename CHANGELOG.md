@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.6.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.5.0...v3.6.0) (2026-10-29)
+
+### Features
+
+* **.claude:** add retro-author agent ([fa932fc](https://github.com/mercadoni/pandora-js-sdk/commit/fa932fc7d439d64dd8dbe555089085190a739257))
+* **fulfillment:** add getExpressDeliveryAreaDetails method ([7ce1893](https://github.com/mercadoni/pandora-js-sdk/commit/7ce1893ff6faa72a05cc7979db070af3ade64de2)), closes [#24](https://github.com/mercadoni/pandora-js-sdk/issues/24)
+
+### Bug Fixes
+
+* **fulfillment:** flatten filter; wrap input at call site; fix error name ([9c8174a](https://github.com/mercadoni/pandora-js-sdk/commit/9c8174ab6a9c58eb0e20e4b716b9922e3e4329b4))
+
 ## [3.5.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.4.0...v3.5.0) (2026-10-26)
 
 ### Features
