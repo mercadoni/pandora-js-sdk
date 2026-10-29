@@ -68,6 +68,8 @@ const getProductsByCategoryQuery = `
             minQty
             maxQty
           }
+          productVariants
+          seals
         }
       }
       pagination {

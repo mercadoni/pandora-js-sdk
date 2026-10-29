@@ -59,6 +59,7 @@ class Product {
     isAvailableInSearch: boolean;
     taxes: Array<any>;
     variants: any;
+    productVariants: any;
     specifications: Array<any>;
     priceBeforeTaxes: number;
     productUpdatedAt: string | null;
@@ -148,6 +149,7 @@ class Product {
         isAvailableInSearch?: boolean;
         taxes?: Array<any>;
         variants?: any;
+        productVariants?: any;
         specifications?: Array<any>;
         priceBeforeTaxes?: number;
         productUpdatedAt?: string | null;
@@ -239,6 +241,7 @@ class Product {
         this.isAvailableInSearch = config.isAvailableInSearch || true;
         this.taxes = config.taxes || [];
         this.variants = config.variants || null;
+        this.productVariants = config.productVariants || null;
         this.specifications = config.specifications || [];
         this.priceBeforeTaxes = config.priceBeforeTaxes || 0;
         this.productUpdatedAt = config.productUpdatedAt || null;
@@ -318,6 +321,7 @@ class Product {
             isAvailableInSearch: json.isAvailableInSearch,
             taxes: json.taxes,
             variants: json.variants,
+            productVariants: json.productVariants,
             specifications: json.specifications,
             priceBeforeTaxes: json.priceBeforeTaxes,
             productUpdatedAt: json.productUpdatedAt,
