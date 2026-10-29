@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.7.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.6.0...v3.7.0) (2026-10-29)
+
+### Features
+
+* **product:** select seals and productVariants in product queries ([29e2736](https://github.com/mercadoni/pandora-js-sdk/commit/29e273698a3d99e20005c60888b030230bf204d8))
+
 ## [3.6.0](https://github.com/mercadoni/pandora-js-sdk/compare/v3.5.0...v3.6.0) (2026-10-29)
 
 ### Features
