@@ -129,6 +129,8 @@ const getSuggestedProductsQuery = `query GetSuggestedProducts($getSuggestedProdu
         value
       }
     }
+    productVariants
+    seals
   }
 }`;
 

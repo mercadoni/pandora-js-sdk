@@ -129,6 +129,8 @@ const getProductsBySKUQuery = `query GetProductsBySKU($getProductsBySKUInput: Ge
         value
       }
     }
+    productVariants
+    seals
   }
 }`;
 

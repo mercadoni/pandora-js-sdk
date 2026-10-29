@@ -131,6 +131,8 @@ const searchProductsQuery = `
             value
           }
         }
+        productVariants
+        seals
       }
       pagination {
         page
